@@ -83,3 +83,42 @@ export interface GameResult {
   outcome: "win" | "lose" | "push" | "blackjack" | "surrender";
   payout: number;
 }
+
+export type TableStatus = "waiting" | "playing" | "finished";
+
+export interface TableInfo {
+  id: string;
+  name: string;
+  inviteCode: string;
+  isPrivate: boolean;
+  status: TableStatus;
+  maxPlayers: number;
+  minBet: number;
+  maxBet: number;
+  deckCount: number;
+  createdBy: string;
+  creatorId: string;
+  playerCount: number;
+  createdAt: string;
+}
+
+/** State sent to clients — never includes the deck */
+export type ClientGameState = Omit<GameState, "deck">;
+
+export interface TableRow {
+  id: string;
+  name: string;
+  invite_code: string;
+  is_private: boolean;
+  status: TableStatus;
+  max_players: number;
+  min_bet: number;
+  max_bet: number;
+  deck_count: number;
+  game_state: ClientGameState;
+  deck_data: string;
+  created_by: string;
+  creator_id: string;
+  player_count: number;
+  created_at: string;
+}

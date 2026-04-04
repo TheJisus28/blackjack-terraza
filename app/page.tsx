@@ -28,18 +28,18 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
             href="/play"
+            className="px-8 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium text-base
+              transition-all active:scale-95"
+          >
+            Jugar Solo
+          </Link>
+          <Link
+            href="/lobby"
             className="px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-base
               shadow-lg shadow-emerald-500/25 transition-all active:scale-95"
           >
-            Jugar Ahora
+            Multijugador
           </Link>
-          <button
-            disabled
-            className="px-8 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white/60 font-medium text-base
-              cursor-not-allowed"
-          >
-            Multijugador (pronto)
-          </button>
         </div>
 
         {/* Features */}

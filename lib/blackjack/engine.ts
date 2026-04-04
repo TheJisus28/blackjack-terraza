@@ -1,4 +1,6 @@
 import type {
+  Card,
+  ClientGameState,
   GameResult,
   GameState,
   Player,
@@ -18,7 +20,7 @@ import {
 const DEFAULT_DECK_COUNT = 6;
 const DEFAULT_MIN_BET = 10;
 const DEFAULT_MAX_BET = 500;
-const STARTING_CHIPS = 1000;
+export const STARTING_CHIPS = 1000;
 
 export function createGame(playerName: string): GameState {
   return {
@@ -528,4 +530,111 @@ function deepClonePlayers(players: Player[]): Player[] {
     ...p,
     hands: p.hands.map((h) => ({ ...h, cards: [...h.cards] })),
   }));
+}
+
+// ── Multiplayer helpers ──
+
+export function createMultiplayerGame(options: {
+  minBet?: number;
+  maxBet?: number;
+  deckCount?: number;
+}): GameState {
+  const deckCount = options.deckCount ?? DEFAULT_DECK_COUNT;
+  return {
+    id: crypto.randomUUID(),
+    phase: "waiting",
+    deck: createShoe(deckCount),
+    dealer: { cards: [], status: "playing" },
+    players: [],
+    activePlayerIndex: 0,
+    minBet: options.minBet ?? DEFAULT_MIN_BET,
+    maxBet: options.maxBet ?? DEFAULT_MAX_BET,
+    deckCount,
+    message: "Esperando jugadores...",
+  };
+}
+
+export function addPlayer(
+  state: GameState,
+  playerId: string,
+  playerName: string,
+): GameState {
+  if (state.players.some((p) => p.id === playerId)) return state;
+  if (state.phase !== "waiting" && state.phase !== "betting" && state.phase !== "finished") {
+    return state;
+  }
+
+  const newPlayer: Player = {
+    id: playerId,
+    name: playerName,
+    chips: STARTING_CHIPS,
+    hands: [],
+    activeHandIndex: 0,
+    isActive: true,
+  };
+
+  return {
+    ...state,
+    players: [...state.players, newPlayer],
+    message:
+      state.players.length === 0
+        ? `${playerName} se unió. Esperando más jugadores...`
+        : `${playerName} se unió!`,
+  };
+}
+
+export function removePlayer(state: GameState, playerId: string): GameState {
+  const players = state.players.filter((p) => p.id !== playerId);
+  return { ...state, players };
+}
+
+export function startBetting(state: GameState): GameState {
+  if (state.players.length === 0) {
+    return { ...state, message: "No hay jugadores" };
+  }
+  const players = state.players.map((p) => ({
+    ...p,
+    hands: [],
+    activeHandIndex: 0,
+  }));
+
+  let deck = state.deck;
+  if (shouldReshuffle(deck, state.deckCount)) {
+    deck = createShoe(state.deckCount);
+  }
+
+  return {
+    ...state,
+    deck,
+    phase: "betting",
+    dealer: { cards: [], status: "playing" },
+    players,
+    activePlayerIndex: 0,
+    message: "Todos apuesten!",
+  };
+}
+
+export function allBetsPlaced(state: GameState): boolean {
+  return (
+    state.phase === "betting" &&
+    state.players.length > 0 &&
+    state.players.every((p) => p.hands.length > 0 && p.hands[0].bet > 0)
+  );
+}
+
+/** Strip the deck from the state so it's safe to send to clients */
+export function toClientState(state: GameState): ClientGameState {
+  const { deck: _, ...clientState } = state;
+  return clientState;
+}
+
+/** Serialize deck for storage */
+export function serializeDeck(deck: Card[]): string {
+  return JSON.stringify(deck);
+}
+
+/** Deserialize deck from storage */
+export function deserializeDeck(data: string): Card[] {
+  if (!data) return [];
+  return JSON.parse(data) as Card[];
 }
