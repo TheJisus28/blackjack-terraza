@@ -16,12 +16,12 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const channelRef = useRef<ReturnType<ReturnType<typeof getSupabase>["channel"]> | null>(null);
+  const mountedRef = useRef(true);
+  const hasJoinedRef = useRef(false);
 
   const playerId = typeof window !== "undefined" ? getPlayerId() : "";
   const playerName = typeof window !== "undefined" ? getPlayerName() : "";
 
-  // Fetch initial table state
   const fetchState = useCallback(async () => {
     try {
       const res = await fetch(`/api/tables/${tableId}`);
@@ -40,21 +40,24 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     }
   }, [tableId]);
 
-  // Join the table
   const joinTable = useCallback(async () => {
-    if (!playerId || !playerName) return;
+    if (!playerId || !playerName || hasJoinedRef.current) return;
+    hasJoinedRef.current = true;
     try {
-      await fetch(`/api/tables/${tableId}/join`, {
+      const res = await fetch(`/api/tables/${tableId}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playerId, playerName }),
       });
+      const data = await res.json();
+      if (data.state) {
+        setGameState(data.state);
+      }
     } catch {
-      /* ignore */
+      hasJoinedRef.current = false;
     }
   }, [tableId, playerId, playerName]);
 
-  // Leave the table
   const leaveTable = useCallback(async () => {
     if (!playerId) return;
     try {
@@ -68,7 +71,6 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     }
   }, [tableId, playerId]);
 
-  // Send a game action
   const sendAction = useCallback(
     async (action: PlayerAction | "bet" | "start_round", amount?: number) => {
       try {
@@ -88,16 +90,19 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     [tableId, playerId],
   );
 
-  // Subscribe to Realtime
+  // Subscribe to Realtime + join
   useEffect(() => {
+    mountedRef.current = true;
+    hasJoinedRef.current = false;
+
     fetchState();
 
     const sb = getSupabase();
     const channel = sb.channel(getChannelName(tableId));
-    channelRef.current = channel;
 
     channel
       .on("broadcast", { event: "game" }, ({ payload }) => {
+        if (!mountedRef.current) return;
         const event = payload as BroadcastEvent;
         switch (event.type) {
           case "state_update":
@@ -105,6 +110,7 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
             break;
           case "player_joined":
           case "player_left":
+            fetchState();
             break;
           case "table_closed":
             setError("La mesa fue cerrada");
@@ -112,19 +118,19 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
         }
       })
       .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
+        if (status === "SUBSCRIBED" && mountedRef.current) {
           setConnected(true);
           joinTable();
         }
       });
 
     return () => {
-      getSupabase().removeChannel(channel);
-      channelRef.current = null;
+      mountedRef.current = false;
+      sb.removeChannel(channel);
     };
   }, [tableId, fetchState, joinTable]);
 
-  // Leave on unmount / page close
+  // Leave ONLY on actual page navigation / tab close
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (playerId) {
@@ -138,9 +144,8 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      leaveTable();
     };
-  }, [tableId, playerId, leaveTable]);
+  }, [tableId, playerId]);
 
   const myPlayer = gameState?.players.find((p) => p.id === playerId) ?? null;
   const isAdmin = tableInfo?.creator_id === playerId;
