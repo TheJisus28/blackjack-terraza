@@ -1,14 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import type { GameState, PlayerAction } from "@/lib/blackjack/types";
+import { useCallback, useRef, useState } from "react";
+import type { GameResult, GameState, PlayerAction } from "@/lib/blackjack/types";
 import {
   createGame,
   dealInitialCards,
   placeBet,
   playerAction,
-  playDealerTurn,
-  resolveRound,
+  runToCompletion,
   startNewRound,
 } from "@/lib/blackjack/engine";
 
@@ -16,41 +15,44 @@ export function useGame(playerName = "Jugador") {
   const [gameState, setGameState] = useState<GameState>(() =>
     createGame(playerName),
   );
-  const [lastResults, setLastResults] = useState<
-    ReturnType<typeof resolveRound>["results"]
-  >([]);
+  const [lastResults, setLastResults] = useState<GameResult[]>([]);
+  const resultsRef = useRef<GameResult[]>([]);
 
   const player = gameState.players[0];
   const playerId = player?.id ?? "";
 
+  const applyCompletion = useCallback((state: GameState): GameState => {
+    const { state: final, results } = runToCompletion(state);
+    if (results.length > 0) {
+      resultsRef.current = results;
+    }
+    return final;
+  }, []);
+
   const bet = useCallback(
     (amount: number) => {
+      resultsRef.current = [];
       setGameState((prev) => {
-        const next = placeBet(prev, playerId, amount);
-        return dealInitialCards(next);
+        const afterBet = placeBet(prev, playerId, amount);
+        const afterDeal = dealInitialCards(afterBet);
+        return applyCompletion(afterDeal);
       });
+      // Sync results after state update
+      setTimeout(() => setLastResults(resultsRef.current), 0);
     },
-    [playerId],
+    [playerId, applyCompletion],
   );
 
   const action = useCallback(
     (act: PlayerAction) => {
+      resultsRef.current = [];
       setGameState((prev) => {
-        let next = playerAction(prev, playerId, act);
-
-        if (next.phase === "dealer_turn") {
-          next = playDealerTurn(next);
-        }
-        if (next.phase === "resolving") {
-          const resolved = resolveRound(next);
-          setLastResults(resolved.results);
-          return resolved.state;
-        }
-
-        return next;
+        const next = playerAction(prev, playerId, act);
+        return applyCompletion(next);
       });
+      setTimeout(() => setLastResults(resultsRef.current), 0);
     },
-    [playerId],
+    [playerId, applyCompletion],
   );
 
   const newRound = useCallback(() => {

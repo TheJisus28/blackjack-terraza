@@ -1,5 +1,4 @@
 import type {
-  Card,
   GameResult,
   GameState,
   Player,
@@ -11,7 +10,6 @@ import {
   canSplit,
   canSurrender,
   createHand,
-  getHandStatus,
   getHandValue,
   isBlackjack,
   isBusted,
@@ -92,7 +90,7 @@ export function dealInitialCards(state: GameState): GameState {
 
   let deck = [...state.deck];
   const players = deepClonePlayers(state.players);
-  const dealerCards: Card[] = [];
+  const dealerCards = [];
 
   for (let round = 0; round < 2; round++) {
     for (const player of players) {
@@ -117,12 +115,10 @@ export function dealInitialCards(state: GameState): GameState {
     (p) =>
       p.hands.length === 0 ||
       p.hands[0].bet === 0 ||
-      p.hands[0].status === "blackjack",
+      p.hands[0].status !== "playing",
   );
 
-  const firstActive = players.findIndex(
-    (p) => p.hands.length > 0 && p.hands[0].status === "playing",
-  );
+  const firstActive = findNextActiveHand(players, 0, 0);
 
   return {
     ...state,
@@ -130,42 +126,63 @@ export function dealInitialCards(state: GameState): GameState {
     dealer: { cards: dealerCards, status: "playing" },
     players,
     phase: allSettled ? "dealer_turn" : "playing",
-    activePlayerIndex: firstActive >= 0 ? firstActive : 0,
+    activePlayerIndex: firstActive?.playerIndex ?? 0,
     message: allSettled
       ? "Turno del dealer"
-      : `Turno de ${players[firstActive]?.name ?? ""}`,
+      : `Turno de ${players[firstActive?.playerIndex ?? 0]?.name ?? ""}`,
   };
+}
+
+/**
+ * Finds the next hand with status "playing", starting from a given
+ * player/hand index. Returns null if none found.
+ */
+function findNextActiveHand(
+  players: Player[],
+  fromPlayerIndex: number,
+  fromHandIndex: number,
+): { playerIndex: number; handIndex: number } | null {
+  for (let pi = fromPlayerIndex; pi < players.length; pi++) {
+    const startHand = pi === fromPlayerIndex ? fromHandIndex : 0;
+    for (let hi = startHand; hi < players[pi].hands.length; hi++) {
+      if (players[pi].hands[hi].status === "playing") {
+        return { playerIndex: pi, handIndex: hi };
+      }
+    }
+  }
+  return null;
 }
 
 function advanceToNextPlayer(state: GameState): GameState {
   const player = state.players[state.activePlayerIndex];
+  const players = deepClonePlayers(state.players);
 
-  if (player.activeHandIndex < player.hands.length - 1) {
-    const updatedPlayers = deepClonePlayers(state.players);
-    updatedPlayers[state.activePlayerIndex] = {
-      ...updatedPlayers[state.activePlayerIndex],
-      activeHandIndex: player.activeHandIndex + 1,
+  // Look for the next playable hand (current player's remaining hands first, then next players)
+  const next = findNextActiveHand(
+    players,
+    state.activePlayerIndex,
+    player.activeHandIndex + 1,
+  );
+
+  if (next) {
+    players[next.playerIndex] = {
+      ...players[next.playerIndex],
+      activeHandIndex: next.handIndex,
     };
+    const nextPlayer = players[next.playerIndex];
+    const handLabel =
+      nextPlayer.hands.length > 1
+        ? ` - Mano ${next.handIndex + 1}`
+        : "";
     return {
       ...state,
-      players: updatedPlayers,
-      message: `${player.name} - Mano ${player.activeHandIndex + 2}`,
+      players,
+      activePlayerIndex: next.playerIndex,
+      message: `Turno de ${nextPlayer.name}${handLabel}`,
     };
   }
 
-  for (let i = state.activePlayerIndex + 1; i < state.players.length; i++) {
-    const nextPlayer = state.players[i];
-    const hasActiveHand = nextPlayer.hands.some((h) => h.status === "playing");
-    if (hasActiveHand) {
-      return {
-        ...state,
-        activePlayerIndex: i,
-        message: `Turno de ${nextPlayer.name}`,
-      };
-    }
-  }
-
-  return { ...state, phase: "dealer_turn", message: "Turno del dealer" };
+  return { ...state, players, phase: "dealer_turn", message: "Turno del dealer" };
 }
 
 export function playerAction(
@@ -209,7 +226,13 @@ function handleHit(state: GameState, playerIndex: number): GameState {
   const result = drawCard(deck);
   hand.cards.push(result.card);
   deck = result.deck;
-  hand.status = getHandStatus(hand.cards);
+
+  const value = getHandValue(hand.cards);
+  if (value > 21) {
+    hand.status = "busted";
+  } else if (value === 21) {
+    hand.status = "standing";
+  }
 
   let newState: GameState = { ...state, deck, players };
 
@@ -283,13 +306,21 @@ function handleSplit(state: GameState, playerIndex: number): GameState {
 
   player.hands.splice(player.activeHandIndex + 1, 0, newHand);
 
-  hand.status = getHandStatus(hand.cards);
-  newHand.status = getHandStatus(newHand.cards);
+  // 21 on a split hand is NOT blackjack — just auto-stand
+  const v1 = getHandValue(hand.cards);
+  if (v1 > 21) hand.status = "busted";
+  else if (v1 === 21) hand.status = "standing";
+
+  const v2 = getHandValue(newHand.cards);
+  if (v2 > 21) newHand.status = "busted";
+  else if (v2 === 21) newHand.status = "standing";
 
   let newState: GameState = { ...state, deck, players };
+
   if (hand.status !== "playing") {
     newState = advanceToNextPlayer(newState);
   }
+
   return newState;
 }
 
@@ -314,10 +345,19 @@ export function playDealerTurn(state: GameState): GameState {
   let deck = [...state.deck];
   const dealerCards = state.dealer.cards.map((c) => ({ ...c, faceUp: true }));
 
-  while (getHandValue(dealerCards) < 17) {
-    const result = drawCard(deck);
-    dealerCards.push(result.card);
-    deck = result.deck;
+  // If all players busted/surrendered, dealer just reveals — no need to draw
+  const allPlayersBustedOrSurrendered = state.players.every((p) =>
+    p.hands.every(
+      (h) => h.bet === 0 || h.status === "busted" || h.status === "surrendered",
+    ),
+  );
+
+  if (!allPlayersBustedOrSurrendered) {
+    while (getHandValue(dealerCards) < 17) {
+      const result = drawCard(deck);
+      dealerCards.push(result.card);
+      deck = result.deck;
+    }
   }
 
   const dealerValue = getHandValue(dealerCards);
@@ -352,6 +392,7 @@ export function resolveRound(state: GameState): {
   for (const player of players) {
     for (let hi = 0; hi < player.hands.length; hi++) {
       const hand = player.hands[hi];
+      if (hand.bet === 0) continue;
 
       if (hand.status === "surrendered") {
         results.push({
@@ -434,14 +475,29 @@ export function resolveRound(state: GameState): {
     surrender: "Rendido",
   };
 
-  const message = results
-    .map((r) => outcomeLabels[r.outcome])
-    .join(" | ");
+  const message = results.map((r) => outcomeLabels[r.outcome]).join(" | ");
 
   return {
     state: { ...state, deck, players, phase: "finished", message },
     results,
   };
+}
+
+/**
+ * Chains dealer_turn → resolving → finished automatically.
+ * Used by the hook to avoid dead states.
+ */
+export function runToCompletion(state: GameState): {
+  state: GameState;
+  results: GameResult[];
+} {
+  if (state.phase === "dealer_turn") {
+    state = playDealerTurn(state);
+  }
+  if (state.phase === "resolving") {
+    return resolveRound(state);
+  }
+  return { state, results: [] };
 }
 
 export function startNewRound(state: GameState): GameState {
