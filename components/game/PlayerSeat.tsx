@@ -39,7 +39,7 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
     >
       {/* Cards */}
       {player.hands.length > 0 && player.hands.some(h => h.cards.length > 0) && (
-        <div className="flex gap-1.5 flex-wrap justify-center mb-1 table-cards-scale">
+        <div className="flex gap-1.5 flex-wrap justify-center mb-1">
           {player.hands.map((hand, i) => (
             <HandDisplay
               key={i}
@@ -92,7 +92,7 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
 
 /**
  * Distributes seats evenly across the bottom of the table in a subtle arc.
- * Uses flexbox for robust layout instead of absolute positioning.
+ * Uses flexbox + dynamic zoom so seats scale down with more players.
  */
 export function SeatsArc({
   children,
@@ -101,21 +101,33 @@ export function SeatsArc({
   children: React.ReactNode[];
   count: number;
 }) {
-  // Vertical offset per seat to create the arc curve (edges higher, center lower)
   function getArcOffset(index: number, total: number): number {
     if (total <= 1) return 0;
     const mid = (total - 1) / 2;
     const dist = Math.abs(index - mid) / mid;
-    return dist * 12; // edges raised by up to 12px
+    return dist * (total <= 3 ? 10 : 6);
   }
 
+  // Dynamic scale: fewer players = bigger, more = smaller.
+  // `zoom` affects layout (unlike transform: scale) so items actually shrink.
+  const seatZoom =
+    count <= 1 ? 0.9 :
+    count <= 2 ? 0.82 :
+    count <= 3 ? 0.72 :
+    count <= 4 ? 0.62 :
+    count <= 5 ? 0.55 :
+    0.48;
+
   return (
-    <div className="flex items-end justify-evenly w-full gap-1">
+    <div className="flex items-end justify-evenly w-full">
       {children.map((child, i) => (
         <div
           key={i}
           className="flex-shrink min-w-0"
-          style={{ marginBottom: `${getArcOffset(i, count)}px` }}
+          style={{
+            zoom: seatZoom,
+            marginBottom: `${getArcOffset(i, count)}px`,
+          }}
         >
           {child}
         </div>
