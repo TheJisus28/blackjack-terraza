@@ -1,0 +1,475 @@
+import type {
+  Card,
+  GameResult,
+  GameState,
+  Player,
+  PlayerAction,
+} from "./types";
+import { createShoe, drawCard, shouldReshuffle } from "./deck";
+import {
+  canDoubleDown,
+  canSplit,
+  canSurrender,
+  createHand,
+  getHandStatus,
+  getHandValue,
+  isBlackjack,
+  isBusted,
+} from "./hand";
+
+const DEFAULT_DECK_COUNT = 6;
+const DEFAULT_MIN_BET = 10;
+const DEFAULT_MAX_BET = 500;
+const STARTING_CHIPS = 1000;
+
+export function createGame(playerName: string): GameState {
+  return {
+    id: crypto.randomUUID(),
+    phase: "betting",
+    deck: createShoe(DEFAULT_DECK_COUNT),
+    dealer: { cards: [], status: "playing" },
+    players: [
+      {
+        id: crypto.randomUUID(),
+        name: playerName,
+        chips: STARTING_CHIPS,
+        hands: [],
+        activeHandIndex: 0,
+        isActive: true,
+      },
+    ],
+    activePlayerIndex: 0,
+    minBet: DEFAULT_MIN_BET,
+    maxBet: DEFAULT_MAX_BET,
+    deckCount: DEFAULT_DECK_COUNT,
+    message: "Coloca tu apuesta",
+  };
+}
+
+export function placeBet(
+  state: GameState,
+  playerId: string,
+  amount: number,
+): GameState {
+  if (state.phase !== "betting") {
+    return { ...state, message: "No es momento de apostar" };
+  }
+
+  const playerIndex = state.players.findIndex((p) => p.id === playerId);
+  if (playerIndex === -1) return state;
+
+  const player = state.players[playerIndex];
+  if (amount < state.minBet || amount > state.maxBet) {
+    return {
+      ...state,
+      message: `Apuesta debe ser entre $${state.minBet} y $${state.maxBet}`,
+    };
+  }
+  if (amount > player.chips) {
+    return { ...state, message: "No tienes suficientes fichas" };
+  }
+
+  const updatedPlayers = [...state.players];
+  updatedPlayers[playerIndex] = {
+    ...player,
+    chips: player.chips - amount,
+    hands: [createHand(amount)],
+    activeHandIndex: 0,
+  };
+
+  return { ...state, players: updatedPlayers, message: "" };
+}
+
+export function dealInitialCards(state: GameState): GameState {
+  if (state.phase !== "betting") return state;
+
+  const activePlayers = state.players.filter(
+    (p) => p.hands.length > 0 && p.hands[0].bet > 0,
+  );
+  if (activePlayers.length === 0) {
+    return { ...state, message: "Necesitas apostar primero" };
+  }
+
+  let deck = [...state.deck];
+  const players = deepClonePlayers(state.players);
+  const dealerCards: Card[] = [];
+
+  for (let round = 0; round < 2; round++) {
+    for (const player of players) {
+      if (player.hands.length > 0 && player.hands[0].bet > 0) {
+        const result = drawCard(deck);
+        player.hands[0].cards.push(result.card);
+        deck = result.deck;
+      }
+    }
+    const dealerDraw = drawCard(deck, round === 0);
+    dealerCards.push(dealerDraw.card);
+    deck = dealerDraw.deck;
+  }
+
+  for (const player of players) {
+    if (player.hands.length > 0 && isBlackjack(player.hands[0].cards)) {
+      player.hands[0].status = "blackjack";
+    }
+  }
+
+  const allSettled = players.every(
+    (p) =>
+      p.hands.length === 0 ||
+      p.hands[0].bet === 0 ||
+      p.hands[0].status === "blackjack",
+  );
+
+  const firstActive = players.findIndex(
+    (p) => p.hands.length > 0 && p.hands[0].status === "playing",
+  );
+
+  return {
+    ...state,
+    deck,
+    dealer: { cards: dealerCards, status: "playing" },
+    players,
+    phase: allSettled ? "dealer_turn" : "playing",
+    activePlayerIndex: firstActive >= 0 ? firstActive : 0,
+    message: allSettled
+      ? "Turno del dealer"
+      : `Turno de ${players[firstActive]?.name ?? ""}`,
+  };
+}
+
+function advanceToNextPlayer(state: GameState): GameState {
+  const player = state.players[state.activePlayerIndex];
+
+  if (player.activeHandIndex < player.hands.length - 1) {
+    const updatedPlayers = deepClonePlayers(state.players);
+    updatedPlayers[state.activePlayerIndex] = {
+      ...updatedPlayers[state.activePlayerIndex],
+      activeHandIndex: player.activeHandIndex + 1,
+    };
+    return {
+      ...state,
+      players: updatedPlayers,
+      message: `${player.name} - Mano ${player.activeHandIndex + 2}`,
+    };
+  }
+
+  for (let i = state.activePlayerIndex + 1; i < state.players.length; i++) {
+    const nextPlayer = state.players[i];
+    const hasActiveHand = nextPlayer.hands.some((h) => h.status === "playing");
+    if (hasActiveHand) {
+      return {
+        ...state,
+        activePlayerIndex: i,
+        message: `Turno de ${nextPlayer.name}`,
+      };
+    }
+  }
+
+  return { ...state, phase: "dealer_turn", message: "Turno del dealer" };
+}
+
+export function playerAction(
+  state: GameState,
+  playerId: string,
+  action: PlayerAction,
+): GameState {
+  if (state.phase !== "playing") return state;
+
+  const playerIndex = state.players.findIndex((p) => p.id === playerId);
+  if (playerIndex === -1 || playerIndex !== state.activePlayerIndex) {
+    return { ...state, message: "No es tu turno" };
+  }
+
+  const player = state.players[playerIndex];
+  const hand = player.hands[player.activeHandIndex];
+  if (!hand || hand.status !== "playing") return state;
+
+  switch (action) {
+    case "hit":
+      return handleHit(state, playerIndex);
+    case "stand":
+      return handleStand(state, playerIndex);
+    case "double":
+      return handleDouble(state, playerIndex);
+    case "split":
+      return handleSplit(state, playerIndex);
+    case "surrender":
+      return handleSurrender(state, playerIndex);
+    default:
+      return state;
+  }
+}
+
+function handleHit(state: GameState, playerIndex: number): GameState {
+  let deck = [...state.deck];
+  const players = deepClonePlayers(state.players);
+  const player = players[playerIndex];
+  const hand = player.hands[player.activeHandIndex];
+
+  const result = drawCard(deck);
+  hand.cards.push(result.card);
+  deck = result.deck;
+  hand.status = getHandStatus(hand.cards);
+
+  let newState: GameState = { ...state, deck, players };
+
+  if (hand.status !== "playing") {
+    if (hand.status === "busted") {
+      newState.message = `${player.name} se pasó!`;
+    }
+    newState = advanceToNextPlayer(newState);
+  }
+
+  return newState;
+}
+
+function handleStand(state: GameState, playerIndex: number): GameState {
+  const players = deepClonePlayers(state.players);
+  players[playerIndex].hands[
+    players[playerIndex].activeHandIndex
+  ].status = "standing";
+
+  return advanceToNextPlayer({ ...state, players });
+}
+
+function handleDouble(state: GameState, playerIndex: number): GameState {
+  const players = deepClonePlayers(state.players);
+  const player = players[playerIndex];
+  const hand = player.hands[player.activeHandIndex];
+
+  if (!canDoubleDown(hand) || player.chips < hand.bet) {
+    return { ...state, message: "No puedes doblar" };
+  }
+
+  player.chips -= hand.bet;
+  hand.bet *= 2;
+  hand.isDoubledDown = true;
+
+  let deck = [...state.deck];
+  const result = drawCard(deck);
+  hand.cards.push(result.card);
+  deck = result.deck;
+
+  hand.status = isBusted(hand.cards) ? "busted" : "standing";
+
+  const newState: GameState = { ...state, deck, players };
+  return advanceToNextPlayer(newState);
+}
+
+function handleSplit(state: GameState, playerIndex: number): GameState {
+  const players = deepClonePlayers(state.players);
+  const player = players[playerIndex];
+  const hand = player.hands[player.activeHandIndex];
+
+  if (!canSplit(hand) || player.chips < hand.bet) {
+    return { ...state, message: "No puedes dividir" };
+  }
+
+  player.chips -= hand.bet;
+  const secondCard = hand.cards.pop()!;
+  const newHand = createHand(hand.bet);
+  newHand.cards.push(secondCard);
+  newHand.isSplit = true;
+  hand.isSplit = true;
+
+  let deck = [...state.deck];
+  const draw1 = drawCard(deck);
+  hand.cards.push(draw1.card);
+  deck = draw1.deck;
+
+  const draw2 = drawCard(deck);
+  newHand.cards.push(draw2.card);
+  deck = draw2.deck;
+
+  player.hands.splice(player.activeHandIndex + 1, 0, newHand);
+
+  hand.status = getHandStatus(hand.cards);
+  newHand.status = getHandStatus(newHand.cards);
+
+  let newState: GameState = { ...state, deck, players };
+  if (hand.status !== "playing") {
+    newState = advanceToNextPlayer(newState);
+  }
+  return newState;
+}
+
+function handleSurrender(state: GameState, playerIndex: number): GameState {
+  const players = deepClonePlayers(state.players);
+  const player = players[playerIndex];
+  const hand = player.hands[player.activeHandIndex];
+
+  if (!canSurrender(hand)) {
+    return { ...state, message: "No puedes rendirte" };
+  }
+
+  hand.status = "surrendered";
+  player.chips += Math.floor(hand.bet / 2);
+
+  return advanceToNextPlayer({ ...state, players });
+}
+
+export function playDealerTurn(state: GameState): GameState {
+  if (state.phase !== "dealer_turn") return state;
+
+  let deck = [...state.deck];
+  const dealerCards = state.dealer.cards.map((c) => ({ ...c, faceUp: true }));
+
+  while (getHandValue(dealerCards) < 17) {
+    const result = drawCard(deck);
+    dealerCards.push(result.card);
+    deck = result.deck;
+  }
+
+  const dealerValue = getHandValue(dealerCards);
+  const dealerBusted = dealerValue > 21;
+
+  return {
+    ...state,
+    deck,
+    dealer: {
+      cards: dealerCards,
+      status: dealerBusted ? "busted" : "standing",
+    },
+    phase: "resolving",
+    message: dealerBusted
+      ? `Dealer se pasó con ${dealerValue}!`
+      : `Dealer se planta con ${dealerValue}`,
+  };
+}
+
+export function resolveRound(state: GameState): {
+  state: GameState;
+  results: GameResult[];
+} {
+  if (state.phase !== "resolving") return { state, results: [] };
+
+  const dealerValue = getHandValue(state.dealer.cards);
+  const dealerBJ = isBlackjack(state.dealer.cards);
+  const dealerBusted = state.dealer.status === "busted";
+  const results: GameResult[] = [];
+  const players = deepClonePlayers(state.players);
+
+  for (const player of players) {
+    for (let hi = 0; hi < player.hands.length; hi++) {
+      const hand = player.hands[hi];
+
+      if (hand.status === "surrendered") {
+        results.push({
+          playerId: player.id,
+          handIndex: hi,
+          outcome: "surrender",
+          payout: 0,
+        });
+        continue;
+      }
+
+      if (hand.status === "busted") {
+        results.push({
+          playerId: player.id,
+          handIndex: hi,
+          outcome: "lose",
+          payout: 0,
+        });
+        continue;
+      }
+
+      const handValue = getHandValue(hand.cards);
+      const playerBJ = hand.status === "blackjack";
+
+      if (playerBJ && !dealerBJ) {
+        const payout = Math.floor(hand.bet * 2.5);
+        player.chips += payout;
+        results.push({
+          playerId: player.id,
+          handIndex: hi,
+          outcome: "blackjack",
+          payout,
+        });
+      } else if (playerBJ && dealerBJ) {
+        player.chips += hand.bet;
+        results.push({
+          playerId: player.id,
+          handIndex: hi,
+          outcome: "push",
+          payout: hand.bet,
+        });
+      } else if (dealerBusted || handValue > dealerValue) {
+        const payout = hand.bet * 2;
+        player.chips += payout;
+        results.push({
+          playerId: player.id,
+          handIndex: hi,
+          outcome: "win",
+          payout,
+        });
+      } else if (handValue === dealerValue) {
+        player.chips += hand.bet;
+        results.push({
+          playerId: player.id,
+          handIndex: hi,
+          outcome: "push",
+          payout: hand.bet,
+        });
+      } else {
+        results.push({
+          playerId: player.id,
+          handIndex: hi,
+          outcome: "lose",
+          payout: 0,
+        });
+      }
+    }
+  }
+
+  let deck = state.deck;
+  if (shouldReshuffle(deck, state.deckCount)) {
+    deck = createShoe(state.deckCount);
+  }
+
+  const outcomeLabels: Record<string, string> = {
+    blackjack: "Blackjack!",
+    win: "Ganaste!",
+    lose: "Perdiste",
+    push: "Empate",
+    surrender: "Rendido",
+  };
+
+  const message = results
+    .map((r) => outcomeLabels[r.outcome])
+    .join(" | ");
+
+  return {
+    state: { ...state, deck, players, phase: "finished", message },
+    results,
+  };
+}
+
+export function startNewRound(state: GameState): GameState {
+  const players = state.players.map((p) => ({
+    ...p,
+    hands: [],
+    activeHandIndex: 0,
+  }));
+
+  let deck = state.deck;
+  if (shouldReshuffle(deck, state.deckCount)) {
+    deck = createShoe(state.deckCount);
+  }
+
+  return {
+    ...state,
+    deck,
+    phase: "betting",
+    dealer: { cards: [], status: "playing" },
+    players,
+    activePlayerIndex: 0,
+    message: "Coloca tu apuesta",
+  };
+}
+
+function deepClonePlayers(players: Player[]): Player[] {
+  return players.map((p) => ({
+    ...p,
+    hands: p.hands.map((h) => ({ ...h, cards: [...h.cards] })),
+  }));
+}
