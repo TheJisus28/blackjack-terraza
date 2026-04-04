@@ -37,8 +37,12 @@ export function HandDisplay({
     playing: "",
   };
 
+  const totalDelay = hand.cards.length * 250 + 200;
+
   return (
-    <div className={`flex flex-col items-center gap-2 ${isActive ? "scale-105" : ""} transition-transform`}>
+    <div
+      className={`flex flex-col items-center gap-2 transition-transform duration-300 ${isActive ? "scale-105" : ""}`}
+    >
       {label && (
         <span className="text-xs font-medium text-emerald-300 uppercase tracking-wider">
           {label}
@@ -52,7 +56,12 @@ export function HandDisplay({
       </div>
 
       {showValue && hand.cards.length > 0 && (
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2"
+          style={{
+            animation: `fadeInUp 0.4s ease-out ${totalDelay}ms both`,
+          }}
+        >
           <span
             className={`text-lg font-bold tabular-nums ${statusColors[hand.status]}`}
           >
@@ -66,9 +75,7 @@ export function HandDisplay({
             </span>
           )}
           {hand.bet > 0 && (
-            <span className="text-xs text-yellow-300/70">
-              ${hand.bet}
-            </span>
+            <span className="text-xs text-yellow-300/70">${hand.bet}</span>
           )}
         </div>
       )}

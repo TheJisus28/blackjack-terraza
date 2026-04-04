@@ -8,21 +8,25 @@ interface CardProps {
   card: CardType;
   index?: number;
   className?: string;
+  flip?: boolean;
 }
 
-export function Card({ card, index = 0, className = "" }: CardProps) {
+export function Card({ card, index = 0, className = "", flip = false }: CardProps) {
   const src = getCardImagePath(card);
   const isPng = src.endsWith(".png");
+  const delay = index * 250;
 
   return (
     <div
-      className={`relative inline-block transition-all duration-300 ease-out ${className}`}
+      className={`relative inline-block ${className}`}
       style={{
-        animationDelay: `${index * 100}ms`,
-        animation: "cardDeal 0.4s ease-out both",
+        animationDelay: `${delay}ms`,
+        animation: flip
+          ? `cardFlip 0.7s ease-in-out ${delay}ms both`
+          : `cardDeal 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms both`,
       }}
     >
-      <div className="relative w-[80px] h-[112px] sm:w-[100px] sm:h-[140px] rounded-lg shadow-lg overflow-hidden bg-white border border-gray-200">
+      <div className="relative w-[80px] h-[112px] sm:w-[100px] sm:h-[140px] rounded-lg shadow-xl overflow-hidden bg-white border border-gray-200 hover:shadow-2xl transition-shadow duration-300">
         {isPng ? (
           <Image
             src={src}

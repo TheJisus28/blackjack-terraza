@@ -16,6 +16,8 @@ export function DealerArea({ gameState }: DealerAreaProps) {
     ? getHandValue(dealer.cards)
     : getHandValue(visibleCards);
 
+  const totalDelay = dealer.cards.length * 250 + 200;
+
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="flex items-center gap-2">
@@ -23,7 +25,12 @@ export function DealerArea({ gameState }: DealerAreaProps) {
           Dealer
         </span>
         {dealer.cards.length > 0 && (
-          <span className="text-lg font-bold text-white tabular-nums">
+          <span
+            className="text-lg font-bold text-white tabular-nums"
+            style={{
+              animation: `fadeInUp 0.4s ease-out ${totalDelay}ms both`,
+            }}
+          >
             {value}
             {dealer.status === "busted" && (
               <span className="text-red-400 text-sm ml-1">BUST</span>
