@@ -560,9 +560,6 @@ export function addPlayer(
   playerName: string,
 ): GameState {
   if (state.players.some((p) => p.id === playerId)) return state;
-  if (state.phase !== "waiting" && state.phase !== "betting" && state.phase !== "finished") {
-    return state;
-  }
 
   const newPlayer: Player = {
     id: playerId,
@@ -573,19 +570,69 @@ export function addPlayer(
     isActive: true,
   };
 
+  const midRound =
+    state.phase === "playing" ||
+    state.phase === "dealer_turn" ||
+    state.phase === "resolving";
+
   return {
     ...state,
     players: [...state.players, newPlayer],
-    message:
-      state.players.length === 0
+    message: midRound
+      ? `${playerName} se unió — espera a la siguiente ronda`
+      : state.players.length === 0
         ? `${playerName} se unió. Esperando más jugadores...`
         : `${playerName} se unió!`,
   };
 }
 
 export function removePlayer(state: GameState, playerId: string): GameState {
+  const removedIndex = state.players.findIndex((p) => p.id === playerId);
+  if (removedIndex === -1) return state;
+
   const players = state.players.filter((p) => p.id !== playerId);
-  return { ...state, players };
+
+  if (players.length === 0) {
+    return { ...state, players, phase: "finished", message: "" };
+  }
+
+  let { activePlayerIndex, phase } = state;
+  let message = state.message;
+
+  if (phase === "playing") {
+    if (removedIndex === activePlayerIndex) {
+      // The active player left — find the next active hand
+      if (activePlayerIndex >= players.length) {
+        activePlayerIndex = 0;
+      }
+      const next = findNextActiveHand(players, activePlayerIndex, 0);
+      if (next) {
+        activePlayerIndex = next.playerIndex;
+        players[next.playerIndex].activeHandIndex = next.handIndex;
+        message = `Turno de ${players[next.playerIndex].name}`;
+      } else {
+        phase = "dealer_turn";
+        message = "Turno del dealer";
+      }
+    } else if (removedIndex < activePlayerIndex) {
+      activePlayerIndex--;
+    }
+  }
+
+  if (phase === "betting") {
+    // If all remaining players already bet, proceed to deal
+    const allBet = players.length > 0 &&
+      players.every((p) => p.hands.length > 0 && p.hands[0].bet > 0);
+    if (allBet) {
+      let dealt = dealInitialCards({
+        ...state, players, activePlayerIndex, phase, message,
+      });
+      const { state: completed } = runToCompletion(dealt);
+      return completed;
+    }
+  }
+
+  return { ...state, players, activePlayerIndex, phase, message };
 }
 
 export function startBetting(state: GameState): GameState {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { PlayerAction } from "@/lib/blackjack/types";
 import { useMultiplayer } from "@/hooks/use-multiplayer";
@@ -29,6 +29,24 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   } = useMultiplayer({ tableId });
 
   const [copied, setCopied] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const prevPhaseRef = useRef(gameState?.phase);
+
+  useEffect(() => {
+    if (!gameState) return;
+    if (gameState.phase === "finished" && prevPhaseRef.current !== "finished") {
+      setShowResult(false);
+      const dealerCards = gameState.dealer.cards.length;
+      const delay = dealerCards * 250 + 600;
+      const timer = setTimeout(() => setShowResult(true), delay);
+      prevPhaseRef.current = gameState.phase;
+      return () => clearTimeout(timer);
+    }
+    if (gameState.phase !== "finished") {
+      setShowResult(false);
+    }
+    prevPhaseRef.current = gameState.phase;
+  }, [gameState?.phase, gameState?.dealer.cards.length]);
 
   useEffect(() => {
     if (!gameState) return;
@@ -137,7 +155,9 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     ? <DealerArea gameState={pseudoGameState} />
     : <div className="text-emerald-300/30 text-xs uppercase tracking-widest font-semibold">Dealer</div>;
 
-  const message = gameState.message ? (
+  const shouldShowMessage = gameState.phase === "finished" ? showResult : !!gameState.message;
+
+  const message = shouldShowMessage && gameState.message ? (
     <p
       className="text-center font-bold text-sm sm:text-lg px-4 py-1.5 rounded-full w-fit mx-auto
         text-white/80 bg-black/20 border border-white/10"
@@ -165,34 +185,53 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
 
   const controls = (
     <>
-      {/* Waiting/finished - admin can start */}
-      {(gameState.phase === "waiting" || gameState.phase === "finished") &&
-        isAdmin && (
-          <div className="flex flex-col items-center gap-3">
-            <button
-              onClick={() => sendAction("start_round")}
-              disabled={gameState.players.length < 1}
-              className="px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
-                shadow-lg shadow-emerald-500/25 transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
-            >
-              {gameState.phase === "finished"
-                ? "Nueva Ronda"
-                : "Iniciar Juego"}
-            </button>
-            <p className="text-xs text-gray-500">
-              {gameState.players.length} jugador
-              {gameState.players.length !== 1 ? "es" : ""} en la mesa
-            </p>
-          </div>
-        )}
+      {/* Waiting - admin can start */}
+      {gameState.phase === "waiting" && isAdmin && (
+        <div className="flex flex-col items-center gap-3">
+          <button
+            onClick={() => sendAction("start_round")}
+            disabled={gameState.players.length < 1}
+            className="px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
+              shadow-lg shadow-emerald-500/25 transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
+          >
+            Iniciar Juego
+          </button>
+          <p className="text-xs text-gray-500">
+            {gameState.players.length} jugador
+            {gameState.players.length !== 1 ? "es" : ""} en la mesa
+          </p>
+        </div>
+      )}
+
+      {/* Finished - admin can start new round (delayed) */}
+      {gameState.phase === "finished" && isAdmin && showResult && (
+        <div
+          className="flex flex-col items-center gap-3"
+          style={{ animation: "fadeInUp 0.4s ease-out both" }}
+        >
+          <button
+            onClick={() => sendAction("start_round")}
+            className="px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
+              shadow-lg shadow-emerald-500/25 transition-all active:scale-95 cursor-pointer"
+          >
+            Nueva Ronda
+          </button>
+        </div>
+      )}
 
       {/* Waiting - non-admin */}
-      {(gameState.phase === "waiting" || gameState.phase === "finished") &&
-        !isAdmin && (
-          <p className="text-center text-gray-400 text-sm">
-            Esperando que el admin inicie la ronda...
-          </p>
-        )}
+      {gameState.phase === "waiting" && !isAdmin && (
+        <p className="text-center text-gray-400 text-sm">
+          Esperando que el admin inicie la ronda...
+        </p>
+      )}
+
+      {/* Finished - non-admin (delayed) */}
+      {gameState.phase === "finished" && !isAdmin && showResult && (
+        <p className="text-center text-gray-400 text-sm">
+          Esperando que el admin inicie la ronda...
+        </p>
+      )}
 
       {/* Betting */}
       {gameState.phase === "betting" && myPlayer && !hasBet && (
@@ -219,12 +258,19 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       )}
 
       {/* Playing - not my turn */}
-      {gameState.phase === "playing" && !isMyTurn && (
+      {gameState.phase === "playing" && !isMyTurn && myPlayer && myPlayer.hands.length > 0 && (
         <p className="text-center text-gray-400 text-sm">
           Turno de{" "}
           <span className="text-white font-medium">
             {gameState.players[gameState.activePlayerIndex]?.name}
           </span>
+        </p>
+      )}
+
+      {/* Joined mid-round — watching */}
+      {gameState.phase === "playing" && myPlayer && myPlayer.hands.length === 0 && (
+        <p className="text-center text-gray-400 text-sm">
+          Te uniste a mitad de ronda. Podras jugar en la siguiente.
         </p>
       )}
     </>

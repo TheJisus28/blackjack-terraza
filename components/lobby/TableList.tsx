@@ -63,7 +63,7 @@ export function TableList({ tables, loading }: TableListProps) {
                 className={`w-2 h-2 rounded-full ${
                   table.status === "waiting"
                     ? "bg-emerald-400"
-                    : "bg-amber-400"
+                    : "bg-amber-400 animate-pulse"
                 }`}
               />
               <span className="text-sm text-gray-400">
@@ -71,9 +71,19 @@ export function TableList({ tables, loading }: TableListProps) {
               </span>
             </div>
 
-            <span className="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-md">
-              {table.status === "waiting" ? "Esperando" : "Jugando"}
+            <span className={`text-xs px-2 py-1 rounded-md ${
+              table.status === "waiting"
+                ? "text-emerald-400 bg-emerald-500/10"
+                : "text-amber-400 bg-amber-500/10"
+            }`}>
+              {table.status === "waiting" ? "Esperando" : "En juego"}
             </span>
+
+            {table.status === "playing" && table.player_count < table.max_players && (
+              <span className="text-[10px] text-emerald-400/70">
+                Unirse
+              </span>
+            )}
           </div>
         </Link>
       ))}

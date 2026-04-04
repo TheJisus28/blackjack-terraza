@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import type { PlayerAction } from "@/lib/blackjack/types";
 import { useGame } from "@/hooks/use-game";
@@ -13,6 +13,24 @@ import { BettingControls } from "./BettingControls";
 export function GameTable() {
   const { gameState, player, lastResults, bet, action, newRound, resetGame } =
     useGame("Jugador");
+
+  const [showResult, setShowResult] = useState(false);
+  const prevPhaseRef = useRef(gameState.phase);
+
+  useEffect(() => {
+    if (gameState.phase === "finished" && prevPhaseRef.current !== "finished") {
+      setShowResult(false);
+      const dealerCards = gameState.dealer.cards.length;
+      const delay = dealerCards * 250 + 600;
+      const timer = setTimeout(() => setShowResult(true), delay);
+      prevPhaseRef.current = gameState.phase;
+      return () => clearTimeout(timer);
+    }
+    if (gameState.phase !== "finished") {
+      setShowResult(false);
+    }
+    prevPhaseRef.current = gameState.phase;
+  }, [gameState.phase, gameState.dealer.cards.length]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -69,7 +87,9 @@ export function GameTable() {
 
   const dealer = <DealerArea gameState={gameState} />;
 
-  const message = gameState.message ? (
+  const shouldShowMessage = gameState.phase === "finished" ? showResult : !!gameState.message;
+
+  const message = shouldShowMessage && gameState.message ? (
     <p
       className={`text-center font-bold text-sm sm:text-lg px-4 py-1.5 rounded-full w-fit mx-auto
         ${resultOutcome === "blackjack" ? "text-yellow-300 bg-yellow-500/15 border border-yellow-500/20" : ""}
@@ -78,11 +98,7 @@ export function GameTable() {
         ${resultOutcome === "push" ? "text-blue-300 bg-blue-500/15 border border-blue-500/20" : ""}
         ${!resultOutcome ? "text-white/80" : ""}
       `}
-      style={
-        resultOutcome
-          ? { animation: "resultPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both" }
-          : undefined
-      }
+      style={{ animation: "resultPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both" }}
     >
       {gameState.message}
     </p>
@@ -116,10 +132,10 @@ export function GameTable() {
         <ActionBar gameState={gameState} onAction={action} />
       )}
 
-      {gameState.phase === "finished" && (
+      {gameState.phase === "finished" && showResult && (
         <div
           className="flex flex-col items-center gap-3"
-          style={{ animation: "fadeInUp 0.4s ease-out 0.3s both" }}
+          style={{ animation: "fadeInUp 0.4s ease-out both" }}
         >
           <button
             onClick={newRound}

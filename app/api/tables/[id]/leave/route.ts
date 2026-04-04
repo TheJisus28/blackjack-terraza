@@ -1,6 +1,7 @@
 import { getSupabase } from "@/lib/supabase";
 import {
   removePlayer,
+  runToCompletion,
   deserializeDeck,
   serializeDeck,
   toClientState,
@@ -41,14 +42,25 @@ export async function POST(
     return Response.json({ ok: true });
   }
 
-  const updated = removePlayer(gameState, playerId);
+  let updated = removePlayer(gameState, playerId);
   const newCount = updated.players.length;
 
   if (newCount === 0) {
-    await sb.from("game_tables").update({ status: "finished" }).eq("id", id);
+    await sb.from("game_tables").delete().eq("id", id);
     await broadcastToTable(id, { type: "table_closed" });
     return Response.json({ ok: true, tableClosed: true });
   }
+
+  // If removing the player triggered dealer_turn, run to completion
+  if (updated.phase === "dealer_turn" && gameState.phase === "playing") {
+    const { state: completed } = runToCompletion(updated);
+    updated = completed;
+  }
+
+  const newStatus =
+    updated.phase === "finished" ? "waiting" :
+    updated.phase === "playing" || updated.phase === "betting" ? "playing" :
+    "waiting";
 
   const { error: updateError } = await sb
     .from("game_tables")
@@ -56,6 +68,7 @@ export async function POST(
       game_state: toClientState(updated),
       deck_data: serializeDeck(updated.deck),
       player_count: newCount,
+      status: newStatus,
     })
     .eq("id", id);
 
