@@ -68,10 +68,10 @@ export function useGame(playerName = "Jugador") {
     setLastResults([]);
   }, []);
 
-  const insuranceAccept = useCallback(() => {
+  const insuranceAccept = useCallback((amount: number) => {
     resultsRef.current = [];
     setGameState((prev) => {
-      const { state: next, results } = takeInsurance(prev, playerId);
+      const { state: next, results } = takeInsurance(prev, playerId, amount);
       if (results.length > 0) resultsRef.current = results;
       const { state: final, results: r2 } = runToCompletion(next);
       if (r2.length > 0) resultsRef.current = r2;

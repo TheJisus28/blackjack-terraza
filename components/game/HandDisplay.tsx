@@ -24,6 +24,7 @@ export function HandDisplay({
   const visibleForTotal = cardsForTotal.filter((c) => c.faceUp);
   const hasHidden = hand.cards.some((c) => !c.faceUp);
   const totalIsSynced = revealedCount >= hand.cards.length;
+  const displayStatus = totalIsSynced ? hand.status : "playing";
 
   const statusColors: Record<string, string> = {
     blackjack: "text-yellow-400",
@@ -63,7 +64,7 @@ export function HandDisplay({
         <div className="flex items-center gap-2">
           <span
             key={revealedCount}
-            className={`text-lg lg:text-xl font-bold tabular-nums ${statusColors[hand.status]}`}
+            className={`text-lg lg:text-xl font-bold tabular-nums ${statusColors[displayStatus]}`}
             style={{ animation: "fadeInUp 0.35s ease-out both" }}
           >
             {hasHidden ? `${getHandValue(visibleForTotal)}` : displayTotal}

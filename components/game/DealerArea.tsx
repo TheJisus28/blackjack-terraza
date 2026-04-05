@@ -31,7 +31,8 @@ export function DealerArea({ gameState }: DealerAreaProps) {
             style={{ animation: "fadeInUp 0.35s ease-out both" }}
           >
             {value}
-            {dealer.status === "busted" && (
+            {dealer.status === "busted" &&
+              revealedCount >= dealer.cards.length && (
               <span className="text-red-400 text-sm ml-1">BUST</span>
             )}
           </span>

@@ -17,6 +17,7 @@ import {
   INSURANCE_TIMER_S,
   CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_ANIM_BASE_DELAY_MS,
+  CARD_DEAL_DURATION_MS,
   COUNTDOWN_WARNING_THRESHOLD_S,
 } from "@/lib/blackjack/constants";
 import { useSounds } from "@/hooks/use-sounds";
@@ -62,11 +63,14 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       (gameState.phase === "playing" ||
         gameState.phase === "finished" ||
         gameState.phase === "insurance");
-    const isDealerReveal =
-      (prev === "playing" || prev === "insurance") &&
+    const isRoundEndReveal =
+      (prev === "playing" ||
+        prev === "dealer_turn" ||
+        prev === "insurance" ||
+        prev === "resolving") &&
       gameState.phase === "finished";
 
-    if (isInitialDeal || isDealerReveal) {
+    if (isInitialDeal || isRoundEndReveal) {
       setShowResult(false);
       const maxCards = Math.max(
         gameState.dealer.cards.length,
@@ -75,7 +79,11 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
         ),
       );
       const delay =
-        maxCards * CARD_ANIM_DELAY_PER_CARD_MS + CARD_ANIM_BASE_DELAY_MS;
+        maxCards <= 0
+          ? CARD_ANIM_BASE_DELAY_MS
+          : (maxCards - 1) * CARD_ANIM_DELAY_PER_CARD_MS +
+            CARD_DEAL_DURATION_MS +
+            CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setShowResult(true), delay);
       return () => clearTimeout(timer);
     }
@@ -387,7 +395,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
           <InsuranceControls
             maxInsurance={Math.floor(myPlayer.hands[0].bet / 2)}
             chips={myPlayer.chips}
-            onAccept={() => sendAction("insurance_accept")}
+            onConfirm={(amount) => sendAction("insurance_accept", amount)}
             onDecline={() => sendAction("insurance_decline")}
             countdownSec={countdown}
           />

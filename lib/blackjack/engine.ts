@@ -890,20 +890,32 @@ export function autoClearTable(state: GameState): GameState {
   return startBetting(state);
 }
 
+function formatPlayersRechargedMessage(names: string[]): string {
+  if (names.length === 1) return `${names[0]} recargó fichas!`;
+  if (names.length === 2) return `${names[0]} y ${names[1]} recargaron fichas!`;
+  const head = names.slice(0, -1).join(", ");
+  const tail = names[names.length - 1];
+  return `${head} y ${tail} recargaron fichas!`;
+}
+
 /** Fase resultados: suma REBUY_CHIPS a quien no alcanza la apuesta mínima (idempotente). */
 export function autoRebuyBrokePlayersInResults(state: GameState): GameState {
   if (state.phase !== "finished") return state;
   const min = state.minBet;
   const players = deepClonePlayers(state.players);
-  let changed = false;
+  const reboughtNames: string[] = [];
   for (let i = 0; i < players.length; i++) {
     if (players[i].chips < min) {
       players[i].chips += REBUY_CHIPS;
-      changed = true;
+      reboughtNames.push(players[i].name);
     }
   }
-  if (!changed) return state;
-  return { ...state, players };
+  if (reboughtNames.length === 0) return state;
+  return {
+    ...state,
+    players,
+    message: formatPlayersRechargedMessage(reboughtNames),
+  };
 }
 
 export function rebuyPlayer(state: GameState, playerId: string): GameState {
@@ -916,7 +928,11 @@ export function rebuyPlayer(state: GameState, playerId: string): GameState {
   const players = deepClonePlayers(state.players);
   players[idx].chips += REBUY_CHIPS;
 
-  return { ...state, players, message: `${players[idx].name} recargó fichas!` };
+  return {
+    ...state,
+    players,
+    message: formatPlayersRechargedMessage([players[idx].name]),
+  };
 }
 
 export function allBetsPlaced(state: GameState): boolean {

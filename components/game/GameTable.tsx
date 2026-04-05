@@ -13,6 +13,7 @@ import { InsuranceControls } from "./InsuranceControls";
 import {
   CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_ANIM_BASE_DELAY_MS,
+  CARD_DEAL_DURATION_MS,
   INSURANCE_TIMER_S,
 } from "@/lib/blackjack/constants";
 import { useSounds } from "@/hooks/use-sounds";
@@ -46,10 +47,14 @@ export function GameTable() {
       (gameState.phase === "playing" ||
         gameState.phase === "finished" ||
         gameState.phase === "insurance");
-    const isDealerReveal =
-      prev === "playing" && gameState.phase === "finished";
+    const isRoundEndReveal =
+      (prev === "playing" ||
+        prev === "dealer_turn" ||
+        prev === "insurance" ||
+        prev === "resolving") &&
+      gameState.phase === "finished";
 
-    if (isInitialDeal || isDealerReveal) {
+    if (isInitialDeal || isRoundEndReveal) {
       setAnimating(true);
       const maxCards = Math.max(
         gameState.dealer.cards.length,
@@ -58,7 +63,11 @@ export function GameTable() {
         ),
       );
       const delay =
-        maxCards * CARD_ANIM_DELAY_PER_CARD_MS + CARD_ANIM_BASE_DELAY_MS;
+        maxCards <= 0
+          ? CARD_ANIM_BASE_DELAY_MS
+          : (maxCards - 1) * CARD_ANIM_DELAY_PER_CARD_MS +
+            CARD_DEAL_DURATION_MS +
+            CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setAnimating(false), delay);
       return () => clearTimeout(timer);
     }
@@ -192,7 +201,7 @@ export function GameTable() {
         <InsuranceControls
           maxInsurance={Math.floor(player.hands[0].bet / 2)}
           chips={player.chips}
-          onAccept={insuranceAccept}
+          onConfirm={insuranceAccept}
           onDecline={insuranceDecline}
           countdownSec={insuranceCountdown}
         />
