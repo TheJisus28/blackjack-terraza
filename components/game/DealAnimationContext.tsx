@@ -12,6 +12,7 @@ import {
 import {
   assignGlobalDealIndices,
   dealLayoutSignature,
+  feedbackWaveDurationMs,
   maxGlobalDealIndex,
   totalCardsOnTable,
   type TableCardLayout,
@@ -53,9 +54,17 @@ export function DealAnimationProvider({
   const total = useMemo(() => totalCardsOnTable(layout), [layoutSig]);
 
   const prevMaxGlobalRef = useRef(-1);
+  const waveCommitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const getDealDelayMs = useCallback((globalDealIndex: number) => {
     const prev = prevMaxGlobalRef.current;
+    // Reparto desde mesa vacía: línea temporal absoluta hasta que acabe la ola.
+    // Si fijáramos prev=maxG en el primer layout, un re-render pondría retraso 0 en todas.
+    if (prev < 0) {
+      return globalDealIndex * CARD_SEQUENTIAL_STEP_MS;
+    }
     if (globalDealIndex <= prev) return 0;
     return (globalDealIndex - prev - 1) * CARD_SEQUENTIAL_STEP_MS;
   }, []);
@@ -71,13 +80,37 @@ export function DealAnimationProvider({
     [getDealDelayMs, getRevealDeadlineMs],
   );
 
+  const initialWaveMs = useMemo(
+    () => feedbackWaveDurationMs(layout, -1),
+    [layoutSig],
+  );
+
   useLayoutEffect(() => {
+    const clearScheduled = () => {
+      if (waveCommitTimeoutRef.current !== null) {
+        clearTimeout(waveCommitTimeoutRef.current);
+        waveCommitTimeoutRef.current = null;
+      }
+    };
+    clearScheduled();
+
     if (maxG < 0 || total === 0) {
       prevMaxGlobalRef.current = -1;
-    } else {
-      prevMaxGlobalRef.current = maxG;
+      return clearScheduled;
     }
-  }, [layoutSig, maxG, total]);
+
+    if (prevMaxGlobalRef.current < 0) {
+      const ms = initialWaveMs > 0 ? initialWaveMs : 0;
+      waveCommitTimeoutRef.current = setTimeout(() => {
+        waveCommitTimeoutRef.current = null;
+        prevMaxGlobalRef.current = maxG;
+      }, ms);
+      return clearScheduled;
+    }
+
+    prevMaxGlobalRef.current = maxG;
+    return clearScheduled;
+  }, [layoutSig, maxG, total, initialWaveMs]);
 
   return (
     <DealAnimationContext.Provider value={value}>
