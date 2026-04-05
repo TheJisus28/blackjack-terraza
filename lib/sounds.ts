@@ -82,7 +82,7 @@ export const sounds = {
   },
 
   tick() {
-    play("/sounds/tick.ogg", 0.5);
+    play("/sounds/tick.ogg", 0.8);
   },
 
   preloadAll() {

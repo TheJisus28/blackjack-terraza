@@ -28,4 +28,4 @@ export const MAX_INACTIVE_ROUNDS = 3;
 // ── UI animation timing ──
 export const CARD_ANIM_DELAY_PER_CARD_MS = 450;
 export const CARD_ANIM_BASE_DELAY_MS = 800;
-export const COUNTDOWN_WARNING_THRESHOLD_S = 3;
+export const COUNTDOWN_WARNING_THRESHOLD_S = 5;
