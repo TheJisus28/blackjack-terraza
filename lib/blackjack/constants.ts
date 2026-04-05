@@ -1,0 +1,27 @@
+// ── Deck & shoe ──
+export const DEFAULT_DECK_COUNT = 6;
+
+// ── Chips & bets ──
+export const STARTING_CHIPS = 1000;
+export const DEFAULT_MIN_BET = 10;
+export const DEFAULT_MAX_BET = 500;
+
+// ── Hand rules ──
+export const BLACKJACK_VALUE = 21;
+export const DEALER_STAND_VALUE = 17;
+export const BLACKJACK_PAYOUT_MULTIPLIER = 2.5; // 3:2
+export const WIN_PAYOUT_MULTIPLIER = 2;          // 1:1 (bet returned + equal winnings)
+export const SURRENDER_RETURN_RATIO = 0.5;
+export const INITIAL_DEAL_ROUNDS = 2;
+
+// ── Multiplayer timers ──
+export const RESULTS_TIMER_S = 5;   // seconds clients show results before clearing
+export const BETTING_TIMER_S = 20;  // seconds clients have to place bets
+// Server-side validation buffers (slightly less to tolerate network latency)
+export const RESULTS_DELAY_MS = (RESULTS_TIMER_S - 1) * 1000;
+export const BETTING_DELAY_MS = (BETTING_TIMER_S - 1) * 1000;
+
+// ── UI animation timing ──
+export const CARD_ANIM_DELAY_PER_CARD_MS = 250;
+export const CARD_ANIM_BASE_DELAY_MS = 600;
+export const COUNTDOWN_WARNING_THRESHOLD_S = 3;

@@ -16,11 +16,18 @@ import {
   isBlackjack,
   isBusted,
 } from "./hand";
-
-const DEFAULT_DECK_COUNT = 6;
-const DEFAULT_MIN_BET = 10;
-const DEFAULT_MAX_BET = 500;
-export const STARTING_CHIPS = 1000;
+import {
+  DEFAULT_DECK_COUNT,
+  DEFAULT_MIN_BET,
+  DEFAULT_MAX_BET,
+  STARTING_CHIPS,
+  BLACKJACK_VALUE,
+  DEALER_STAND_VALUE,
+  BLACKJACK_PAYOUT_MULTIPLIER,
+  WIN_PAYOUT_MULTIPLIER,
+  SURRENDER_RETURN_RATIO,
+  INITIAL_DEAL_ROUNDS,
+} from "./constants";
 
 export function createGame(playerName: string): GameState {
   return {
@@ -94,7 +101,7 @@ export function dealInitialCards(state: GameState): GameState {
   const players = deepClonePlayers(state.players);
   const dealerCards = [];
 
-  for (let round = 0; round < 2; round++) {
+  for (let round = 0; round < INITIAL_DEAL_ROUNDS; round++) {
     for (const player of players) {
       if (player.hands.length > 0 && player.hands[0].bet > 0) {
         const result = drawCard(deck);
@@ -230,9 +237,9 @@ function handleHit(state: GameState, playerIndex: number): GameState {
   deck = result.deck;
 
   const value = getHandValue(hand.cards);
-  if (value > 21) {
+  if (value > BLACKJACK_VALUE) {
     hand.status = "busted";
-  } else if (value === 21) {
+  } else if (value === BLACKJACK_VALUE) {
     hand.status = "standing";
   }
 
@@ -308,14 +315,13 @@ function handleSplit(state: GameState, playerIndex: number): GameState {
 
   player.hands.splice(player.activeHandIndex + 1, 0, newHand);
 
-  // 21 on a split hand is NOT blackjack — just auto-stand
   const v1 = getHandValue(hand.cards);
-  if (v1 > 21) hand.status = "busted";
-  else if (v1 === 21) hand.status = "standing";
+  if (v1 > BLACKJACK_VALUE) hand.status = "busted";
+  else if (v1 === BLACKJACK_VALUE) hand.status = "standing";
 
   const v2 = getHandValue(newHand.cards);
-  if (v2 > 21) newHand.status = "busted";
-  else if (v2 === 21) newHand.status = "standing";
+  if (v2 > BLACKJACK_VALUE) newHand.status = "busted";
+  else if (v2 === BLACKJACK_VALUE) newHand.status = "standing";
 
   let newState: GameState = { ...state, deck, players };
 
@@ -336,7 +342,7 @@ function handleSurrender(state: GameState, playerIndex: number): GameState {
   }
 
   hand.status = "surrendered";
-  player.chips += Math.floor(hand.bet / 2);
+  player.chips += Math.floor(hand.bet * SURRENDER_RETURN_RATIO);
 
   return advanceToNextPlayer({ ...state, players });
 }
@@ -355,7 +361,7 @@ export function playDealerTurn(state: GameState): GameState {
   );
 
   if (!allPlayersBustedOrSurrendered) {
-    while (getHandValue(dealerCards) < 17) {
+    while (getHandValue(dealerCards) < DEALER_STAND_VALUE) {
       const result = drawCard(deck);
       dealerCards.push(result.card);
       deck = result.deck;
@@ -363,7 +369,7 @@ export function playDealerTurn(state: GameState): GameState {
   }
 
   const dealerValue = getHandValue(dealerCards);
-  const dealerBusted = dealerValue > 21;
+  const dealerBusted = dealerValue > BLACKJACK_VALUE;
 
   return {
     ...state,
@@ -420,7 +426,7 @@ export function resolveRound(state: GameState): {
       const playerBJ = hand.status === "blackjack";
 
       if (playerBJ && !dealerBJ) {
-        const payout = Math.floor(hand.bet * 2.5);
+        const payout = Math.floor(hand.bet * BLACKJACK_PAYOUT_MULTIPLIER);
         player.chips += payout;
         results.push({
           playerId: player.id,
@@ -437,7 +443,7 @@ export function resolveRound(state: GameState): {
           payout: hand.bet,
         });
       } else if (dealerBusted || handValue > dealerValue) {
-        const payout = hand.bet * 2;
+        const payout = hand.bet * WIN_PAYOUT_MULTIPLIER;
         player.chips += payout;
         results.push({
           playerId: player.id,

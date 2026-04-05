@@ -2,6 +2,7 @@
 
 import type { Hand } from "@/lib/blackjack/types";
 import { getHandValue } from "@/lib/blackjack/hand";
+import { CARD_ANIM_DELAY_PER_CARD_MS } from "@/lib/blackjack/constants";
 import { Card } from "./Card";
 
 interface HandDisplayProps {
@@ -37,7 +38,7 @@ export function HandDisplay({
     playing: "",
   };
 
-  const totalDelay = hand.cards.length * 250 + 200;
+  const totalDelay = hand.cards.length * CARD_ANIM_DELAY_PER_CARD_MS + 200;
 
   return (
     <div

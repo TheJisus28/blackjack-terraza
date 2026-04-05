@@ -13,9 +13,7 @@ import {
 } from "@/lib/blackjack/engine";
 import type { GameState, PlayerAction } from "@/lib/blackjack/types";
 import { broadcastToTable } from "@/lib/broadcast";
-
-const RESULTS_DELAY_MS = 4000;
-const BETTING_DELAY_MS = 9000;
+import { RESULTS_DELAY_MS, BETTING_DELAY_MS } from "@/lib/blackjack/constants";
 
 export async function POST(
   request: Request,

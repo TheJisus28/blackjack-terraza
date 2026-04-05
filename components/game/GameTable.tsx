@@ -9,6 +9,10 @@ import { DealerArea } from "./DealerArea";
 import { PlayerSeat, SeatsArc } from "./PlayerSeat";
 import { ActionBar } from "./ActionBar";
 import { BettingControls } from "./BettingControls";
+import {
+  CARD_ANIM_DELAY_PER_CARD_MS,
+  CARD_ANIM_BASE_DELAY_MS,
+} from "@/lib/blackjack/constants";
 
 export function GameTable() {
   const { gameState, player, lastResults, bet, action, newRound, resetGame } =
@@ -21,7 +25,7 @@ export function GameTable() {
     if (gameState.phase === "finished" && prevPhaseRef.current !== "finished") {
       setShowResult(false);
       const dealerCards = gameState.dealer.cards.length;
-      const delay = dealerCards * 250 + 600;
+      const delay = dealerCards * CARD_ANIM_DELAY_PER_CARD_MS + CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setShowResult(true), delay);
       prevPhaseRef.current = gameState.phase;
       return () => clearTimeout(timer);

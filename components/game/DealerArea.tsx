@@ -2,6 +2,7 @@
 
 import type { GameState } from "@/lib/blackjack/types";
 import { getHandValue } from "@/lib/blackjack/hand";
+import { CARD_ANIM_DELAY_PER_CARD_MS } from "@/lib/blackjack/constants";
 import { Card } from "./Card";
 
 interface DealerAreaProps {
@@ -16,7 +17,7 @@ export function DealerArea({ gameState }: DealerAreaProps) {
     ? getHandValue(dealer.cards)
     : getHandValue(visibleCards);
 
-  const totalDelay = dealer.cards.length * 250 + 200;
+  const totalDelay = dealer.cards.length * CARD_ANIM_DELAY_PER_CARD_MS + 200;
 
   return (
     <div className="flex flex-col items-center gap-3">

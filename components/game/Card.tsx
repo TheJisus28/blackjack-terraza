@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { Card as CardType } from "@/lib/blackjack/types";
 import { getCardImagePath } from "@/lib/blackjack/deck";
+import { CARD_ANIM_DELAY_PER_CARD_MS } from "@/lib/blackjack/constants";
 
 interface CardProps {
   card: CardType;
@@ -14,7 +15,7 @@ interface CardProps {
 export function Card({ card, index = 0, className = "", flip = false }: CardProps) {
   const src = getCardImagePath(card);
   const isPng = src.endsWith(".png");
-  const delay = index * 250;
+  const delay = index * CARD_ANIM_DELAY_PER_CARD_MS;
 
   return (
     <div

@@ -9,9 +9,13 @@ import { DealerArea } from "./DealerArea";
 import { PlayerSeat, SeatsArc } from "./PlayerSeat";
 import { ActionBar } from "./ActionBar";
 import { BettingControls } from "./BettingControls";
-
-const RESULTS_TIMER_S = 5;
-const BETTING_TIMER_S = 10;
+import {
+  RESULTS_TIMER_S,
+  BETTING_TIMER_S,
+  CARD_ANIM_DELAY_PER_CARD_MS,
+  CARD_ANIM_BASE_DELAY_MS,
+  COUNTDOWN_WARNING_THRESHOLD_S,
+} from "@/lib/blackjack/constants";
 
 interface MultiplayerTableProps {
   tableId: string;
@@ -42,7 +46,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     if (gameState.phase === "finished" && prevPhaseRef.current !== "finished") {
       setShowResult(false);
       const dealerCards = gameState.dealer.cards.length;
-      const delay = dealerCards * 250 + 600;
+      const delay = dealerCards * CARD_ANIM_DELAY_PER_CARD_MS + CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setShowResult(true), delay);
       prevPhaseRef.current = gameState.phase;
       return () => clearTimeout(timer);
@@ -237,11 +241,11 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
           className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
           style={{
             width: `${(countdown / (gameState.phase === "betting" ? BETTING_TIMER_S : RESULTS_TIMER_S)) * 100}%`,
-            backgroundColor: countdown <= 3 ? "#f87171" : "#34d399",
+            backgroundColor: countdown <= COUNTDOWN_WARNING_THRESHOLD_S ? "#f87171" : "#34d399",
           }}
         />
       </div>
-      <span className={`text-xs tabular-nums font-bold ${countdown <= 3 ? "text-red-400" : "text-emerald-400"}`}>
+      <span className={`text-xs tabular-nums font-bold ${countdown <= COUNTDOWN_WARNING_THRESHOLD_S ? "text-red-400" : "text-emerald-400"}`}>
         {countdown}s
       </span>
     </div>
