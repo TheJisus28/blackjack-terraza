@@ -51,20 +51,6 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
         </div>
       )}
 
-      {/* Bet circle when no cards */}
-      {(player.hands.length === 0 || player.hands.every(h => h.cards.length === 0)) && (
-        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-dashed
-          ${isCurrentTurn ? "border-emerald-400/50" : "border-white/10"}
-          flex items-center justify-center mb-1`}
-        >
-          {player.hands[0]?.bet > 0 ? (
-            <span className="text-[10px] text-yellow-300/70 font-semibold">${player.hands[0].bet}</span>
-          ) : (
-            <span className="text-[9px] text-white/15 uppercase">Apuesta</span>
-          )}
-        </div>
-      )}
-
       {/* Avatar + info */}
       <div className="flex flex-col items-center gap-0.5">
         <div
