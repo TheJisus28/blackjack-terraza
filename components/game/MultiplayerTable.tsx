@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { PlayerAction } from "@/lib/blackjack/types";
 import { useMultiplayer } from "@/hooks/use-multiplayer";
@@ -15,11 +15,13 @@ import {
   RESULTS_REBUY_LEAD_S,
   BETTING_TIMER_S,
   INSURANCE_TIMER_S,
-  CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_ANIM_BASE_DELAY_MS,
-  CARD_DEAL_DURATION_MS,
   COUNTDOWN_WARNING_THRESHOLD_S,
 } from "@/lib/blackjack/constants";
+import {
+  dealLayoutSignature,
+  maxDealAnimationDurationMs,
+} from "@/lib/blackjack/deal-sequence";
 import { useSounds } from "@/hooks/use-sounds";
 import { sounds } from "@/lib/sounds";
 
@@ -48,6 +50,18 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   const autoRebuyResultsSentRef = useRef(false);
   const lastTickRef = useRef<number | null>(null);
 
+  const mpLayoutSig = gameState
+    ? dealLayoutSignature({
+        players: gameState.players,
+        dealer: gameState.dealer,
+      })
+    : "";
+
+  const tableLayoutSlice = useMemo(() => {
+    if (!gameState) return undefined;
+    return { players: gameState.players, dealer: gameState.dealer };
+  }, [mpLayoutSig]);
+
   useEffect(() => {
     autoRebuyResultsSentRef.current = false;
   }, [gameState?.phase, gameState?.roundEndedAt]);
@@ -72,18 +86,12 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
 
     if (isInitialDeal || isRoundEndReveal) {
       setShowResult(false);
-      const maxCards = Math.max(
-        gameState.dealer.cards.length,
-        ...gameState.players.flatMap((p) =>
-          p.hands.map((h) => h.cards.length),
-        ),
-      );
+      const dealMs = maxDealAnimationDurationMs({
+        players: gameState.players,
+        dealer: gameState.dealer,
+      });
       const delay =
-        maxCards <= 0
-          ? CARD_ANIM_BASE_DELAY_MS
-          : (maxCards - 1) * CARD_ANIM_DELAY_PER_CARD_MS +
-            CARD_DEAL_DURATION_MS +
-            CARD_ANIM_BASE_DELAY_MS;
+        dealMs <= 0 ? CARD_ANIM_BASE_DELAY_MS : dealMs + CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setShowResult(true), delay);
       return () => clearTimeout(timer);
     }
@@ -204,6 +212,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     playerCardCount: totalPlayerCards,
     resultOutcome: undefined,
     isMyTurn,
+    tableForSequence: tableLayoutSlice,
   });
 
   const copyInviteLink = useCallback(async () => {
@@ -238,6 +247,10 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   }
 
   const pseudoGameState = { ...gameState, deck: [] as never[] };
+  const tableLayoutForSeats = {
+    players: gameState.players,
+    dealer: gameState.dealer,
+  };
   const inviteCode = (tableInfo as Record<string, string>)?.invite_code ?? "";
   const hasBet = myPlayer?.hands.length ? myPlayer.hands[0]?.bet > 0 : false;
 
@@ -307,6 +320,8 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
         <PlayerSeat
           key={player.id}
           player={player}
+          playerIndex={i}
+          tableLayout={tableLayoutForSeats}
           isCurrentTurn={
             (gameState.phase === "playing" &&
               gameState.activePlayerIndex === i) ||

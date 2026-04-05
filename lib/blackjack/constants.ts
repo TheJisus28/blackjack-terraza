@@ -33,5 +33,7 @@ export const MAX_INACTIVE_ROUNDS = 3;
 export const CARD_ANIM_DELAY_PER_CARD_MS = 450;
 /** Duración de `cardDeal` / `cardFlip` en Card.tsx (debe coincidir con el CSS) */
 export const CARD_DEAL_DURATION_MS = 1000;
+/** Entre cartas en la mesa: una animación termina antes de empezar la siguiente (jugador/crupier comparten cola) */
+export const CARD_SEQUENTIAL_STEP_MS = CARD_DEAL_DURATION_MS + 140;
 export const CARD_ANIM_BASE_DELAY_MS = 800;
 export const COUNTDOWN_WARNING_THRESHOLD_S = 5;

@@ -11,14 +11,22 @@ import {
 interface CardProps {
   card: CardType;
   index?: number;
+  /** Si se define, sustituye el retardo por índice local (cola global de la mesa) */
+  dealDelayMs?: number;
   className?: string;
   flip?: boolean;
 }
 
-export function Card({ card, index = 0, className = "", flip = false }: CardProps) {
+export function Card({
+  card,
+  index = 0,
+  dealDelayMs,
+  className = "",
+  flip = false,
+}: CardProps) {
   const src = getCardImagePath(card);
   const isPng = src.endsWith(".png");
-  const delay = index * CARD_ANIM_DELAY_PER_CARD_MS;
+  const delay = dealDelayMs ?? index * CARD_ANIM_DELAY_PER_CARD_MS;
 
   return (
     <div

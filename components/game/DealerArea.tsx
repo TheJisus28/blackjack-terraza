@@ -1,18 +1,40 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
 import type { GameState } from "@/lib/blackjack/types";
+
+type DealerAreaState = Pick<GameState, "dealer" | "players" | "phase">;
 import { getHandValue } from "@/lib/blackjack/hand";
-import { useRevealedCardCount } from "@/hooks/use-revealed-card-count";
+import {
+  assignGlobalDealIndices,
+  dealLayoutSignature,
+  dealerCardKey,
+} from "@/lib/blackjack/deal-sequence";
+import { CARD_SEQUENTIAL_STEP_MS } from "@/lib/blackjack/constants";
+import { useSequentialRevealCount } from "@/hooks/use-sequential-reveal-count";
 import { Card } from "./Card";
 
 interface DealerAreaProps {
-  gameState: GameState;
+  gameState: DealerAreaState;
 }
 
 export function DealerArea({ gameState }: DealerAreaProps) {
-  const { dealer, phase } = gameState;
+  const { dealer, phase, players } = gameState;
   const showFullValue = phase === "resolving" || phase === "finished";
-  const revealedCount = useRevealedCardCount(dealer.cards.length);
+
+  const tableLayout = { players, dealer };
+  const layoutSig = dealLayoutSignature(tableLayout);
+  const indexMap = useMemo(
+    () => assignGlobalDealIndices(tableLayout),
+    [layoutSig],
+  );
+
+  const resolveDealerIndex = useCallback(
+    (ci: number) => indexMap.get(dealerCardKey(ci)) ?? 0,
+    [indexMap],
+  );
+
+  const revealedCount = useSequentialRevealCount(dealer.cards.length, resolveDealerIndex);
   const slice = dealer.cards.slice(0, revealedCount);
   const value = showFullValue
     ? getHandValue(slice.map((c) => ({ ...c, faceUp: true })))
@@ -41,7 +63,12 @@ export function DealerArea({ gameState }: DealerAreaProps) {
 
       <div className="flex -space-x-6 lg:-space-x-7">
         {dealer.cards.map((card, i) => (
-          <Card key={`dealer-${i}`} card={card} index={i} />
+          <Card
+            key={`dealer-${i}`}
+            card={card}
+            index={i}
+            dealDelayMs={(indexMap.get(dealerCardKey(i)) ?? 0) * CARD_SEQUENTIAL_STEP_MS}
+          />
         ))}
       </div>
     </div>

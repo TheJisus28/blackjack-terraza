@@ -2,20 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_DEAL_DURATION_MS,
+  CARD_SEQUENTIAL_STEP_MS,
 } from "@/lib/blackjack/constants";
 
 /**
- * Cuántas cartas (desde el inicio del array) entran en el total mostrado.
- * Cada carta nueva suma su valor cuando termina su animación de reparto.
- * Si llegan varias cartas en un solo update (p. ej. crupier robando de golpe),
- * se programa un tick por carta para no mostrar el total final antes de tiempo.
+ * Cuántas cartas cuentan para el total mostrado, alineado con el fin de cada animación
+ * en la cola global de la mesa (ver assignGlobalDealIndices).
  */
-export function useRevealedCardCount(cardCount: number): number {
+export function useSequentialRevealCount(
+  cardCount: number,
+  resolveGlobalIndex: (localCardIndex: number) => number,
+): number {
   const [revealed, setRevealed] = useState(0);
   const revealedRef = useRef(0);
   revealedRef.current = revealed;
+  const resolveRef = useRef(resolveGlobalIndex);
+  resolveRef.current = resolveGlobalIndex;
 
   useEffect(() => {
     const n = cardCount;
@@ -31,9 +34,9 @@ export function useRevealedCardCount(cardCount: number): number {
     if (n > prev) {
       const timers: number[] = [];
       for (let k = prev + 1; k <= n; k++) {
-        const cardIndex = k - 1;
-        const ms =
-          cardIndex * CARD_ANIM_DELAY_PER_CARD_MS + CARD_DEAL_DURATION_MS;
+        const localIdx = k - 1;
+        const g = resolveRef.current(localIdx);
+        const ms = g * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
         timers.push(
           window.setTimeout(() => {
             setRevealed(k);

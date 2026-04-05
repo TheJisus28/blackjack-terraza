@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import type { PlayerAction } from "@/lib/blackjack/types";
 import { useGame } from "@/hooks/use-game";
@@ -10,12 +10,11 @@ import { PlayerSeat, SeatsArc } from "./PlayerSeat";
 import { ActionBar } from "./ActionBar";
 import { BettingControls } from "./BettingControls";
 import { InsuranceControls } from "./InsuranceControls";
+import { CARD_ANIM_BASE_DELAY_MS, INSURANCE_TIMER_S } from "@/lib/blackjack/constants";
 import {
-  CARD_ANIM_DELAY_PER_CARD_MS,
-  CARD_ANIM_BASE_DELAY_MS,
-  CARD_DEAL_DURATION_MS,
-  INSURANCE_TIMER_S,
-} from "@/lib/blackjack/constants";
+  dealLayoutSignature,
+  maxDealAnimationDurationMs,
+} from "@/lib/blackjack/deal-sequence";
 import { useSounds } from "@/hooks/use-sounds";
 import { sounds } from "@/lib/sounds";
 
@@ -35,6 +34,15 @@ export function GameTable() {
   const [animating, setAnimating] = useState(false);
   const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
   const prevPhaseRef = useRef(gameState.phase);
+
+  const layoutSig = dealLayoutSignature({
+    players: gameState.players,
+    dealer: gameState.dealer,
+  });
+  const tableLayoutSlice = useMemo(
+    () => ({ players: gameState.players, dealer: gameState.dealer }),
+    [layoutSig],
+  );
 
   useEffect(() => { sounds.preloadAll(); }, []);
 
@@ -56,18 +64,12 @@ export function GameTable() {
 
     if (isInitialDeal || isRoundEndReveal) {
       setAnimating(true);
-      const maxCards = Math.max(
-        gameState.dealer.cards.length,
-        ...gameState.players.flatMap((p) =>
-          p.hands.map((h) => h.cards.length),
-        ),
-      );
+      const dealMs = maxDealAnimationDurationMs({
+        players: gameState.players,
+        dealer: gameState.dealer,
+      });
       const delay =
-        maxCards <= 0
-          ? CARD_ANIM_BASE_DELAY_MS
-          : (maxCards - 1) * CARD_ANIM_DELAY_PER_CARD_MS +
-            CARD_DEAL_DURATION_MS +
-            CARD_ANIM_BASE_DELAY_MS;
+        dealMs <= 0 ? CARD_ANIM_BASE_DELAY_MS : dealMs + CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setAnimating(false), delay);
       return () => clearTimeout(timer);
     }
@@ -122,6 +124,7 @@ export function GameTable() {
     playerCardCount: totalPlayerCards,
     resultOutcome,
     isMyTurn: gameState.phase === "playing",
+    tableForSequence: tableLayoutSlice,
   });
 
   const header = (
@@ -177,6 +180,8 @@ export function GameTable() {
         <PlayerSeat
           key={player.id}
           player={player}
+          playerIndex={0}
+          tableLayout={tableLayoutSlice}
           isCurrentTurn={
             gameState.phase === "playing" || gameState.phase === "insurance"
           }

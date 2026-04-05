@@ -1,12 +1,23 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
 import type { Hand } from "@/lib/blackjack/types";
 import { getHandValue } from "@/lib/blackjack/hand";
-import { useRevealedCardCount } from "@/hooks/use-revealed-card-count";
+import {
+  assignGlobalDealIndices,
+  dealLayoutSignature,
+  playerCardKey,
+  type TableCardLayout,
+} from "@/lib/blackjack/deal-sequence";
+import { CARD_SEQUENTIAL_STEP_MS } from "@/lib/blackjack/constants";
+import { useSequentialRevealCount } from "@/hooks/use-sequential-reveal-count";
 import { Card } from "./Card";
 
 interface HandDisplayProps {
   hand: Hand;
+  tableLayout: TableCardLayout;
+  playerIndex: number;
+  handIndex: number;
   isActive?: boolean;
   label?: string;
   showValue?: boolean;
@@ -14,11 +25,25 @@ interface HandDisplayProps {
 
 export function HandDisplay({
   hand,
+  tableLayout,
+  playerIndex,
+  handIndex,
   isActive = false,
   label,
   showValue = true,
 }: HandDisplayProps) {
-  const revealedCount = useRevealedCardCount(hand.cards.length);
+  const layoutSig = dealLayoutSignature(tableLayout);
+  const indexMap = useMemo(
+    () => assignGlobalDealIndices(tableLayout),
+    [layoutSig],
+  );
+
+  const resolveGlobalIndex = useCallback(
+    (ci: number) => indexMap.get(playerCardKey(playerIndex, handIndex, ci)) ?? 0,
+    [indexMap, playerIndex, handIndex],
+  );
+
+  const revealedCount = useSequentialRevealCount(hand.cards.length, resolveGlobalIndex);
   const cardsForTotal = hand.cards.slice(0, revealedCount);
   const value = getHandValue(cardsForTotal);
   const visibleForTotal = cardsForTotal.filter((c) => c.faceUp);
@@ -56,7 +81,15 @@ export function HandDisplay({
 
       <div className="flex -space-x-6 lg:-space-x-7">
         {hand.cards.map((card, i) => (
-          <Card key={`${card.rank}-${card.suit}-${i}`} card={card} index={i} />
+          <Card
+            key={`p${playerIndex}-h${handIndex}-${i}-${card.rank}-${card.suit}`}
+            card={card}
+            index={i}
+            dealDelayMs={
+              (indexMap.get(playerCardKey(playerIndex, handIndex, i)) ?? 0) *
+              CARD_SEQUENTIAL_STEP_MS
+            }
+          />
         ))}
       </div>
 

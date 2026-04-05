@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Player } from "@/lib/blackjack/types";
+import type { GameState, Player } from "@/lib/blackjack/types";
 import { HandDisplay } from "./HandDisplay";
 import { ChipStack } from "./ChipStack";
 
 interface PlayerSeatProps {
   player: Player;
+  playerIndex: number;
+  tableLayout: Pick<GameState, "players" | "dealer">;
   isCurrentTurn: boolean;
   isMe: boolean;
 }
@@ -29,7 +31,13 @@ function getAvatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
+export function PlayerSeat({
+  player,
+  playerIndex,
+  tableLayout,
+  isCurrentTurn,
+  isMe,
+}: PlayerSeatProps) {
   const initial = player.name.charAt(0).toUpperCase();
   const avatarColor = getAvatarColor(player.name);
 
@@ -46,6 +54,9 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
             <div key={i} className="flex flex-col items-center gap-1">
               <HandDisplay
                 hand={hand}
+                tableLayout={tableLayout}
+                playerIndex={playerIndex}
+                handIndex={i}
                 isActive={isCurrentTurn && player.activeHandIndex === i}
                 label={player.hands.length > 1 ? `M${i + 1}` : undefined}
               />
