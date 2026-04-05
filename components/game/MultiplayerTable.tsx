@@ -96,9 +96,11 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
         const remaining = Math.max(0, RESULTS_TIMER_S - elapsed);
         setCountdown(Math.ceil(remaining));
 
-        const anyBroke = gameState.players.some((p) => p.chips === 0);
+        const anyBelowMin = gameState.players.some(
+          (p) => p.chips < gameState.minBet,
+        );
         if (
-          anyBroke &&
+          anyBelowMin &&
           remaining <= RESULTS_REBUY_LEAD_S &&
           remaining > 0 &&
           !autoRebuyResultsSentRef.current

@@ -890,14 +890,15 @@ export function autoClearTable(state: GameState): GameState {
   return startBetting(state);
 }
 
-/** Fase resultados: da REBUY_CHIPS a todo jugador con 0 fichas (idempotente). */
+/** Fase resultados: suma REBUY_CHIPS a quien no alcanza la apuesta mínima (idempotente). */
 export function autoRebuyBrokePlayersInResults(state: GameState): GameState {
   if (state.phase !== "finished") return state;
+  const min = state.minBet;
   const players = deepClonePlayers(state.players);
   let changed = false;
   for (let i = 0; i < players.length; i++) {
-    if (players[i].chips === 0) {
-      players[i].chips = REBUY_CHIPS;
+    if (players[i].chips < min) {
+      players[i].chips += REBUY_CHIPS;
       changed = true;
     }
   }

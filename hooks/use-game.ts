@@ -105,7 +105,7 @@ export function useGame(playerName = "Jugador") {
 
   useEffect(() => {
     if (gameState.phase !== "finished" || !gameState.roundEndedAt) return;
-    if (player.chips !== 0) return;
+    if (player.chips >= gameState.minBet) return;
 
     const minElapsedMs = (RESULTS_TIMER_S - RESULTS_REBUY_LEAD_S) * 1000;
     const deadline = gameState.roundEndedAt + minElapsedMs;
@@ -117,7 +117,7 @@ export function useGame(playerName = "Jugador") {
       });
     }, ms);
     return () => window.clearTimeout(t);
-  }, [gameState.phase, gameState.roundEndedAt, player.chips]);
+  }, [gameState.phase, gameState.roundEndedAt, player.chips, gameState.minBet]);
 
   const resetGame = useCallback(() => {
     setGameState(createGame(playerName));

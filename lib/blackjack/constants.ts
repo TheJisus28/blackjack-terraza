@@ -17,7 +17,7 @@ export const INITIAL_DEAL_ROUNDS = 2;
 
 // ── Multiplayer timers ──
 export const RESULTS_TIMER_S = 5;   // seconds clients show results before clearing
-/** En los últimos N segundos de esa ventana, el servidor aplica recarga $300 a quien tenga 0 fichas */
+/** En los últimos N segundos de esa ventana, recarga automática (+300) si no alcanzan la apuesta mínima */
 export const RESULTS_REBUY_LEAD_S = 2;
 export const BETTING_TIMER_S = 20;  // seconds clients have to place bets
 export const INSURANCE_TIMER_S = 12;  // seconds to accept/decline insurance (As del crupier)
