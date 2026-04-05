@@ -18,23 +18,35 @@ export function GameTable() {
   const { gameState, player, lastResults, bet, action, newRound, resetGame } =
     useGame("Jugador");
 
-  const [showResult, setShowResult] = useState(false);
+  const [animating, setAnimating] = useState(false);
   const prevPhaseRef = useRef(gameState.phase);
 
   useEffect(() => {
-    if (gameState.phase === "finished" && prevPhaseRef.current !== "finished") {
-      setShowResult(false);
-      const dealerCards = gameState.dealer.cards.length;
-      const delay = dealerCards * CARD_ANIM_DELAY_PER_CARD_MS + CARD_ANIM_BASE_DELAY_MS;
-      const timer = setTimeout(() => setShowResult(true), delay);
-      prevPhaseRef.current = gameState.phase;
+    const prev = prevPhaseRef.current;
+    prevPhaseRef.current = gameState.phase;
+
+    const isInitialDeal =
+      prev === "betting" &&
+      (gameState.phase === "playing" || gameState.phase === "finished");
+    const isDealerReveal =
+      prev === "playing" && gameState.phase === "finished";
+
+    if (isInitialDeal || isDealerReveal) {
+      setAnimating(true);
+      const maxCards = Math.max(
+        gameState.dealer.cards.length,
+        ...gameState.players.flatMap((p) =>
+          p.hands.map((h) => h.cards.length),
+        ),
+      );
+      const delay =
+        maxCards * CARD_ANIM_DELAY_PER_CARD_MS + CARD_ANIM_BASE_DELAY_MS;
+      const timer = setTimeout(() => setAnimating(false), delay);
       return () => clearTimeout(timer);
     }
-    if (gameState.phase !== "finished") {
-      setShowResult(false);
-    }
-    prevPhaseRef.current = gameState.phase;
-  }, [gameState.phase, gameState.dealer.cards.length]);
+
+    setAnimating(false);
+  }, [gameState.phase, gameState.dealer.cards.length, gameState.players]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -91,7 +103,7 @@ export function GameTable() {
 
   const dealer = <DealerArea gameState={gameState} />;
 
-  const shouldShowMessage = gameState.phase === "finished" ? showResult : !!gameState.message;
+  const shouldShowMessage = !animating && !!gameState.message;
 
   const message = shouldShowMessage && gameState.message ? (
     <p
@@ -132,11 +144,11 @@ export function GameTable() {
         />
       )}
 
-      {gameState.phase === "playing" && (
+      {gameState.phase === "playing" && !animating && (
         <ActionBar gameState={gameState} onAction={action} />
       )}
 
-      {gameState.phase === "finished" && showResult && (
+      {gameState.phase === "finished" && !animating && (
         <div
           className="flex flex-col items-center gap-3"
           style={{ animation: "fadeInUp 0.4s ease-out both" }}

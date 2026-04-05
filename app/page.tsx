@@ -64,7 +64,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-gray-600">
-        Blackjack Terraza &mdash; Proyecto universitario
+        Blackjack Terraza &mdash; By TheJisus28
       </footer>
     </div>
   );

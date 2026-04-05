@@ -40,22 +40,34 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   const prevPhaseRef = useRef(gameState?.phase);
   const timerSentRef = useRef(false);
 
-  // Result display delay (wait for dealer animation)
+  // Animation delay: hide messages/controls until card animations finish
   useEffect(() => {
     if (!gameState) return;
-    if (gameState.phase === "finished" && prevPhaseRef.current !== "finished") {
+    const prev = prevPhaseRef.current;
+    prevPhaseRef.current = gameState.phase;
+
+    const isInitialDeal =
+      prev === "betting" &&
+      (gameState.phase === "playing" || gameState.phase === "finished");
+    const isDealerReveal =
+      prev === "playing" && gameState.phase === "finished";
+
+    if (isInitialDeal || isDealerReveal) {
       setShowResult(false);
-      const dealerCards = gameState.dealer.cards.length;
-      const delay = dealerCards * CARD_ANIM_DELAY_PER_CARD_MS + CARD_ANIM_BASE_DELAY_MS;
+      const maxCards = Math.max(
+        gameState.dealer.cards.length,
+        ...gameState.players.flatMap((p) =>
+          p.hands.map((h) => h.cards.length),
+        ),
+      );
+      const delay =
+        maxCards * CARD_ANIM_DELAY_PER_CARD_MS + CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setShowResult(true), delay);
-      prevPhaseRef.current = gameState.phase;
       return () => clearTimeout(timer);
     }
-    if (gameState.phase !== "finished") {
-      setShowResult(false);
-    }
-    prevPhaseRef.current = gameState.phase;
-  }, [gameState?.phase, gameState?.dealer.cards.length]);
+
+    setShowResult(gameState.phase !== "finished" || prev === "finished");
+  }, [gameState?.phase, gameState?.dealer.cards.length, gameState?.players]);
 
   // Timer logic: auto_clear after results, auto_deal after betting
   useEffect(() => {
@@ -204,7 +216,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     ? <DealerArea gameState={pseudoGameState} />
     : <div className="text-emerald-300/30 text-xs uppercase tracking-widest font-semibold">Dealer</div>;
 
-  const shouldShowMessage = gameState.phase === "finished" ? showResult : !!gameState.message;
+  const shouldShowMessage = showResult && !!gameState.message;
 
   const message = shouldShowMessage && gameState.message ? (
     <p
@@ -314,7 +326,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       )}
 
       {/* Playing - my turn */}
-      {gameState.phase === "playing" && isMyTurn && (
+      {gameState.phase === "playing" && isMyTurn && showResult && (
         <ActionBar
           gameState={pseudoGameState}
           onAction={(act) => sendAction(act)}
@@ -322,7 +334,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       )}
 
       {/* Playing - not my turn */}
-      {gameState.phase === "playing" && !isMyTurn && myPlayer && myPlayer.hands.length > 0 && (
+      {gameState.phase === "playing" && !isMyTurn && showResult && myPlayer && myPlayer.hands.length > 0 && (
         <p className="text-center text-gray-400 text-sm">
           Turno de{" "}
           <span className="text-white font-medium">

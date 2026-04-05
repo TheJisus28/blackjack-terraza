@@ -26,13 +26,13 @@ export function BettingControls({
   chips,
   onBet,
 }: BettingControlsProps) {
-  const [currentBet, setCurrentBet] = useState(minBet);
+  const [currentBet, setCurrentBet] = useState(0);
 
   const addChip = (value: number) => {
     setCurrentBet((prev) => Math.min(prev + value, maxBet, chips));
   };
 
-  const clearBet = () => setCurrentBet(minBet);
+  const clearBet = () => setCurrentBet(0);
 
   const handleBet = () => {
     if (currentBet >= minBet && currentBet <= chips) {
@@ -44,9 +44,9 @@ export function BettingControls({
     <div className="flex flex-col items-center gap-4">
       <div className="text-center">
         <p className="text-emerald-300 text-sm font-medium uppercase tracking-wider mb-1">
-          Tu apuesta
+          {currentBet > 0 ? "Tu apuesta" : `Mínimo $${minBet}`}
         </p>
-        <p className="text-4xl font-bold text-white tabular-nums">
+        <p className={`text-4xl font-bold tabular-nums ${currentBet > 0 ? "text-white" : "text-white/30"}`}>
           ${currentBet}
         </p>
       </div>

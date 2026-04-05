@@ -75,9 +75,6 @@ export function HandDisplay({
               {statusLabels[hand.status]}
             </span>
           )}
-          {hand.bet > 0 && (
-            <span className="text-xs text-yellow-300/70">${hand.bet}</span>
-          )}
         </div>
       )}
 

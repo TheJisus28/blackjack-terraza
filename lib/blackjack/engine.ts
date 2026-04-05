@@ -28,16 +28,17 @@ import {
   SURRENDER_RETURN_RATIO,
   INITIAL_DEAL_ROUNDS,
 } from "./constants";
+import { generateId } from "../uuid";
 
 export function createGame(playerName: string): GameState {
   return {
-    id: crypto.randomUUID(),
+    id: generateId(),
     phase: "betting",
     deck: createShoe(DEFAULT_DECK_COUNT),
     dealer: { cards: [], status: "playing" },
     players: [
       {
-        id: crypto.randomUUID(),
+        id: generateId(),
         name: playerName,
         chips: STARTING_CHIPS,
         hands: [],
@@ -554,7 +555,7 @@ export function createMultiplayerGame(options: {
 }): GameState {
   const deckCount = options.deckCount ?? DEFAULT_DECK_COUNT;
   return {
-    id: crypto.randomUUID(),
+    id: generateId(),
     phase: "waiting",
     deck: createShoe(deckCount),
     dealer: { cards: [], status: "playing" },
