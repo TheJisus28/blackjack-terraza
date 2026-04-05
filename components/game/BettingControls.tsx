@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { sounds } from "@/lib/sounds";
 
 interface BettingControlsProps {
@@ -21,6 +21,16 @@ const CHIP_COLORS: Record<number, string> = {
   500: "from-amber-500 to-amber-700 border-amber-300",
 };
 
+// Keys 1-6 map to chip values
+const KEY_TO_CHIP: Record<string, number> = {
+  "1": 10,
+  "2": 25,
+  "3": 50,
+  "4": 100,
+  "5": 250,
+  "6": 500,
+};
+
 export function BettingControls({
   minBet,
   maxBet,
@@ -31,18 +41,45 @@ export function BettingControls({
 
   const effectiveMax = maxBet >= 999_999 ? chips : Math.min(maxBet, chips);
 
-  const addChip = (value: number) => {
+  const addChip = useCallback((value: number) => {
     sounds.chipPlace();
     setCurrentBet((prev) => Math.min(prev + value, effectiveMax));
-  };
+  }, [effectiveMax]);
 
-  const clearBet = () => setCurrentBet(0);
+  const clearBet = useCallback(() => setCurrentBet(0), []);
 
-  const handleBet = () => {
+  const handleBet = useCallback(() => {
     if (currentBet >= minBet && currentBet <= chips) {
       onBet(currentBet);
     }
-  };
+  }, [currentBet, minBet, chips, onBet]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleBet();
+        return;
+      }
+
+      if (e.key === "0" || e.key === "Backspace" || e.key === "Delete") {
+        e.preventDefault();
+        clearBet();
+        return;
+      }
+
+      const chipValue = KEY_TO_CHIP[e.key];
+      if (chipValue && chipValue <= chips) {
+        e.preventDefault();
+        addChip(chipValue);
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [addChip, clearBet, handleBet, chips]);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -56,15 +93,18 @@ export function BettingControls({
       </div>
 
       <div className="flex flex-wrap justify-center gap-2">
-        {CHIP_VALUES.filter((v) => v <= chips).map((value) => (
+        {CHIP_VALUES.filter((v) => v <= chips).map((value, idx) => (
           <button
             key={value}
             onClick={() => addChip(value)}
-            className={`w-14 h-14 rounded-full bg-gradient-to-b ${CHIP_COLORS[value]} border-2 
+            className={`relative w-14 h-14 rounded-full bg-gradient-to-b ${CHIP_COLORS[value]} border-2 
               flex items-center justify-center text-white font-bold text-xs
               transition-all hover:scale-110 active:scale-95 shadow-lg cursor-pointer`}
           >
             ${value}
+            <span className="absolute -top-1 -right-1 hidden lg:flex w-5 h-5 rounded bg-black/70 text-[10px] text-white/70 items-center justify-center font-mono">
+              {idx + 1}
+            </span>
           </button>
         ))}
       </div>

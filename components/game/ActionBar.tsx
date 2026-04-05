@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useCallback } from "react";
 import type { GameState, PlayerAction } from "@/lib/blackjack/types";
 import { canDoubleDown, canSplit, canSurrender } from "@/lib/blackjack/hand";
 
@@ -10,14 +11,34 @@ interface ActionBarProps {
 
 export function ActionBar({ gameState, onAction }: ActionBarProps) {
   const player = gameState.players[gameState.activePlayerIndex];
-  if (!player) return null;
+  const hand = player?.hands[player.activeHandIndex];
+  const isActive = hand && hand.status === "playing";
 
-  const hand = player.hands[player.activeHandIndex];
-  if (!hand || hand.status !== "playing") return null;
+  const showSplit = isActive && canSplit(hand) && player.chips >= hand.bet;
+  const showDouble = isActive && canDoubleDown(hand) && player.chips >= hand.bet;
+  const showSurrender = isActive && canSurrender(hand);
 
-  const showSplit = canSplit(hand) && player.chips >= hand.bet;
-  const showDouble = canDoubleDown(hand) && player.chips >= hand.bet;
-  const showSurrender = canSurrender(hand);
+  const handleKey = useCallback(
+    (e: KeyboardEvent) => {
+      if (!isActive) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      const key = e.key.toLowerCase();
+      if (key === "h") { e.preventDefault(); onAction("hit"); }
+      else if (key === "s") { e.preventDefault(); onAction("stand"); }
+      else if (key === "d" && showDouble) { e.preventDefault(); onAction("double"); }
+      else if (key === "p" && showSplit) { e.preventDefault(); onAction("split"); }
+      else if (key === "r" && showSurrender) { e.preventDefault(); onAction("surrender"); }
+    },
+    [isActive, showDouble, showSplit, showSurrender, onAction],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [handleKey]);
+
+  if (!player || !isActive) return null;
 
   return (
     <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
