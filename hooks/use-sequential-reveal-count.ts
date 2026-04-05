@@ -30,8 +30,10 @@ export function useSequentialRevealCount(
     if (n > prev) {
       const timers: number[] = [];
       for (let k = prev + 1; k <= n; k++) {
-        const localIdx = k - 1;
-        const ms = revealRef.current(localIdx);
+        let ms = 0;
+        for (let j = 0; j < k; j++) {
+          ms = Math.max(ms, revealRef.current(j));
+        }
         timers.push(
           window.setTimeout(() => {
             setRevealed(k);

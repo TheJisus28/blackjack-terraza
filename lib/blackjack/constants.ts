@@ -37,4 +37,6 @@ export const CARD_DEAL_DURATION_MS = 850;
 /** Entre cartas en la mesa: una animación termina antes de empezar la siguiente (jugador/crupier comparten cola) */
 export const CARD_SEQUENTIAL_STEP_MS = CARD_DEAL_DURATION_MS + 119;
 export const CARD_ANIM_BASE_DELAY_MS = 680;
+/** Margen tras el fin nominal de `cardDeal` antes de mostrar total / estado (timers vs CSS). */
+export const CARD_TOTAL_REVEAL_BUFFER_MS = 90;
 export const COUNTDOWN_WARNING_THRESHOLD_S = 5;

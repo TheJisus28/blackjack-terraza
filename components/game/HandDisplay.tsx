@@ -12,6 +12,7 @@ import {
 import {
   CARD_DEAL_DURATION_MS,
   CARD_SEQUENTIAL_STEP_MS,
+  CARD_TOTAL_REVEAL_BUFFER_MS,
 } from "@/lib/blackjack/constants";
 import { useSequentialRevealCount } from "@/hooks/use-sequential-reveal-count";
 import { useDealAnimation } from "./DealAnimationContext";
@@ -38,21 +39,36 @@ export function HandDisplay({
 }: HandDisplayProps) {
   const dealAnim = useDealAnimation();
   const layoutSig = dealLayoutSignature(tableLayout);
-  const indexMap = useMemo(
-    () => assignGlobalDealIndices(tableLayout),
-    [layoutSig],
-  );
+  /** Evita dos cartas con g=0 (fallback) → mismos deadlines y BLACKJACK antes de tiempo. */
+  const globalIndexByLocal = useMemo(() => {
+    const map = assignGlobalDealIndices(tableLayout);
+    const n = hand.cards.length;
+    const out: number[] = [];
+    for (let ci = 0; ci < n; ci++) {
+      const key = playerCardKey(playerIndex, handIndex, ci);
+      let g = map.get(key);
+      if (g === undefined) {
+        g = ci === 0 ? 0 : out[ci - 1]! + 1;
+      } else if (ci > 0 && g <= out[ci - 1]!) {
+        g = out[ci - 1]! + 1;
+      }
+      out.push(g);
+    }
+    return out;
+  }, [layoutSig, hand.cards.length, playerIndex, handIndex]);
 
   const globalFor = useCallback(
-    (ci: number) => indexMap.get(playerCardKey(playerIndex, handIndex, ci)) ?? 0,
-    [indexMap, playerIndex, handIndex],
+    (ci: number) => globalIndexByLocal[ci] ?? 0,
+    [globalIndexByLocal],
   );
 
   const revealAtMsForLocalIndex = useCallback(
     (ci: number) => {
       const g = globalFor(ci);
-      if (dealAnim) return dealAnim.getRevealDeadlineMs(g);
-      return g * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
+      const base = dealAnim
+        ? dealAnim.getRevealDeadlineMs(g)
+        : g * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
+      return base + CARD_TOTAL_REVEAL_BUFFER_MS;
     },
     [dealAnim, globalFor],
   );

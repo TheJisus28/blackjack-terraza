@@ -11,6 +11,7 @@ import {
 import {
   CARD_DEAL_DURATION_MS,
   CARD_SEQUENTIAL_STEP_MS,
+  CARD_TOTAL_REVEAL_BUFFER_MS,
 } from "@/lib/blackjack/constants";
 import { useSequentialRevealCount } from "@/hooks/use-sequential-reveal-count";
 import { useDealAnimation } from "./DealAnimationContext";
@@ -29,21 +30,35 @@ export function DealerArea({ gameState }: DealerAreaProps) {
 
   const tableLayout = { players, dealer };
   const layoutSig = dealLayoutSignature(tableLayout);
-  const indexMap = useMemo(
-    () => assignGlobalDealIndices(tableLayout),
-    [layoutSig],
-  );
+  const globalIndexByLocal = useMemo(() => {
+    const map = assignGlobalDealIndices(tableLayout);
+    const n = dealer.cards.length;
+    const out: number[] = [];
+    for (let ci = 0; ci < n; ci++) {
+      const key = dealerCardKey(ci);
+      let g = map.get(key);
+      if (g === undefined) {
+        g = ci === 0 ? 0 : out[ci - 1]! + 1;
+      } else if (ci > 0 && g <= out[ci - 1]!) {
+        g = out[ci - 1]! + 1;
+      }
+      out.push(g);
+    }
+    return out;
+  }, [layoutSig, dealer.cards.length]);
 
   const globalFor = useCallback(
-    (ci: number) => indexMap.get(dealerCardKey(ci)) ?? 0,
-    [indexMap],
+    (ci: number) => globalIndexByLocal[ci] ?? 0,
+    [globalIndexByLocal],
   );
 
   const revealAtMsForLocalIndex = useCallback(
     (ci: number) => {
       const g = globalFor(ci);
-      if (dealAnim) return dealAnim.getRevealDeadlineMs(g);
-      return g * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
+      const base = dealAnim
+        ? dealAnim.getRevealDeadlineMs(g)
+        : g * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
+      return base + CARD_TOTAL_REVEAL_BUFFER_MS;
     },
     [dealAnim, globalFor],
   );
