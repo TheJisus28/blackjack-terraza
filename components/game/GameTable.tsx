@@ -9,18 +9,30 @@ import { DealerArea } from "./DealerArea";
 import { PlayerSeat, SeatsArc } from "./PlayerSeat";
 import { ActionBar } from "./ActionBar";
 import { BettingControls } from "./BettingControls";
+import { InsuranceControls } from "./InsuranceControls";
 import {
   CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_ANIM_BASE_DELAY_MS,
+  INSURANCE_TIMER_S,
 } from "@/lib/blackjack/constants";
 import { useSounds } from "@/hooks/use-sounds";
 import { sounds } from "@/lib/sounds";
 
 export function GameTable() {
-  const { gameState, player, lastResults, bet, action, newRound, resetGame } =
-    useGame("Jugador");
+  const {
+    gameState,
+    player,
+    lastResults,
+    bet,
+    action,
+    newRound,
+    insuranceAccept,
+    insuranceDecline,
+    resetGame,
+  } = useGame("Jugador");
 
   const [animating, setAnimating] = useState(false);
+  const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
   const prevPhaseRef = useRef(gameState.phase);
 
   useEffect(() => { sounds.preloadAll(); }, []);
@@ -31,7 +43,9 @@ export function GameTable() {
 
     const isInitialDeal =
       prev === "betting" &&
-      (gameState.phase === "playing" || gameState.phase === "finished");
+      (gameState.phase === "playing" ||
+        gameState.phase === "finished" ||
+        gameState.phase === "insurance");
     const isDealerReveal =
       prev === "playing" && gameState.phase === "finished";
 
@@ -51,6 +65,20 @@ export function GameTable() {
 
     setAnimating(false);
   }, [gameState.phase, gameState.dealer.cards.length, gameState.players]);
+
+  useEffect(() => {
+    if (gameState.phase !== "insurance" || !gameState.insuranceStartedAt) {
+      setInsuranceCountdown(null);
+      return;
+    }
+    const tick = () => {
+      const elapsed = (Date.now() - gameState.insuranceStartedAt!) / 1000;
+      setInsuranceCountdown(Math.max(0, Math.ceil(INSURANCE_TIMER_S - elapsed)));
+    };
+    tick();
+    const id = window.setInterval(tick, 250);
+    return () => window.clearInterval(id);
+  }, [gameState.phase, gameState.insuranceStartedAt]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -140,7 +168,9 @@ export function GameTable() {
         <PlayerSeat
           key={player.id}
           player={player}
-          isCurrentTurn={gameState.phase === "playing"}
+          isCurrentTurn={
+            gameState.phase === "playing" || gameState.phase === "insurance"
+          }
           isMe
         />,
       ]}
@@ -155,6 +185,16 @@ export function GameTable() {
           maxBet={gameState.maxBet}
           chips={player.chips}
           onBet={(amount) => { sounds.chipPlace(); bet(amount); }}
+        />
+      )}
+
+      {gameState.phase === "insurance" && !animating && player && player.hands[0]?.bet > 0 && (
+        <InsuranceControls
+          maxInsurance={Math.floor(player.hands[0].bet / 2)}
+          chips={player.chips}
+          onAccept={insuranceAccept}
+          onDecline={insuranceDecline}
+          countdownSec={insuranceCountdown}
         />
       )}
 

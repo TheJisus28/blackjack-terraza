@@ -12,10 +12,18 @@ import {
   toClientState,
   deserializeDeck,
   serializeDeck,
+  takeInsurance,
+  declineInsurance,
+  resolveInsurancePhase,
 } from "@/lib/blackjack/engine";
 import type { GameState, PlayerAction } from "@/lib/blackjack/types";
 import { broadcastToTable } from "@/lib/broadcast";
-import { RESULTS_DELAY_MS, BETTING_DELAY_MS, MAX_INACTIVE_ROUNDS } from "@/lib/blackjack/constants";
+import {
+  RESULTS_DELAY_MS,
+  BETTING_DELAY_MS,
+  INSURANCE_DELAY_MS,
+  MAX_INACTIVE_ROUNDS,
+} from "@/lib/blackjack/constants";
 
 export async function POST(
   request: Request,
@@ -24,7 +32,16 @@ export async function POST(
   const { id } = await params;
   const body = (await request.json()) as {
     playerId: string;
-    action: "bet" | "start_game" | "auto_clear" | "auto_deal" | "rebuy" | PlayerAction;
+    action:
+      | "bet"
+      | "start_game"
+      | "auto_clear"
+      | "auto_deal"
+      | "auto_insurance"
+      | "insurance_accept"
+      | "insurance_decline"
+      | "rebuy"
+      | PlayerAction;
     amount?: number;
   };
 
@@ -131,6 +148,37 @@ export async function POST(
       break;
     }
 
+    case "auto_insurance": {
+      if (gameState.phase !== "insurance") {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      const insElapsed = Date.now() - (gameState.insuranceStartedAt ?? 0);
+      if (insElapsed < INSURANCE_DELAY_MS) {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      const insRes = resolveInsurancePhase(gameState);
+      gameState = insRes.state;
+      break;
+    }
+
+    case "insurance_accept": {
+      if (gameState.phase !== "insurance") {
+        return Response.json({ error: "No hay seguro disponible" }, { status: 400 });
+      }
+      const acc = takeInsurance(gameState, playerId, amount);
+      gameState = acc.state;
+      break;
+    }
+
+    case "insurance_decline": {
+      if (gameState.phase !== "insurance") {
+        return Response.json({ error: "No hay seguro disponible" }, { status: 400 });
+      }
+      const dec = declineInsurance(gameState, playerId);
+      gameState = dec.state;
+      break;
+    }
+
     case "rebuy": {
       const player = gameState.players.find((p) => p.id === playerId);
       if (!player || player.chips >= gameState.minBet) {
@@ -168,6 +216,9 @@ export async function POST(
     case "double":
     case "split":
     case "surrender": {
+      if (gameState.phase === "insurance") {
+        return Response.json({ error: "Decide seguro primero" }, { status: 400 });
+      }
       if (gameState.phase !== "playing") {
         return Response.json({ error: "No es momento de jugar" }, { status: 400 });
       }
@@ -179,6 +230,11 @@ export async function POST(
 
     default:
       return Response.json({ error: "Acción inválida" }, { status: 400 });
+  }
+
+  {
+    const { state } = runToCompletion(gameState);
+    gameState = state;
   }
 
   const newStatus =

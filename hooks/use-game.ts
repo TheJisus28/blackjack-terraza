@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { GameResult, GameState, PlayerAction } from "@/lib/blackjack/types";
 import {
   createGame,
@@ -9,7 +9,10 @@ import {
   playerAction,
   runToCompletion,
   startNewRound,
+  takeInsurance,
+  declineInsurance,
 } from "@/lib/blackjack/engine";
+import { INSURANCE_TIMER_S } from "@/lib/blackjack/constants";
 
 export function useGame(playerName = "Jugador") {
   const [gameState, setGameState] = useState<GameState>(() =>
@@ -60,6 +63,41 @@ export function useGame(playerName = "Jugador") {
     setLastResults([]);
   }, []);
 
+  const insuranceAccept = useCallback(() => {
+    resultsRef.current = [];
+    setGameState((prev) => {
+      const { state: next, results } = takeInsurance(prev, playerId);
+      if (results.length > 0) resultsRef.current = results;
+      const { state: final, results: r2 } = runToCompletion(next);
+      if (r2.length > 0) resultsRef.current = r2;
+      return final;
+    });
+    setTimeout(() => setLastResults(resultsRef.current), 0);
+  }, [playerId]);
+
+  const insuranceDecline = useCallback(() => {
+    resultsRef.current = [];
+    setGameState((prev) => {
+      const { state: next, results } = declineInsurance(prev, playerId);
+      if (results.length > 0) resultsRef.current = results;
+      const { state: final, results: r2 } = runToCompletion(next);
+      if (r2.length > 0) resultsRef.current = r2;
+      return final;
+    });
+    setTimeout(() => setLastResults(resultsRef.current), 0);
+  }, [playerId]);
+
+  useEffect(() => {
+    if (gameState.phase !== "insurance" || !gameState.insuranceStartedAt) return;
+    const deadline =
+      gameState.insuranceStartedAt + INSURANCE_TIMER_S * 1000;
+    const ms = Math.max(0, deadline - Date.now());
+    const t = window.setTimeout(() => {
+      insuranceDecline();
+    }, ms);
+    return () => window.clearTimeout(t);
+  }, [gameState.phase, gameState.insuranceStartedAt, insuranceDecline]);
+
   const resetGame = useCallback(() => {
     setGameState(createGame(playerName));
     setLastResults([]);
@@ -72,6 +110,8 @@ export function useGame(playerName = "Jugador") {
     bet,
     action,
     newRound,
+    insuranceAccept,
+    insuranceDecline,
     resetGame,
   };
 }

@@ -43,12 +43,15 @@ export interface Player {
   activeHandIndex: number;
   isActive: boolean;
   inactiveRounds?: number;
+  /** Fase seguro: null = pendiente, 0 = rechazó, >0 = monto del seguro (paga 2:1 si hay BJ del crupier) */
+  insuranceWager?: number | null;
 }
 
 export type GamePhase =
   | "waiting"
   | "betting"
   | "dealing"
+  | "insurance"
   | "playing"
   | "dealer_turn"
   | "resolving"
@@ -78,6 +81,7 @@ export interface GameState {
   message: string;
   roundEndedAt?: number;
   bettingStartedAt?: number;
+  insuranceStartedAt?: number;
 }
 
 export interface GameResult {

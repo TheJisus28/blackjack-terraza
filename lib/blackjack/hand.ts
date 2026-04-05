@@ -1,4 +1,4 @@
-import type { Card, Hand, HandStatus } from "./types";
+import type { Card, Hand, HandStatus, Rank } from "./types";
 
 const CARD_VALUES: Record<string, number> = {
   "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
@@ -39,6 +39,21 @@ export function isSoft(cards: Card[]): boolean {
   }
 
   return aces > 0 && value <= 21;
+}
+
+export function isTenValueRank(rank: Rank): boolean {
+  return (
+    rank === "10" || rank === "jack" || rank === "queen" || rank === "king"
+  );
+}
+
+/** Blackjack natural mirando las dos cartas (peek del crupier, ignora faceUp). */
+export function isNaturalBlackjackCards(cards: Card[]): boolean {
+  if (cards.length !== 2) return false;
+  const ranks = cards.map((c) => c.rank);
+  const hasAce = ranks.includes("ace");
+  const hasTen = ranks.some((r) => isTenValueRank(r));
+  return hasAce && hasTen;
 }
 
 export function isBlackjack(cards: Card[]): boolean {

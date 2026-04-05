@@ -29,8 +29,10 @@ export function useSounds({
     prevPhaseRef.current = phase;
 
     const isInitialDeal =
-      prev === "betting" && (phase === "playing" || phase === "finished");
-    const isDealerReveal = prev === "playing" && phase === "finished";
+      prev === "betting" &&
+      (phase === "playing" || phase === "finished" || phase === "insurance");
+    const isDealerReveal =
+      (prev === "playing" || prev === "insurance") && phase === "finished";
 
     if (isInitialDeal) {
       const totalCards = playerCardCount + dealerCardCount;

@@ -44,15 +44,21 @@ async function leaveOtherTables(
       continue;
     }
 
-    if (updated.phase === "dealer_turn" && gs.phase === "playing") {
+    if (
+      updated.phase === "dealer_turn" &&
+      (gs.phase === "playing" || gs.phase === "insurance")
+    ) {
       const { state: completed } = runToCompletion(updated);
       updated = completed;
     }
 
     const newStatus =
       updated.phase === "finished" ? "waiting" :
-      updated.phase === "playing" || updated.phase === "betting" ? "playing" :
-      "waiting";
+      updated.phase === "playing" ||
+        updated.phase === "betting" ||
+        updated.phase === "insurance"
+        ? "playing"
+      : "waiting";
 
     const updateFields: Record<string, unknown> = {
       game_state: toClientState(updated),

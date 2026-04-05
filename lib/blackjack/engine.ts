@@ -15,6 +15,8 @@ import {
   getHandValue,
   isBlackjack,
   isBusted,
+  isNaturalBlackjackCards,
+  isTenValueRank,
 } from "./hand";
 import {
   DEFAULT_DECK_COUNT,
@@ -123,14 +125,59 @@ export function dealInitialCards(state: GameState): GameState {
     }
   }
 
+  const dealerUp = dealerCards[0];
   const allSettled = players.every(
     (p) =>
       p.hands.length === 0 ||
       p.hands[0].bet === 0 ||
       p.hands[0].status !== "playing",
   );
-
   const firstActive = findNextActiveHand(players, 0, 0);
+
+  // Carta alta 10 (no As): peek — si hay blackjack del crupier, se acaba la ronda
+  if (dealerUp && isTenValueRank(dealerUp.rank)) {
+    if (isNaturalBlackjackCards(dealerCards)) {
+      const revealed = dealerCards.map((c) => ({ ...c, faceUp: true }));
+      return {
+        ...state,
+        deck,
+        dealer: { cards: revealed, status: "standing" },
+        players,
+        phase: "resolving",
+        message: "Blackjack del crupier",
+      };
+    }
+    return {
+      ...state,
+      deck,
+      dealer: { cards: dealerCards, status: "playing" },
+      players,
+      phase: allSettled ? "dealer_turn" : "playing",
+      activePlayerIndex: firstActive?.playerIndex ?? 0,
+      message: allSettled
+        ? "Turno del dealer"
+        : `Turno de ${players[firstActive?.playerIndex ?? 0]?.name ?? ""}`,
+    };
+  }
+
+  // As visible: ofrecer seguro antes de continuar
+  if (dealerUp?.rank === "ace") {
+    const playersWithInsurance = players.map((p) => {
+      if (p.hands.length > 0 && p.hands[0].bet > 0) {
+        return { ...p, insuranceWager: null as number | null };
+      }
+      return { ...p };
+    });
+    return {
+      ...state,
+      deck,
+      dealer: { cards: dealerCards, status: "playing" },
+      players: playersWithInsurance,
+      phase: "insurance",
+      insuranceStartedAt: Date.now(),
+      message: "Seguro disponible (As del crupier)",
+    };
+  }
 
   return {
     ...state,
@@ -143,6 +190,145 @@ export function dealInitialCards(state: GameState): GameState {
       ? "Turno del dealer"
       : `Turno de ${players[firstActive?.playerIndex ?? 0]?.name ?? ""}`,
   };
+}
+
+function stripPlayerInsurance(p: Player): Player {
+  const { insuranceWager: _, ...rest } = p;
+  return rest;
+}
+
+export function allInsuranceAnswered(state: GameState): boolean {
+  if (state.phase !== "insurance") return false;
+  return state.players.every((p) => {
+    if (!p.hands[0] || p.hands[0].bet <= 0) return true;
+    return p.insuranceWager != null;
+  });
+}
+
+function tryResolveInsuranceIfComplete(
+  state: GameState,
+): { state: GameState; results: GameResult[] } {
+  if (!allInsuranceAnswered(state)) return { state, results: [] };
+  return resolveInsurancePhase(state);
+}
+
+export function resolveInsurancePhase(state: GameState): {
+  state: GameState;
+  results: GameResult[];
+} {
+  let players = deepClonePlayers(state.players);
+
+  for (let i = 0; i < players.length; i++) {
+    const p = players[i];
+    if (p.hands[0]?.bet > 0 && p.insuranceWager == null) {
+      players[i] = { ...p, insuranceWager: 0 };
+    }
+  }
+
+  const dealerBJ = isNaturalBlackjackCards(state.dealer.cards);
+  const revealed = state.dealer.cards.map((c) => ({ ...c, faceUp: true }));
+
+  if (dealerBJ) {
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      const w = p.insuranceWager ?? 0;
+      if (w > 0) {
+        players[i] = { ...p, chips: p.chips + w * 3 };
+      }
+    }
+    players = players.map((p) => stripPlayerInsurance(p));
+    const nextState: GameState = {
+      ...state,
+      dealer: { cards: revealed, status: "standing" },
+      players,
+      phase: "resolving",
+      message: "Blackjack del crupier",
+      insuranceStartedAt: undefined,
+    };
+    return resolveRound(nextState);
+  }
+
+  players = players.map((p) => stripPlayerInsurance(p));
+  const allSettled = players.every(
+    (p) =>
+      p.hands.length === 0 ||
+      p.hands[0].bet === 0 ||
+      p.hands[0].status !== "playing",
+  );
+  const firstActive = findNextActiveHand(players, 0, 0);
+
+  return {
+    state: {
+      ...state,
+      dealer: { ...state.dealer, cards: state.dealer.cards },
+      players,
+      phase: allSettled ? "dealer_turn" : "playing",
+      activePlayerIndex: firstActive?.playerIndex ?? 0,
+      message: allSettled
+        ? "Turno del dealer"
+        : `Turno de ${players[firstActive?.playerIndex ?? 0]?.name ?? ""}`,
+      insuranceStartedAt: undefined,
+    },
+    results: [],
+  };
+}
+
+export function takeInsurance(
+  state: GameState,
+  playerId: string,
+  amount?: number,
+): { state: GameState; results: GameResult[] } {
+  if (state.phase !== "insurance") return { state, results: [] };
+
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  if (idx === -1) return { state, results: [] };
+
+  const players = deepClonePlayers(state.players);
+  const p = players[idx];
+  if (!p.hands[0] || p.hands[0].bet <= 0) return { state, results: [] };
+  if (p.insuranceWager != null) return { state, results: [] };
+
+  const maxIns = Math.floor(p.hands[0].bet / 2);
+  if (maxIns < 1) {
+    players[idx] = { ...p, insuranceWager: 0 };
+    return tryResolveInsuranceIfComplete({ ...state, players });
+  }
+
+  if (p.chips < 1) {
+    players[idx] = { ...p, insuranceWager: 0 };
+    return tryResolveInsuranceIfComplete({ ...state, players });
+  }
+
+  const target =
+    amount !== undefined
+      ? Math.min(Math.max(0, amount), maxIns, p.chips)
+      : Math.min(maxIns, p.chips);
+  if (target < 1) return { state, results: [] };
+
+  players[idx] = {
+    ...p,
+    chips: p.chips - target,
+    insuranceWager: target,
+  };
+  return tryResolveInsuranceIfComplete({ ...state, players });
+}
+
+export function declineInsurance(
+  state: GameState,
+  playerId: string,
+): { state: GameState; results: GameResult[] } {
+  if (state.phase !== "insurance") return { state, results: [] };
+
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  if (idx === -1) return { state, results: [] };
+
+  const players = deepClonePlayers(state.players);
+  const p = players[idx];
+  if (!p.hands[0] || p.hands[0].bet <= 0) return { state, results: [] };
+  if (p.insuranceWager != null) return { state, results: [] };
+
+  players[idx] = { ...p, insuranceWager: 0 };
+  return tryResolveInsuranceIfComplete({ ...state, players });
 }
 
 /**
@@ -509,6 +695,9 @@ export function runToCompletion(state: GameState): {
   state: GameState;
   results: GameResult[];
 } {
+  if (state.phase === "insurance") {
+    return { state, results: [] };
+  }
   if (state.phase === "dealer_turn") {
     state = playDealerTurn(state);
   }
@@ -519,11 +708,14 @@ export function runToCompletion(state: GameState): {
 }
 
 export function startNewRound(state: GameState): GameState {
-  const players = state.players.map((p) => ({
-    ...p,
-    hands: [],
-    activeHandIndex: 0,
-  }));
+  const players = state.players.map((p) => {
+    const { insuranceWager: _, ...rest } = p;
+    return {
+      ...rest,
+      hands: [],
+      activeHandIndex: 0,
+    };
+  });
 
   let deck = state.deck;
   if (shouldReshuffle(deck, state.deckCount)) {
@@ -588,6 +780,7 @@ export function addPlayer(
 
   const midRound =
     state.phase === "playing" ||
+    state.phase === "insurance" ||
     state.phase === "dealer_turn" ||
     state.phase === "resolving";
 
@@ -648,6 +841,13 @@ export function removePlayer(state: GameState, playerId: string): GameState {
     }
   }
 
+  if (phase === "insurance") {
+    const st: GameState = { ...state, players, activePlayerIndex, phase, message };
+    if (allInsuranceAnswered(st)) {
+      return resolveInsurancePhase(st).state;
+    }
+  }
+
   return { ...state, players, activePlayerIndex, phase, message };
 }
 
@@ -655,12 +855,15 @@ export function startBetting(state: GameState): GameState {
   if (state.players.length === 0) {
     return { ...state, message: "No hay jugadores" };
   }
-  const players = state.players.map((p) => ({
-    ...p,
-    hands: [],
-    activeHandIndex: 0,
-    chips: p.chips < state.minBet ? p.chips + REBUY_CHIPS : p.chips,
-  }));
+  const players = state.players.map((p) => {
+    const { insuranceWager: _, ...rest } = p;
+    return {
+      ...rest,
+      hands: [],
+      activeHandIndex: 0,
+      chips: p.chips < state.minBet ? p.chips + REBUY_CHIPS : p.chips,
+    };
+  });
 
   let deck = state.deck;
   if (shouldReshuffle(deck, state.deckCount)) {
@@ -677,6 +880,7 @@ export function startBetting(state: GameState): GameState {
     message: "Coloquen sus apuestas!",
     roundEndedAt: undefined,
     bettingStartedAt: Date.now(),
+    insuranceStartedAt: undefined,
   };
 }
 

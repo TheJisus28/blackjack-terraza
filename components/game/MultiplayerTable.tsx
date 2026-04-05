@@ -9,9 +9,11 @@ import { DealerArea } from "./DealerArea";
 import { PlayerSeat, SeatsArc } from "./PlayerSeat";
 import { ActionBar } from "./ActionBar";
 import { BettingControls } from "./BettingControls";
+import { InsuranceControls } from "./InsuranceControls";
 import {
   RESULTS_TIMER_S,
   BETTING_TIMER_S,
+  INSURANCE_TIMER_S,
   CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_ANIM_BASE_DELAY_MS,
   COUNTDOWN_WARNING_THRESHOLD_S,
@@ -51,9 +53,12 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
 
     const isInitialDeal =
       prev === "betting" &&
-      (gameState.phase === "playing" || gameState.phase === "finished");
+      (gameState.phase === "playing" ||
+        gameState.phase === "finished" ||
+        gameState.phase === "insurance");
     const isDealerReveal =
-      prev === "playing" && gameState.phase === "finished";
+      (prev === "playing" || prev === "insurance") &&
+      gameState.phase === "finished";
 
     if (isInitialDeal || isDealerReveal) {
       setShowResult(false);
@@ -109,6 +114,18 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
           sendAction("auto_deal");
         }
       }, 250);
+    } else if (gameState.phase === "insurance" && gameState.insuranceStartedAt) {
+      timerSentRef.current = false;
+      interval = setInterval(() => {
+        const elapsed = (Date.now() - gameState.insuranceStartedAt!) / 1000;
+        const remaining = Math.max(0, INSURANCE_TIMER_S - elapsed);
+        setCountdown(Math.ceil(remaining));
+
+        if (remaining <= 0 && !timerSentRef.current) {
+          timerSentRef.current = true;
+          sendAction("auto_insurance");
+        }
+      }, 250);
     } else {
       setCountdown(null);
       lastTickRef.current = null;
@@ -117,7 +134,13 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [gameState?.phase, gameState?.roundEndedAt, gameState?.bettingStartedAt, sendAction]);
+  }, [
+    gameState?.phase,
+    gameState?.roundEndedAt,
+    gameState?.bettingStartedAt,
+    gameState?.insuranceStartedAt,
+    sendAction,
+  ]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -258,8 +281,12 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
           key={player.id}
           player={player}
           isCurrentTurn={
-            gameState.phase === "playing" &&
-            gameState.activePlayerIndex === i
+            (gameState.phase === "playing" &&
+              gameState.activePlayerIndex === i) ||
+            (gameState.phase === "insurance" &&
+              player.id === playerId &&
+              (player.hands[0]?.bet ?? 0) > 0 &&
+              player.insuranceWager == null)
           }
           isMe={player.id === playerId}
         />
@@ -267,20 +294,39 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     </SeatsArc>
   );
 
-  const countdownBar = countdown !== null && countdown > 0 && (
-    gameState.phase === "betting" || gameState.phase === "finished"
-  ) ? (
+  const countdownBar =
+    countdown !== null &&
+    countdown > 0 &&
+    (gameState.phase === "betting" ||
+      gameState.phase === "finished" ||
+      gameState.phase === "insurance") ? (
     <div className="flex items-center justify-center gap-2 mb-3">
       <div className="relative w-32 h-1.5 bg-white/10 rounded-full overflow-hidden">
         <div
           className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
           style={{
-            width: `${(countdown / (gameState.phase === "betting" ? BETTING_TIMER_S : RESULTS_TIMER_S)) * 100}%`,
-            backgroundColor: countdown <= COUNTDOWN_WARNING_THRESHOLD_S ? "#f87171" : "#34d399",
+            width: `${(countdown /
+              (gameState.phase === "betting"
+                ? BETTING_TIMER_S
+                : gameState.phase === "insurance"
+                  ? INSURANCE_TIMER_S
+                  : RESULTS_TIMER_S)) *
+              100}%`,
+            backgroundColor:
+              countdown <= COUNTDOWN_WARNING_THRESHOLD_S &&
+              gameState.phase !== "insurance"
+                ? "#f87171"
+                : "#34d399",
           }}
         />
       </div>
-      <span className={`text-xs tabular-nums font-bold ${countdown <= COUNTDOWN_WARNING_THRESHOLD_S ? "text-red-400" : "text-emerald-400"}`}>
+      <span
+        className={`text-xs tabular-nums font-bold ${
+          countdown <= COUNTDOWN_WARNING_THRESHOLD_S && gameState.phase !== "insurance"
+            ? "text-red-400"
+            : "text-emerald-400"
+        }`}
+      >
         {countdown}s
       </span>
     </div>
@@ -312,6 +358,36 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
           {countdownBar}
           <p className="text-xs text-gray-500">
             Siguiente ronda en breve...
+          </p>
+        </div>
+      )}
+
+      {gameState.phase === "insurance" && showResult && myPlayer && hasBet && myPlayer.insuranceWager == null && (
+        <div className="flex flex-col items-center gap-2 mb-3">
+          {countdownBar}
+          <InsuranceControls
+            maxInsurance={Math.floor(myPlayer.hands[0].bet / 2)}
+            chips={myPlayer.chips}
+            onAccept={() => sendAction("insurance_accept")}
+            onDecline={() => sendAction("insurance_decline")}
+            countdownSec={countdown}
+          />
+        </div>
+      )}
+
+      {gameState.phase === "insurance" && showResult && myPlayer && hasBet && myPlayer.insuranceWager != null && (
+        <div className="flex flex-col items-center gap-2 mb-3">
+          {countdownBar}
+          <p className="text-center text-gray-400 text-sm">
+            Seguro decidido — esperando a los demás...
+          </p>
+        </div>
+      )}
+
+      {gameState.phase === "insurance" && showResult && (!myPlayer || !hasBet) && (
+        <div className="flex flex-col items-center gap-2 mb-3">
+          <p className="text-center text-gray-400 text-sm">
+            As del crupier — los jugadores deciden seguro...
           </p>
         </div>
       )}

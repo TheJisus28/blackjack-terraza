@@ -52,15 +52,21 @@ export async function POST(
   }
 
   // If removing the player triggered dealer_turn, run to completion
-  if (updated.phase === "dealer_turn" && gameState.phase === "playing") {
+  if (
+    updated.phase === "dealer_turn" &&
+    (gameState.phase === "playing" || gameState.phase === "insurance")
+  ) {
     const { state: completed } = runToCompletion(updated);
     updated = completed;
   }
 
   const newStatus =
     updated.phase === "finished" ? "waiting" :
-    updated.phase === "playing" || updated.phase === "betting" ? "playing" :
-    "waiting";
+    updated.phase === "playing" ||
+      updated.phase === "betting" ||
+      updated.phase === "insurance"
+      ? "playing"
+    : "waiting";
 
   // Transfer creator if the creator left
   const updateFields: Record<string, unknown> = {
