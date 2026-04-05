@@ -659,6 +659,7 @@ export function startBetting(state: GameState): GameState {
     ...p,
     hands: [],
     activeHandIndex: 0,
+    chips: p.chips < state.minBet ? p.chips + REBUY_CHIPS : p.chips,
   }));
 
   let deck = state.deck;
@@ -688,10 +689,10 @@ export function autoClearTable(state: GameState): GameState {
 export function rebuyPlayer(state: GameState, playerId: string): GameState {
   const idx = state.players.findIndex((p) => p.id === playerId);
   if (idx === -1) return state;
-  if (state.players[idx].chips > 0) return state;
+  if (state.players[idx].chips >= state.minBet) return state;
 
   const players = deepClonePlayers(state.players);
-  players[idx].chips = REBUY_CHIPS;
+  players[idx].chips += REBUY_CHIPS;
 
   return { ...state, players, message: `${players[idx].name} recargó fichas!` };
 }

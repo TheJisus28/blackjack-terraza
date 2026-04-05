@@ -133,7 +133,7 @@ export async function POST(
 
     case "rebuy": {
       const player = gameState.players.find((p) => p.id === playerId);
-      if (!player || player.chips > 0) {
+      if (!player || player.chips >= gameState.minBet) {
         return Response.json({ error: "No necesitas recargar" }, { status: 400 });
       }
       gameState = rebuyPlayer(gameState, playerId);

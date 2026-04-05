@@ -316,10 +316,10 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
         </div>
       )}
 
-      {/* Rebuy — 0 chips */}
-      {myPlayer && myPlayer.chips <= 0 && gameState.phase !== "playing" && (
+      {/* Rebuy — not enough chips to bet */}
+      {myPlayer && myPlayer.chips < gameState.minBet && gameState.phase === "betting" && (
         <div className="flex flex-col items-center gap-2 mb-3">
-          <p className="text-sm text-red-400 font-medium">Te quedaste sin fichas!</p>
+          <p className="text-sm text-red-400 font-medium">No tienes fichas suficientes!</p>
           <button
             onClick={() => sendAction("rebuy")}
             className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-sm
