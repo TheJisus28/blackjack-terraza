@@ -689,7 +689,9 @@ export function autoClearTable(state: GameState): GameState {
 export function rebuyPlayer(state: GameState, playerId: string): GameState {
   const idx = state.players.findIndex((p) => p.id === playerId);
   if (idx === -1) return state;
-  if (state.players[idx].chips >= state.minBet) return state;
+  const p = state.players[idx];
+  if (p.chips >= state.minBet) return state;
+  if (p.hands.some((h) => h.bet > 0)) return state;
 
   const players = deepClonePlayers(state.players);
   players[idx].chips += REBUY_CHIPS;

@@ -136,6 +136,12 @@ export async function POST(
       if (!player || player.chips >= gameState.minBet) {
         return Response.json({ error: "No necesitas recargar" }, { status: 400 });
       }
+      if (player.hands.some((h) => h.bet > 0)) {
+        return Response.json(
+          { error: "Ya apostaste esta ronda; espera a la siguiente" },
+          { status: 400 },
+        );
+      }
       gameState = rebuyPlayer(gameState, playerId);
       break;
     }
