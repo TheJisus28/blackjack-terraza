@@ -10,6 +10,13 @@ interface UseMultiplayerOptions {
   tableId: string;
 }
 
+type GameAction =
+  | PlayerAction
+  | "bet"
+  | "start_game"
+  | "auto_clear"
+  | "auto_deal";
+
 export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
   const [gameState, setGameState] = useState<ClientGameState | null>(null);
   const [tableInfo, setTableInfo] = useState<Record<string, unknown> | null>(null);
@@ -72,7 +79,7 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
   }, [tableId, playerId]);
 
   const sendAction = useCallback(
-    async (action: PlayerAction | "bet" | "start_round", amount?: number) => {
+    async (action: GameAction, amount?: number) => {
       try {
         const res = await fetch(`/api/tables/${tableId}/action`, {
           method: "POST",
@@ -148,7 +155,6 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
   }, [tableId, playerId]);
 
   const myPlayer = gameState?.players.find((p) => p.id === playerId) ?? null;
-  const isAdmin = tableInfo?.creator_id === playerId;
   const isMyTurn =
     gameState?.phase === "playing" &&
     gameState.players[gameState.activePlayerIndex]?.id === playerId;
@@ -158,7 +164,6 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     tableInfo,
     myPlayer,
     playerId,
-    isAdmin,
     isMyTurn,
     connected,
     loading,

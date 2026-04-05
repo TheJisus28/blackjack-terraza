@@ -480,7 +480,14 @@ export function resolveRound(state: GameState): {
   const message = results.map((r) => outcomeLabels[r.outcome]).join(" | ");
 
   return {
-    state: { ...state, deck, players, phase: "finished", message },
+    state: {
+      ...state,
+      deck,
+      players,
+      phase: "finished",
+      message,
+      roundEndedAt: Date.now(),
+    },
     results,
   };
 }
@@ -657,8 +664,16 @@ export function startBetting(state: GameState): GameState {
     dealer: { cards: [], status: "playing" },
     players,
     activePlayerIndex: 0,
-    message: "Todos apuesten!",
+    message: "Coloquen sus apuestas!",
+    roundEndedAt: undefined,
+    bettingStartedAt: Date.now(),
   };
+}
+
+/** Transition from finished → betting after the results timer */
+export function autoClearTable(state: GameState): GameState {
+  if (state.phase !== "finished") return state;
+  return startBetting(state);
 }
 
 export function allBetsPlaced(state: GameState): boolean {

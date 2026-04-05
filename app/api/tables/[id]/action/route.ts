@@ -5,6 +5,7 @@ import {
   playerAction,
   runToCompletion,
   startBetting,
+  autoClearTable,
   allBetsPlaced,
   toClientState,
   deserializeDeck,
@@ -13,6 +14,9 @@ import {
 import type { GameState, PlayerAction } from "@/lib/blackjack/types";
 import { broadcastToTable } from "@/lib/broadcast";
 
+const RESULTS_DELAY_MS = 4000;
+const BETTING_DELAY_MS = 9000;
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -20,7 +24,7 @@ export async function POST(
   const { id } = await params;
   const body = (await request.json()) as {
     playerId: string;
-    action: "bet" | "start_round" | PlayerAction;
+    action: "bet" | "start_game" | "auto_clear" | "auto_deal" | PlayerAction;
     amount?: number;
   };
 
@@ -52,14 +56,51 @@ export async function POST(
   }
 
   switch (action) {
-    case "start_round": {
-      if (playerId !== table.creator_id) {
-        return Response.json({ error: "Solo el admin puede iniciar" }, { status: 403 });
+    case "start_game": {
+      if (gameState.phase !== "waiting") {
+        return Response.json({ ok: true, state: toClientState(gameState) });
       }
-      if (gameState.phase !== "waiting" && gameState.phase !== "finished") {
-        return Response.json({ error: "No se puede iniciar ahora" }, { status: 400 });
+      if (gameState.players.length < 1) {
+        return Response.json({ error: "No hay jugadores" }, { status: 400 });
       }
       gameState = startBetting(gameState);
+      break;
+    }
+
+    case "auto_clear": {
+      if (gameState.phase !== "finished") {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      const elapsed = Date.now() - (gameState.roundEndedAt ?? 0);
+      if (elapsed < RESULTS_DELAY_MS) {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      gameState = autoClearTable(gameState);
+      break;
+    }
+
+    case "auto_deal": {
+      if (gameState.phase !== "betting") {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      const bettingElapsed = Date.now() - (gameState.bettingStartedAt ?? 0);
+      if (bettingElapsed < BETTING_DELAY_MS) {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      const hasBetters = gameState.players.some(
+        (p) => p.hands.length > 0 && p.hands[0].bet > 0,
+      );
+      if (!hasBetters) {
+        gameState = {
+          ...gameState,
+          bettingStartedAt: Date.now(),
+          message: "Nadie aposto — nuevo turno de apuestas",
+        };
+        break;
+      }
+      gameState = dealInitialCards(gameState);
+      const { state: dealt } = runToCompletion(gameState);
+      gameState = dealt;
       break;
     }
 
@@ -99,11 +140,9 @@ export async function POST(
   }
 
   const newStatus =
-    gameState.phase === "waiting"
-      ? "waiting"
-      : gameState.phase === "finished"
-        ? "waiting"
-        : "playing";
+    gameState.phase === "waiting" ? "waiting" :
+    gameState.phase === "finished" ? "waiting" :
+    "playing";
 
   const { error: updateError } = await sb
     .from("game_tables")

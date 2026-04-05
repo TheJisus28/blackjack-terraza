@@ -62,14 +62,23 @@ export async function POST(
     updated.phase === "playing" || updated.phase === "betting" ? "playing" :
     "waiting";
 
+  // Transfer creator if the creator left
+  const updateFields: Record<string, unknown> = {
+    game_state: toClientState(updated),
+    deck_data: serializeDeck(updated.deck),
+    player_count: newCount,
+    status: newStatus,
+  };
+
+  if (playerId === table.creator_id && updated.players.length > 0) {
+    const newCreator = updated.players[0];
+    updateFields.creator_id = newCreator.id;
+    updateFields.created_by = newCreator.name;
+  }
+
   const { error: updateError } = await sb
     .from("game_tables")
-    .update({
-      game_state: toClientState(updated),
-      deck_data: serializeDeck(updated.deck),
-      player_count: newCount,
-      status: newStatus,
-    })
+    .update(updateFields)
     .eq("id", id);
 
   if (updateError) {

@@ -75,6 +75,8 @@ export interface GameState {
   maxBet: number;
   deckCount: number;
   message: string;
+  roundEndedAt?: number;
+  bettingStartedAt?: number;
 }
 
 export interface GameResult {

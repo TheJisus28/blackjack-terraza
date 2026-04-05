@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { PlayerAction } from "@/lib/blackjack/types";
 import { useMultiplayer } from "@/hooks/use-multiplayer";
@@ -9,6 +9,9 @@ import { DealerArea } from "./DealerArea";
 import { PlayerSeat, SeatsArc } from "./PlayerSeat";
 import { ActionBar } from "./ActionBar";
 import { BettingControls } from "./BettingControls";
+
+const RESULTS_TIMER_S = 5;
+const BETTING_TIMER_S = 10;
 
 interface MultiplayerTableProps {
   tableId: string;
@@ -20,7 +23,6 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     tableInfo,
     myPlayer,
     playerId,
-    isAdmin,
     isMyTurn,
     connected,
     loading,
@@ -29,9 +31,12 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   } = useMultiplayer({ tableId });
 
   const [copied, setCopied] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const prevPhaseRef = useRef(gameState?.phase);
+  const timerSentRef = useRef(false);
 
+  // Result display delay (wait for dealer animation)
   useEffect(() => {
     if (!gameState) return;
     if (gameState.phase === "finished" && prevPhaseRef.current !== "finished") {
@@ -48,6 +53,46 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     prevPhaseRef.current = gameState.phase;
   }, [gameState?.phase, gameState?.dealer.cards.length]);
 
+  // Timer logic: auto_clear after results, auto_deal after betting
+  useEffect(() => {
+    if (!gameState) return;
+
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    if (gameState.phase === "finished" && gameState.roundEndedAt) {
+      timerSentRef.current = false;
+      interval = setInterval(() => {
+        const elapsed = (Date.now() - gameState.roundEndedAt!) / 1000;
+        const remaining = Math.max(0, RESULTS_TIMER_S - elapsed);
+        setCountdown(Math.ceil(remaining));
+
+        if (remaining <= 0 && !timerSentRef.current) {
+          timerSentRef.current = true;
+          sendAction("auto_clear");
+        }
+      }, 250);
+    } else if (gameState.phase === "betting" && gameState.bettingStartedAt) {
+      timerSentRef.current = false;
+      interval = setInterval(() => {
+        const elapsed = (Date.now() - gameState.bettingStartedAt!) / 1000;
+        const remaining = Math.max(0, BETTING_TIMER_S - elapsed);
+        setCountdown(Math.ceil(remaining));
+
+        if (remaining <= 0 && !timerSentRef.current) {
+          timerSentRef.current = true;
+          sendAction("auto_deal");
+        }
+      }, 250);
+    } else {
+      setCountdown(null);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [gameState?.phase, gameState?.roundEndedAt, gameState?.bettingStartedAt, sendAction]);
+
+  // Keyboard shortcuts
   useEffect(() => {
     if (!gameState) return;
     if (gameState.phase !== "playing") return;
@@ -72,18 +117,18 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [gameState?.phase, isMyTurn, sendAction]);
 
-  const copyInviteLink = async () => {
+  const copyInviteLink = useCallback(async () => {
     const code = (tableInfo as Record<string, string>)?.invite_code;
     if (!code) return;
     const url = `${window.location.origin}/table/${tableId}`;
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [tableInfo, tableId]);
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-[#1a1a2e]">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-[#0f0f1a]">
         <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -91,7 +136,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
 
   if (error || !gameState) {
     return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-[#1a1a2e] gap-4">
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-[#0f0f1a] gap-4">
         <p className="text-red-400 font-semibold">{error ?? "Error"}</p>
         <Link
           href="/lobby"
@@ -183,18 +228,37 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     </SeatsArc>
   );
 
+  const countdownBar = countdown !== null && countdown > 0 && (
+    gameState.phase === "betting" || gameState.phase === "finished"
+  ) ? (
+    <div className="flex items-center justify-center gap-2 mb-3">
+      <div className="relative w-32 h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div
+          className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
+          style={{
+            width: `${(countdown / (gameState.phase === "betting" ? BETTING_TIMER_S : RESULTS_TIMER_S)) * 100}%`,
+            backgroundColor: countdown <= 3 ? "#f87171" : "#34d399",
+          }}
+        />
+      </div>
+      <span className={`text-xs tabular-nums font-bold ${countdown <= 3 ? "text-red-400" : "text-emerald-400"}`}>
+        {countdown}s
+      </span>
+    </div>
+  ) : null;
+
   const controls = (
     <>
-      {/* Waiting - admin can start */}
-      {gameState.phase === "waiting" && isAdmin && (
+      {/* Waiting - any player can start */}
+      {gameState.phase === "waiting" && (
         <div className="flex flex-col items-center gap-3">
           <button
-            onClick={() => sendAction("start_round")}
+            onClick={() => sendAction("start_game")}
             disabled={gameState.players.length < 1}
             className="px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
               shadow-lg shadow-emerald-500/25 transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
           >
-            Iniciar Juego
+            Empezar
           </button>
           <p className="text-xs text-gray-500">
             {gameState.players.length} jugador
@@ -203,50 +267,46 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
         </div>
       )}
 
-      {/* Finished - admin can start new round (delayed) */}
-      {gameState.phase === "finished" && isAdmin && showResult && (
-        <div
-          className="flex flex-col items-center gap-3"
-          style={{ animation: "fadeInUp 0.4s ease-out both" }}
-        >
-          <button
-            onClick={() => sendAction("start_round")}
-            className="px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
-              shadow-lg shadow-emerald-500/25 transition-all active:scale-95 cursor-pointer"
-          >
-            Nueva Ronda
-          </button>
+      {/* Finished - show countdown */}
+      {gameState.phase === "finished" && showResult && (
+        <div className="flex flex-col items-center gap-2">
+          {countdownBar}
+          <p className="text-xs text-gray-500">
+            Siguiente ronda en breve...
+          </p>
         </div>
-      )}
-
-      {/* Waiting - non-admin */}
-      {gameState.phase === "waiting" && !isAdmin && (
-        <p className="text-center text-gray-400 text-sm">
-          Esperando que el admin inicie la ronda...
-        </p>
-      )}
-
-      {/* Finished - non-admin (delayed) */}
-      {gameState.phase === "finished" && !isAdmin && showResult && (
-        <p className="text-center text-gray-400 text-sm">
-          Esperando que el admin inicie la ronda...
-        </p>
       )}
 
       {/* Betting */}
       {gameState.phase === "betting" && myPlayer && !hasBet && (
-        <BettingControls
-          minBet={gameState.minBet}
-          maxBet={gameState.maxBet}
-          chips={myPlayer.chips}
-          onBet={(amount) => sendAction("bet", amount)}
-        />
+        <div className="flex flex-col items-center gap-2">
+          {countdownBar}
+          <BettingControls
+            minBet={gameState.minBet}
+            maxBet={gameState.maxBet}
+            chips={myPlayer.chips}
+            onBet={(amount) => sendAction("bet", amount)}
+          />
+        </div>
       )}
 
       {gameState.phase === "betting" && hasBet && (
-        <p className="text-center text-emerald-300 text-sm font-medium">
-          Apuesta colocada! Esperando a los demas...
-        </p>
+        <div className="flex flex-col items-center gap-2">
+          {countdownBar}
+          <p className="text-center text-emerald-300 text-sm font-medium">
+            Apuesta colocada! Esperando a los demas...
+          </p>
+        </div>
+      )}
+
+      {/* Betting phase but player joined mid-round (no hands yet) */}
+      {gameState.phase === "betting" && !myPlayer && (
+        <div className="flex flex-col items-center gap-2">
+          {countdownBar}
+          <p className="text-center text-gray-400 text-sm">
+            Observando...
+          </p>
+        </div>
       )}
 
       {/* Playing - my turn */}
