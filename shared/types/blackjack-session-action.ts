@@ -13,6 +13,9 @@ export const SESSION_META = {
   INSURANCE_DECLINE: "insurance_decline",
   AUTO_REBUY_RESULTS: "auto_rebuy_results",
   REBUY: "rebuy",
+  /** Between rounds: keep chips, skip betting until sit in */
+  WATCH_TABLE: "watch_table",
+  SIT_IN: "sit_in",
 } as const;
 
 export type SessionMetaAction =

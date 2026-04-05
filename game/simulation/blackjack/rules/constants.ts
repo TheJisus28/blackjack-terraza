@@ -20,7 +20,8 @@ export const RESULTS_TIMER_S = 5;   // seconds clients show results before clear
 /** In the last N seconds of that window, auto-rebuy (+REBUY_CHIPS) if below min bet */
 export const RESULTS_REBUY_LEAD_S = 2;
 export const BETTING_TIMER_S = 20;  // seconds clients have to place bets
-export const INSURANCE_TIMER_S = 12;  // seconds to accept/decline insurance (dealer ace)
+/** Same window as betting: accept/decline insurance when dealer shows ace */
+export const INSURANCE_TIMER_S = BETTING_TIMER_S;
 // Server-side validation buffers (slightly less to tolerate network latency)
 export const RESULTS_DELAY_MS = (RESULTS_TIMER_S - 1) * 1000;
 export const BETTING_DELAY_MS = (BETTING_TIMER_S - 1) * 1000;

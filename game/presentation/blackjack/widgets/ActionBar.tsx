@@ -15,7 +15,9 @@ export function ActionBar({ gameState, onAction }: ActionBarProps) {
   const isActive = hand && hand.status === "playing";
 
   const showSplit = isActive && canSplit(hand) && player.chips >= hand.bet;
-  const showDouble = isActive && canDoubleDown(hand) && player.chips >= hand.bet;
+  const doubleExtra = Math.min(hand.bet, player.chips);
+  const showDouble =
+    isActive && canDoubleDown(hand) && player.chips >= 1;
   const showSurrender = isActive && canSurrender(hand);
 
   const handleKey = useCallback(
@@ -58,7 +60,11 @@ export function ActionBar({ gameState, onAction }: ActionBarProps) {
         <ActionButton
           onClick={() => onAction("double")}
           variant="accent"
-          label="Double"
+          label={
+            doubleExtra < hand.bet
+              ? `Double +$${doubleExtra}`
+              : "Double"
+          }
           shortcut="D"
         />
       )}

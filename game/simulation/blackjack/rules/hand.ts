@@ -47,7 +47,10 @@ export function isTenValueRank(rank: Rank): boolean {
   );
 }
 
-/** Natural blackjack from two cards (dealer peek; ignores faceUp). */
+/**
+ * Natural blackjack from two cards (dealer hole-card peek).
+ * Uses ranks only so a face-down ace under a 10-up is still detected without revealing the hole to the UI.
+ */
 export function isNaturalBlackjackCards(cards: Card[]): boolean {
   if (cards.length !== 2) return false;
   const ranks = cards.map((c) => c.rank);

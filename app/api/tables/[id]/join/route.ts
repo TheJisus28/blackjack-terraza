@@ -8,6 +8,7 @@ import {
   serializeDeck,
   toClientState,
   lobbyTableStatusAfterSeatEvent,
+  playingParticipants,
 } from "@/game/simulation/blackjack";
 import { broadcastToTable } from "@/shared/lib/broadcast";
 
@@ -102,17 +103,26 @@ export async function POST(
     return Response.json({ error: "Table not found" }, { status: 404 });
   }
 
-  if (table.player_count >= table.max_players) {
-    return Response.json({ error: "Table is full" }, { status: 400 });
-  }
-
   const gameState: GameState = {
     ...table.game_state,
     deck: deserializeDeck(table.deck_data),
   };
 
-  if (gameState.players.some((p: { id: string }) => p.id === playerId)) {
-    return Response.json({ ok: true, alreadyJoined: true });
+  const alreadyHere = gameState.players.some(
+    (p: { id: string }) => p.id === playerId,
+  );
+
+  const seatedCount = playingParticipants(gameState.players).length;
+  if (!alreadyHere && seatedCount >= table.max_players) {
+    return Response.json({ error: "Table is full" }, { status: 400 });
+  }
+
+  if (alreadyHere) {
+    return Response.json({
+      ok: true,
+      alreadyJoined: true,
+      state: toClientState(gameState),
+    });
   }
 
   const updated = addPlayer(gameState, playerId, playerName);

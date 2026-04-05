@@ -42,6 +42,8 @@ export interface Player {
   hands: Hand[];
   activeHandIndex: number;
   isActive: boolean;
+  /** Watching only: no bets this round; chips kept for when they sit back in */
+  spectator?: boolean;
   inactiveRounds?: number;
   /** Insurance: null = pending, 0 = declined, >0 = wager (pays 2:1 on dealer natural) */
   insuranceWager?: number | null;

@@ -1,6 +1,7 @@
 import type {
   Card,
   ClientGameState,
+  GamePhase,
   GameResult,
   GameState,
   Player,
@@ -72,6 +73,9 @@ export function placeBet(
   if (playerIndex === -1) return state;
 
   const player = state.players[playerIndex];
+  if (player.spectator) {
+    return { ...state, message: "Sit in to place a bet" };
+  }
   if (amount < state.minBet || amount > state.maxBet) {
     const maxLabel = state.maxBet >= 999_999 ? "your chips" : `$${state.maxBet}`;
     return {
@@ -128,6 +132,7 @@ export function dealInitialCards(state: GameState): GameState {
   }
 
   const dealerUp = dealerCards[0];
+  // Peek uses card ranks only (hole may still be face-down); isNaturalBlackjackCards ignores faceUp.
   const allSettled = players.every(
     (p) =>
       p.hands.length === 0 ||
@@ -389,6 +394,7 @@ export function playerAction(
   state: GameState,
   playerId: string,
   action: PlayerAction,
+  options?: { doubleAmount?: number },
 ): GameState {
   if (state.phase !== PHASE.PLAYING) return state;
 
@@ -407,7 +413,7 @@ export function playerAction(
     case PLAYER_ACTION.STAND:
       return handleStand(state, playerIndex);
     case PLAYER_ACTION.DOUBLE:
-      return handleDouble(state, playerIndex);
+      return handleDouble(state, playerIndex, options?.doubleAmount);
     case PLAYER_ACTION.SPLIT:
       return handleSplit(state, playerIndex);
     case PLAYER_ACTION.SURRENDER:
@@ -455,17 +461,37 @@ function handleStand(state: GameState, playerIndex: number): GameState {
   return advanceToNextPlayer({ ...state, players });
 }
 
-function handleDouble(state: GameState, playerIndex: number): GameState {
+function handleDouble(
+  state: GameState,
+  playerIndex: number,
+  requestedAdditional?: number,
+): GameState {
   const players = deepClonePlayers(state.players);
   const player = players[playerIndex];
   const hand = player.hands[player.activeHandIndex];
 
-  if (!canDoubleDown(hand) || player.chips < hand.bet) {
+  if (!canDoubleDown(hand)) {
     return { ...state, message: "Cannot double down" };
   }
 
-  player.chips -= hand.bet;
-  hand.bet *= 2;
+  const maxAdditional = Math.min(hand.bet, player.chips);
+  if (maxAdditional < 1) {
+    return { ...state, message: "Cannot double down" };
+  }
+
+  let additional: number;
+  if (requestedAdditional != null && requestedAdditional > 0) {
+    additional = Math.floor(requestedAdditional);
+    additional = Math.min(additional, hand.bet, player.chips);
+    if (additional < 1) {
+      return { ...state, message: "Cannot double down" };
+    }
+  } else {
+    additional = maxAdditional;
+  }
+
+  player.chips -= additional;
+  hand.bet += additional;
   hand.isDoubledDown = true;
 
   let deck = [...state.deck];
@@ -788,6 +814,7 @@ export function addPlayer(
     hands: [],
     activeHandIndex: 0,
     isActive: true,
+    spectator: false,
   };
 
   const midRound =
@@ -805,6 +832,65 @@ export function addPlayer(
         ? `${playerName} joined. Waiting for more players...`
         : `${playerName} joined!`,
   };
+}
+
+const PHASE_BLOCKS_WATCH: GamePhase[] = [
+  PHASE.PLAYING,
+  PHASE.INSURANCE,
+  PHASE.DEALER_TURN,
+  PHASE.RESOLVING,
+];
+
+/**
+ * Toggle spectator mode (chips kept in game state). Only when not in an active hand.
+ */
+export function setPlayerSpectator(
+  state: GameState,
+  playerId: string,
+  spectator: boolean,
+): GameState {
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  if (idx === -1) return state;
+
+  const players = deepClonePlayers(state.players);
+  const p = players[idx];
+
+  if (spectator) {
+    if (p.spectator) return state;
+    const otherSeated = playingParticipants(state.players).some(
+      (x) => x.id !== playerId,
+    );
+    if (!otherSeated) {
+      return {
+        ...state,
+        message: "At least one other seated player is needed to watch",
+      };
+    }
+    const inHand = p.hands.some((h) => h.bet > 0 || h.cards.length > 0);
+    if (inHand || PHASE_BLOCKS_WATCH.includes(state.phase)) {
+      return {
+        ...state,
+        message: "You can only watch between rounds (no active bet or cards)",
+      };
+    }
+    const { insuranceWager: _, ...rest } = p;
+    players[idx] = {
+      ...rest,
+      spectator: true,
+      hands: [],
+      activeHandIndex: 0,
+    };
+    return { ...state, players, message: `${p.name} is watching` };
+  }
+
+  if (!p.spectator) return state;
+  players[idx] = {
+    ...p,
+    spectator: false,
+    hands: [],
+    activeHandIndex: 0,
+  };
+  return { ...state, players, message: `${p.name} sat back in` };
 }
 
 export function removePlayer(state: GameState, playerId: string): GameState {
@@ -841,9 +927,11 @@ export function removePlayer(state: GameState, playerId: string): GameState {
   }
 
   if (phase === PHASE.BETTING) {
-    // If all remaining players already bet, proceed to deal
-    const allBet = players.length > 0 &&
-      players.every((p) => p.hands.length > 0 && p.hands[0].bet > 0);
+    // If all seated (non-spectator) players already bet, proceed to deal
+    const seated = playingParticipants(players);
+    const allBet =
+      seated.length > 0 &&
+      seated.every((p) => p.hands.length > 0 && p.hands[0].bet > 0);
     if (allBet) {
       const dealt = dealInitialCards({
         ...state, players, activePlayerIndex, phase, message,
@@ -879,8 +967,8 @@ export function completeRoundIfDealerTurnAfterLeave(
 }
 
 export function startBetting(state: GameState): GameState {
-  if (state.players.length === 0) {
-    return { ...state, message: "No players" };
+  if (playingParticipants(state.players).length === 0) {
+    return { ...state, message: "No seated players" };
   }
   const players = state.players.map((p) => {
     const { insuranceWager: _, ...rest } = p;
@@ -949,6 +1037,7 @@ export function rebuyPlayer(state: GameState, playerId: string): GameState {
   const idx = state.players.findIndex((p) => p.id === playerId);
   if (idx === -1) return state;
   const p = state.players[idx];
+  if (p.spectator) return state;
   if (p.chips >= state.minBet) return state;
   if (p.hands.some((h) => h.bet > 0)) return state;
 
@@ -962,11 +1051,17 @@ export function rebuyPlayer(state: GameState, playerId: string): GameState {
   };
 }
 
+/** Players who take a seat at the table (excludes spectators). */
+export function playingParticipants(players: Player[]): Player[] {
+  return players.filter((p) => !p.spectator);
+}
+
 export function allBetsPlaced(state: GameState): boolean {
+  const seated = playingParticipants(state.players);
   return (
     state.phase === PHASE.BETTING &&
-    state.players.length > 0 &&
-    state.players.every((p) => p.hands.length > 0 && p.hands[0].bet > 0)
+    seated.length > 0 &&
+    seated.every((p) => p.hands.length > 0 && p.hands[0].bet > 0)
   );
 }
 

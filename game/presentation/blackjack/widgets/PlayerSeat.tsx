@@ -86,6 +86,11 @@ export function PlayerSeat({
         <span className="text-[8px] sm:text-[9px] lg:text-xs text-yellow-300/60 tabular-nums font-semibold">
           ${player.chips}
         </span>
+        {player.spectator && (
+          <span className="text-[7px] sm:text-[8px] uppercase tracking-wide text-sky-300/90 font-semibold">
+            Watching
+          </span>
+        )}
       </div>
     </div>
   );

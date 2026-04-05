@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ClientGameState, PlayerAction } from "@/game/simulation/blackjack";
-import { PHASE } from "@/game/simulation/blackjack";
+import { PHASE, playingParticipants } from "@/game/simulation/blackjack";
 import {
   useMultiplayer,
   type UseMultiplayerReturn,
@@ -55,6 +55,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       isMyTurn={mp.isMyTurn}
       connected={mp.connected}
       sendAction={mp.sendAction}
+      leaveTable={mp.leaveTable}
     />
   );
 }
@@ -68,6 +69,7 @@ interface MultiplayerTableLoadedProps {
   isMyTurn: boolean;
   connected: boolean;
   sendAction: UseMultiplayerReturn["sendAction"];
+  leaveTable: UseMultiplayerReturn["leaveTable"];
 }
 
 function MultiplayerTableLoaded({
@@ -79,8 +81,11 @@ function MultiplayerTableLoaded({
   isMyTurn,
   connected,
   sendAction,
+  leaveTable,
 }: MultiplayerTableLoadedProps) {
   const [copied, setCopied] = useState(false);
+  const router = useRouter();
+  const seatedCount = playingParticipants(gameState.players).length;
 
   const sendTimerAction = useCallback(
     (action: BlackjackSessionTimerAction) => {
@@ -147,11 +152,23 @@ function MultiplayerTableLoaded({
   const inviteCode = tableInfo?.invite_code ?? "";
   const hasBet = myPlayer?.hands.length ? myPlayer.hands[0]?.bet > 0 : false;
 
+  const goToLobby = useCallback(() => {
+    void leaveTable().then(() => router.push("/lobby"));
+  }, [leaveTable, router]);
+
+  const canOfferWatch =
+    myPlayer &&
+    !myPlayer.spectator &&
+    (gameState.phase === PHASE.WAITING ||
+      gameState.phase === PHASE.FINISHED ||
+      (gameState.phase === PHASE.BETTING && !hasBet));
+
   const header = (
     <header className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-black/40 backdrop-blur-sm border-b border-white/5">
-      <Link
-        href="/lobby"
-        className="flex items-center gap-2 text-lg font-bold text-white hover:opacity-80 transition-opacity"
+      <button
+        type="button"
+        onClick={goToLobby}
+        className="flex items-center gap-2 text-lg font-bold text-white hover:opacity-80 transition-opacity cursor-pointer"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -166,7 +183,7 @@ function MultiplayerTableLoaded({
           />
         </svg>
         {tableInfo?.name ?? "Table"}
-      </Link>
+      </button>
 
       <div className="flex items-center gap-3">
         {inviteCode && (
@@ -184,8 +201,8 @@ function MultiplayerTableLoaded({
           <div
             className={`w-2 h-2 rounded-full ${connected ? "bg-emerald-400" : "bg-red-400"}`}
           />
-          <span className="text-xs text-gray-400">
-            {gameState.players.length}p
+          <span className="text-xs text-gray-400" title="Seated / in room">
+            {seatedCount}/{gameState.players.length}
           </span>
         </div>
 
@@ -263,15 +280,17 @@ function MultiplayerTableLoaded({
           <button
             type="button"
             onClick={() => sendAction(SESSION_ACTION.START_GAME)}
-            disabled={gameState.players.length < 1}
+            disabled={seatedCount < 1}
             className="px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
               shadow-lg shadow-emerald-500/25 transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
           >
             Start game
           </button>
           <p className="text-xs text-gray-500">
-            {gameState.players.length} player
-            {gameState.players.length !== 1 ? "s" : ""} at the table
+            {seatedCount} seated
+            {gameState.players.length !== seatedCount
+              ? ` · ${gameState.players.length} in room`
+              : ""}
           </p>
         </div>
       )}
@@ -327,8 +346,43 @@ function MultiplayerTableLoaded({
           </div>
         )}
 
+      {myPlayer?.spectator && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-center text-sky-200/90 text-sm max-w-xs">
+            {gameState.phase === PHASE.PLAYING ||
+            gameState.phase === PHASE.INSURANCE ||
+            gameState.phase === PHASE.DEALER_TURN ||
+            gameState.phase === PHASE.RESOLVING
+              ? "Watching this hand — your chips are safe. Sit in anytime; you will play the next round you join."
+              : "Watching — chips are saved. Sit in when you want to bet."}
+          </p>
+          <button
+            type="button"
+            onClick={() => void sendAction(SESSION_ACTION.SIT_IN)}
+            className="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm
+              shadow-lg shadow-sky-600/20 transition-all cursor-pointer"
+          >
+            Sit in
+          </button>
+        </div>
+      )}
+
+      {canOfferWatch && (
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void sendAction(SESSION_ACTION.WATCH_TABLE)}
+            className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white/90 text-sm font-medium
+              transition-colors cursor-pointer"
+          >
+            Watch only (keep chips)
+          </button>
+        </div>
+      )}
+
       {gameState.phase === PHASE.BETTING &&
         myPlayer &&
+        !myPlayer.spectator &&
         myPlayer.chips > 0 &&
         !hasBet && (
           <div className="flex flex-col items-center gap-2">
@@ -357,7 +411,9 @@ function MultiplayerTableLoaded({
       {gameState.phase === PHASE.BETTING && !myPlayer && (
         <div className="flex flex-col items-center gap-2">
           {countdownBar}
-          <p className="text-center text-gray-400 text-sm">Spectating...</p>
+          <p className="text-center text-gray-400 text-sm">
+            Join the table to bet this round.
+          </p>
         </div>
       )}
 
@@ -383,6 +439,7 @@ function MultiplayerTableLoaded({
 
       {gameState.phase === PHASE.PLAYING &&
         myPlayer &&
+        !myPlayer.spectator &&
         myPlayer.hands.length === 0 && (
           <p className="text-center text-gray-400 text-sm">
             You joined mid-round. You can play the next one.
