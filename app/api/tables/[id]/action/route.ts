@@ -7,13 +7,15 @@ import {
   startBetting,
   autoClearTable,
   allBetsPlaced,
+  rebuyPlayer,
+  removePlayer,
   toClientState,
   deserializeDeck,
   serializeDeck,
 } from "@/lib/blackjack/engine";
 import type { GameState, PlayerAction } from "@/lib/blackjack/types";
 import { broadcastToTable } from "@/lib/broadcast";
-import { RESULTS_DELAY_MS, BETTING_DELAY_MS } from "@/lib/blackjack/constants";
+import { RESULTS_DELAY_MS, BETTING_DELAY_MS, MAX_INACTIVE_ROUNDS } from "@/lib/blackjack/constants";
 
 export async function POST(
   request: Request,
@@ -22,7 +24,7 @@ export async function POST(
   const { id } = await params;
   const body = (await request.json()) as {
     playerId: string;
-    action: "bet" | "start_game" | "auto_clear" | "auto_deal" | PlayerAction;
+    action: "bet" | "start_game" | "auto_clear" | "auto_deal" | "rebuy" | PlayerAction;
     amount?: number;
   };
 
@@ -85,6 +87,33 @@ export async function POST(
       if (bettingElapsed < BETTING_DELAY_MS) {
         return Response.json({ ok: true, state: toClientState(gameState) });
       }
+
+      // Track inactivity: increment for non-betters, reset for betters
+      gameState = {
+        ...gameState,
+        players: gameState.players.map((p) => {
+          const didBet = p.hands.length > 0 && p.hands[0].bet > 0;
+          return {
+            ...p,
+            inactiveRounds: didBet ? 0 : (p.inactiveRounds ?? 0) + 1,
+          };
+        }),
+      };
+
+      // Kick players inactive for too long
+      const toKick = gameState.players.filter(
+        (p) => (p.inactiveRounds ?? 0) >= MAX_INACTIVE_ROUNDS,
+      );
+      for (const p of toKick) {
+        gameState = removePlayer(gameState, p.id);
+      }
+
+      if (gameState.players.length === 0) {
+        await sb.from("game_tables").delete().eq("id", id);
+        await broadcastToTable(id, { type: "table_closed" });
+        return Response.json({ ok: true, state: null });
+      }
+
       const hasBetters = gameState.players.some(
         (p) => p.hands.length > 0 && p.hands[0].bet > 0,
       );
@@ -99,6 +128,15 @@ export async function POST(
       gameState = dealInitialCards(gameState);
       const { state: dealt } = runToCompletion(gameState);
       gameState = dealt;
+      break;
+    }
+
+    case "rebuy": {
+      const player = gameState.players.find((p) => p.id === playerId);
+      if (!player || player.chips > 0) {
+        return Response.json({ error: "No necesitas recargar" }, { status: 400 });
+      }
+      gameState = rebuyPlayer(gameState, playerId);
       break;
     }
 

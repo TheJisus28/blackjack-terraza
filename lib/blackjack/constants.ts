@@ -3,8 +3,9 @@ export const DEFAULT_DECK_COUNT = 6;
 
 // ── Chips & bets ──
 export const STARTING_CHIPS = 1000;
+export const REBUY_CHIPS = 300;
 export const DEFAULT_MIN_BET = 10;
-export const DEFAULT_MAX_BET = 500;
+export const DEFAULT_MAX_BET = 999_999_999;
 
 // ── Hand rules ──
 export const BLACKJACK_VALUE = 21;
@@ -20,6 +21,9 @@ export const BETTING_TIMER_S = 20;  // seconds clients have to place bets
 // Server-side validation buffers (slightly less to tolerate network latency)
 export const RESULTS_DELAY_MS = (RESULTS_TIMER_S - 1) * 1000;
 export const BETTING_DELAY_MS = (BETTING_TIMER_S - 1) * 1000;
+
+// ── Inactivity ──
+export const MAX_INACTIVE_ROUNDS = 3;
 
 // ── UI animation timing ──
 export const CARD_ANIM_DELAY_PER_CARD_MS = 450;

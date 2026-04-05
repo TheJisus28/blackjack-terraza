@@ -21,6 +21,7 @@ import {
   DEFAULT_MIN_BET,
   DEFAULT_MAX_BET,
   STARTING_CHIPS,
+  REBUY_CHIPS,
   BLACKJACK_VALUE,
   DEALER_STAND_VALUE,
   BLACKJACK_PAYOUT_MULTIPLIER,
@@ -68,9 +69,10 @@ export function placeBet(
 
   const player = state.players[playerIndex];
   if (amount < state.minBet || amount > state.maxBet) {
+    const maxLabel = state.maxBet >= 999_999 ? "tus fichas" : `$${state.maxBet}`;
     return {
       ...state,
-      message: `Apuesta debe ser entre $${state.minBet} y $${state.maxBet}`,
+      message: `Apuesta debe ser entre $${state.minBet} y ${maxLabel}`,
     };
   }
   if (amount > player.chips) {
@@ -681,6 +683,17 @@ export function startBetting(state: GameState): GameState {
 export function autoClearTable(state: GameState): GameState {
   if (state.phase !== "finished") return state;
   return startBetting(state);
+}
+
+export function rebuyPlayer(state: GameState, playerId: string): GameState {
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  if (idx === -1) return state;
+  if (state.players[idx].chips > 0) return state;
+
+  const players = deepClonePlayers(state.players);
+  players[idx].chips = REBUY_CHIPS;
+
+  return { ...state, players, message: `${players[idx].name} recargó fichas!` };
 }
 
 export function allBetsPlaced(state: GameState): boolean {

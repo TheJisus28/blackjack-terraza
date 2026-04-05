@@ -22,12 +22,12 @@ export function DealerArea({ gameState }: DealerAreaProps) {
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-emerald-300 uppercase tracking-widest">
+        <span className="text-sm lg:text-base font-semibold text-emerald-300 uppercase tracking-widest">
           Dealer
         </span>
         {dealer.cards.length > 0 && (
           <span
-            className="text-lg font-bold text-white tabular-nums"
+            className="text-lg lg:text-xl font-bold text-white tabular-nums"
             style={{
               animation: `fadeInUp 0.4s ease-out ${totalDelay}ms both`,
             }}
@@ -40,7 +40,7 @@ export function DealerArea({ gameState }: DealerAreaProps) {
         )}
       </div>
 
-      <div className="flex -space-x-6">
+      <div className="flex -space-x-6 lg:-space-x-7">
         {dealer.cards.map((card, i) => (
           <Card key={`dealer-${i}`} card={card} index={i} />
         ))}

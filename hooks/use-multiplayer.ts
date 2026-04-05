@@ -15,7 +15,8 @@ type GameAction =
   | "bet"
   | "start_game"
   | "auto_clear"
-  | "auto_deal";
+  | "auto_deal"
+  | "rebuy";
 
 export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
   const [gameState, setGameState] = useState<ClientGameState | null>(null);

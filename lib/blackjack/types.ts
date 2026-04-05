@@ -42,6 +42,7 @@ export interface Player {
   hands: Hand[];
   activeHandIndex: number;
   isActive: boolean;
+  inactiveRounds?: number;
 }
 
 export type GamePhase =

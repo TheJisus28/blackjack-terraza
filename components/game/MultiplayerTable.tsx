@@ -16,6 +16,8 @@ import {
   CARD_ANIM_BASE_DELAY_MS,
   COUNTDOWN_WARNING_THRESHOLD_S,
 } from "@/lib/blackjack/constants";
+import { useSounds } from "@/hooks/use-sounds";
+import { sounds } from "@/lib/sounds";
 
 interface MultiplayerTableProps {
   tableId: string;
@@ -168,6 +170,18 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   const inviteCode = (tableInfo as Record<string, string>)?.invite_code ?? "";
   const hasBet = myPlayer?.hands.length ? myPlayer.hands[0]?.bet > 0 : false;
 
+  const totalPlayerCards = gameState.players.reduce(
+    (sum, p) => sum + p.hands.reduce((s, h) => s + h.cards.length, 0), 0,
+  );
+
+  useSounds({
+    phase: gameState.phase,
+    dealerCardCount: gameState.dealer.cards.length,
+    playerCardCount: totalPlayerCards,
+    resultOutcome: undefined,
+    isMyTurn,
+  });
+
   const header = (
     <header className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-black/40 backdrop-blur-sm border-b border-white/5">
       <Link
@@ -293,15 +307,29 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
         </div>
       )}
 
+      {/* Rebuy — 0 chips */}
+      {myPlayer && myPlayer.chips <= 0 && gameState.phase !== "playing" && (
+        <div className="flex flex-col items-center gap-2 mb-3">
+          <p className="text-sm text-red-400 font-medium">Te quedaste sin fichas!</p>
+          <button
+            onClick={() => sendAction("rebuy")}
+            className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-sm
+              shadow-lg shadow-amber-500/25 transition-all active:scale-95 cursor-pointer"
+          >
+            Recargar $300
+          </button>
+        </div>
+      )}
+
       {/* Betting */}
-      {gameState.phase === "betting" && myPlayer && !hasBet && (
+      {gameState.phase === "betting" && myPlayer && myPlayer.chips > 0 && !hasBet && (
         <div className="flex flex-col items-center gap-2">
           {countdownBar}
           <BettingControls
             minBet={gameState.minBet}
             maxBet={gameState.maxBet}
             chips={myPlayer.chips}
-            onBet={(amount) => sendAction("bet", amount)}
+            onBet={(amount) => { sounds.chipPlace(); sendAction("bet", amount); }}
           />
         </div>
       )}

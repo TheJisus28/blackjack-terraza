@@ -21,9 +21,9 @@ export function CasinoTable({
     <div className="relative flex flex-col min-h-[100dvh] bg-[#0f0f1a] overflow-hidden">
       {headerSlot}
 
-      <div className="relative z-10 flex-1 flex flex-col items-center px-2 sm:px-4 py-3 sm:py-4">
+      <div className="relative z-10 flex-1 flex flex-col items-center px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
         {/* Wood border */}
-        <div className="w-full max-w-[900px] rounded-t-[48%] rounded-b-[6%] bg-gradient-to-b from-[#6b4423] via-[#7a4f2b] to-[#4a2e14] p-[5px] sm:p-[7px] shadow-[0_8px_40px_rgba(0,0,0,0.6)]">
+        <div className="w-full max-w-[900px] lg:max-w-[1100px] xl:max-w-[1200px] rounded-t-[48%] rounded-b-[6%] bg-gradient-to-b from-[#6b4423] via-[#7a4f2b] to-[#4a2e14] p-[5px] sm:p-[7px] lg:p-[9px] shadow-[0_8px_40px_rgba(0,0,0,0.6)]">
           {/* Felt surface */}
           <div className="relative w-full rounded-t-[48%] rounded-b-[6%] bg-gradient-to-b from-[#1a6b3c] via-[#1e7a42] to-[#176638] overflow-hidden">
             {/* Felt texture overlay */}
@@ -36,9 +36,9 @@ export function CasinoTable({
             <div className="absolute inset-[10%] rounded-t-[48%] rounded-b-[6%] border border-yellow-400/[0.07] pointer-events-none" />
 
             {/* Content - flex column layout */}
-            <div className="relative z-[2] flex flex-col items-center min-h-[340px] sm:min-h-[400px] px-2 sm:px-6">
+            <div className="relative z-[2] flex flex-col items-center min-h-[340px] sm:min-h-[400px] lg:min-h-[480px] xl:min-h-[520px] px-2 sm:px-6 lg:px-8">
               {/* Dealer - top area with extra top padding for the rounded shape */}
-              <div className="pt-[15%] sm:pt-[12%] pb-2 sm:pb-3 flex-shrink-0">
+              <div className="pt-[15%] sm:pt-[12%] lg:pt-[10%] pb-2 sm:pb-3 lg:pb-4 flex-shrink-0">
                 {dealerSlot}
               </div>
 
@@ -60,7 +60,7 @@ export function CasinoTable({
               <div className="flex-1 min-h-2" />
 
               {/* Player seats */}
-              <div className="w-full pb-4 sm:pb-5 flex-shrink-0">
+              <div className="w-full pb-4 sm:pb-5 lg:pb-6 flex-shrink-0">
                 {playerSlots}
               </div>
             </div>
@@ -69,7 +69,7 @@ export function CasinoTable({
       </div>
 
       {/* Controls below table */}
-      <div className="relative z-10 w-full max-w-lg mx-auto px-4 pb-5 sm:pb-6 flex-shrink-0">
+      <div className="relative z-10 w-full max-w-lg lg:max-w-xl mx-auto px-4 pb-5 sm:pb-6 lg:pb-8 flex-shrink-0">
         {controlsSlot}
       </div>
     </div>

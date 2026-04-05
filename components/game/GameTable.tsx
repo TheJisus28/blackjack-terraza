@@ -13,6 +13,8 @@ import {
   CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_ANIM_BASE_DELAY_MS,
 } from "@/lib/blackjack/constants";
+import { useSounds } from "@/hooks/use-sounds";
+import { sounds } from "@/lib/sounds";
 
 export function GameTable() {
   const { gameState, player, lastResults, bet, action, newRound, resetGame } =
@@ -20,6 +22,8 @@ export function GameTable() {
 
   const [animating, setAnimating] = useState(false);
   const prevPhaseRef = useRef(gameState.phase);
+
+  useEffect(() => { sounds.preloadAll(); }, []);
 
   useEffect(() => {
     const prev = prevPhaseRef.current;
@@ -72,6 +76,16 @@ export function GameTable() {
   }, [gameState.phase, action]);
 
   const resultOutcome = lastResults[0]?.outcome;
+
+  const totalPlayerCards = player?.hands.reduce((sum, h) => sum + h.cards.length, 0) ?? 0;
+
+  useSounds({
+    phase: gameState.phase,
+    dealerCardCount: gameState.dealer.cards.length,
+    playerCardCount: totalPlayerCards,
+    resultOutcome,
+    isMyTurn: gameState.phase === "playing",
+  });
 
   const header = (
     <header className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-black/40 backdrop-blur-sm border-b border-white/5">
@@ -140,7 +154,7 @@ export function GameTable() {
           minBet={gameState.minBet}
           maxBet={gameState.maxBet}
           chips={player.chips}
-          onBet={bet}
+          onBet={(amount) => { sounds.chipPlace(); bet(amount); }}
         />
       )}
 

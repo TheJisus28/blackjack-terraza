@@ -2,6 +2,7 @@
 
 import type { Player } from "@/lib/blackjack/types";
 import { HandDisplay } from "./HandDisplay";
+import { ChipStack } from "./ChipStack";
 
 interface PlayerSeatProps {
   player: Player;
@@ -37,16 +38,18 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
         ${isCurrentTurn ? "scale-105 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]" : ""}
       `}
     >
-      {/* Cards */}
+      {/* Cards + chips */}
       {player.hands.length > 0 && player.hands.some(h => h.cards.length > 0) && (
-        <div className="flex gap-1.5 flex-wrap justify-center mb-1">
+        <div className="flex gap-1.5 flex-wrap justify-center items-end mb-1">
           {player.hands.map((hand, i) => (
-            <HandDisplay
-              key={i}
-              hand={hand}
-              isActive={isCurrentTurn && player.activeHandIndex === i}
-              label={player.hands.length > 1 ? `M${i + 1}` : undefined}
-            />
+            <div key={i} className="flex flex-col items-center gap-1">
+              <HandDisplay
+                hand={hand}
+                isActive={isCurrentTurn && player.activeHandIndex === i}
+                label={player.hands.length > 1 ? `M${i + 1}` : undefined}
+              />
+              {hand.bet > 0 && <ChipStack amount={hand.bet} />}
+            </div>
           ))}
         </div>
       )}
@@ -54,8 +57,8 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
       {/* Avatar + info */}
       <div className="flex flex-col items-center gap-0.5">
         <div
-          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br ${avatarColor}
-            flex items-center justify-center text-white text-[10px] sm:text-xs font-bold shadow-md
+          className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br ${avatarColor}
+            flex items-center justify-center text-white text-[10px] sm:text-xs lg:text-sm font-bold shadow-md
             ${isMe ? "ring-2 ring-emerald-400 ring-offset-1 ring-offset-transparent" : ""}
             ${isCurrentTurn ? "animate-pulse" : ""}
           `}
@@ -63,12 +66,12 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
           {initial}
         </div>
         <span
-          className={`text-[9px] sm:text-[10px] font-medium max-w-[60px] truncate leading-tight
+          className={`text-[9px] sm:text-[10px] lg:text-xs font-medium max-w-[60px] lg:max-w-[80px] truncate leading-tight
             ${isMe ? "text-emerald-300" : "text-white/60"}`}
         >
           {player.name}
         </span>
-        <span className="text-[8px] sm:text-[9px] text-yellow-300/50 tabular-nums font-medium">
+        <span className="text-[8px] sm:text-[9px] lg:text-[11px] text-yellow-300/50 tabular-nums font-medium">
           ${player.chips}
         </span>
       </div>

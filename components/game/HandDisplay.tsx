@@ -50,7 +50,7 @@ export function HandDisplay({
         </span>
       )}
 
-      <div className="flex -space-x-6">
+      <div className="flex -space-x-6 lg:-space-x-7">
         {hand.cards.map((card, i) => (
           <Card key={`${card.rank}-${card.suit}-${i}`} card={card} index={i} />
         ))}
@@ -64,13 +64,13 @@ export function HandDisplay({
           }}
         >
           <span
-            className={`text-lg font-bold tabular-nums ${statusColors[hand.status]}`}
+            className={`text-lg lg:text-xl font-bold tabular-nums ${statusColors[hand.status]}`}
           >
             {hasHidden ? `${getHandValue(visibleCards)}` : value}
           </span>
           {hand.status !== "playing" && statusLabels[hand.status] && (
             <span
-              className={`text-xs font-bold uppercase ${statusColors[hand.status]}`}
+              className={`text-xs lg:text-sm font-bold uppercase ${statusColors[hand.status]}`}
             >
               {statusLabels[hand.status]}
             </span>

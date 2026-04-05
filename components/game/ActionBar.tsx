@@ -85,7 +85,7 @@ function ActionButton({
   return (
     <button
       onClick={onClick}
-      className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 cursor-pointer ${styles[variant]}`}
+      className={`px-5 py-2.5 lg:px-6 lg:py-3 rounded-xl font-semibold text-sm lg:text-base transition-all active:scale-95 cursor-pointer ${styles[variant]}`}
     >
       {label}
       <kbd className="ml-1.5 text-[10px] opacity-60 hidden sm:inline">
