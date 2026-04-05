@@ -29,11 +29,12 @@ export const INSURANCE_DELAY_MS = (INSURANCE_TIMER_S - 1) * 1000;
 // ── Inactivity ──
 export const MAX_INACTIVE_ROUNDS = 3;
 
-// ── UI animation timing ──
-export const CARD_ANIM_DELAY_PER_CARD_MS = 450;
+// ── UI animation timing (~15 % más rápido que la base 450/1000/140/800) ──
+/** Reparto visual = cartas (`cardDeal` en app/globals.css; ms en Card.tsx). ChipStack en mesa = sin animación. */
+export const CARD_ANIM_DELAY_PER_CARD_MS = 383;
 /** Duración de `cardDeal` / `cardFlip` en Card.tsx (debe coincidir con el style inline) */
-export const CARD_DEAL_DURATION_MS = 1000;
+export const CARD_DEAL_DURATION_MS = 850;
 /** Entre cartas en la mesa: una animación termina antes de empezar la siguiente (jugador/crupier comparten cola) */
-export const CARD_SEQUENTIAL_STEP_MS = CARD_DEAL_DURATION_MS + 140;
-export const CARD_ANIM_BASE_DELAY_MS = 800;
+export const CARD_SEQUENTIAL_STEP_MS = CARD_DEAL_DURATION_MS + 119;
+export const CARD_ANIM_BASE_DELAY_MS = 680;
 export const COUNTDOWN_WARNING_THRESHOLD_S = 5;

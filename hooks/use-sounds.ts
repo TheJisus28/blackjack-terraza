@@ -183,8 +183,8 @@ export function useSounds({
       ? feedbackWaveDurationMs(
           tableForSequence,
           prevSoundFeedbackMaxGRef.current,
-        ) + 400
-      : dealerCardCount * CARD_ANIM_DELAY_PER_CARD_MS + 400;
+        ) + 340
+      : dealerCardCount * CARD_ANIM_DELAY_PER_CARD_MS + 340;
 
     const timer = setTimeout(() => {
       switch (resultOutcome) {
