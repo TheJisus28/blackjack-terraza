@@ -1,7 +1,7 @@
 import {
   PLAYER_ACTION,
   type PlayerAction,
-} from "@/game/simulation/blackjack/player-action-kind";
+} from "@/game/simulation/blackjack";
 
 /** Server / client meta actions (not in-hand moves). */
 export const SESSION_META = {

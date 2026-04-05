@@ -1,12 +1,12 @@
-import type { GamePhase } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
 import {
+  type GamePhase,
+  type TableCardLayout,
+  PHASE,
   feedbackWaveDurationMs,
   maxDealGlobalIndex,
   totalCardsOnTable,
-  type TableCardLayout,
-} from "@/game/simulation/blackjack/deal-sequence";
-import { CARD_ANIM_BASE_DELAY_MS } from "@/game/simulation/blackjack/constants";
+  CARD_ANIM_BASE_DELAY_MS,
+} from "@/game/simulation/blackjack";
 
 /** Betting → first cards / insurance / instant finish (e.g. dealer BJ peek). */
 export function isInitialDealOrInsuranceReveal(

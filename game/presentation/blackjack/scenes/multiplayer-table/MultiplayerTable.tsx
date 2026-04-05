@@ -2,16 +2,16 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import type { ClientGameState, PlayerAction } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
+import type { ClientGameState, PlayerAction } from "@/game/simulation/blackjack";
+import { PHASE } from "@/game/simulation/blackjack";
 import {
   useMultiplayer,
   type UseMultiplayerReturn,
-} from "@/game/presentation/blackjack/hooks/use-multiplayer";
-import { useTableSurfaceHud } from "@/game/presentation/blackjack/hooks/use-table-surface-hud";
-import { useBlackjackPlayingHotkeys } from "@/game/presentation/blackjack/hooks/use-blackjack-playing-hotkeys";
-import { useMultiplayerPhaseTimers } from "@/game/presentation/blackjack/hooks/use-multiplayer-phase-timers";
-import { useSounds } from "@/game/presentation/blackjack/hooks/use-sounds";
+} from "@/game/presentation/blackjack/runtime/use-multiplayer";
+import { useTableSurfaceHud } from "@/game/presentation/blackjack/runtime/use-table-surface-hud";
+import { useBlackjackPlayingHotkeys } from "@/game/presentation/blackjack/runtime/use-blackjack-playing-hotkeys";
+import { useMultiplayerPhaseTimers } from "@/game/presentation/blackjack/runtime/use-multiplayer-phase-timers";
+import { useSounds } from "@/game/presentation/blackjack/runtime/use-sounds";
 import { CasinoTable } from "@/game/presentation/blackjack/widgets/CasinoTable";
 import { DealerArea } from "@/game/presentation/blackjack/widgets/DealerArea";
 import { PlayerSeat, SeatsArc } from "@/game/presentation/blackjack/widgets/PlayerSeat";
@@ -23,7 +23,7 @@ import {
   TableSessionError,
   TableSessionLoading,
 } from "@/game/presentation/blackjack/widgets/table-session-gate";
-import { dealLayoutSignature } from "@/game/simulation/blackjack/deal-sequence";
+import { dealLayoutSignature } from "@/game/simulation/blackjack";
 import {
   SESSION_ACTION,
   type BlackjackSessionTimerAction,

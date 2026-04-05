@@ -1,5 +1,5 @@
 import { getSupabase } from "./supabase";
-import type { ClientGameState } from "@/game/simulation/blackjack/types";
+import type { ClientGameState } from "@/game/simulation/blackjack";
 
 export type BroadcastEvent =
   | { type: "state_update"; state: ClientGameState }

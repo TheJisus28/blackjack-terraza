@@ -1,19 +1,19 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import type { Hand } from "@/game/simulation/blackjack/types";
-import { getHandValue } from "@/game/simulation/blackjack/hand";
+import type { Hand } from "@/game/simulation/blackjack";
+import { getHandValue } from "@/game/simulation/blackjack";
 import {
   dealLayoutSignature,
   playerCardKey,
   type TableCardLayout,
-} from "@/game/simulation/blackjack/deal-sequence";
-import { stableGlobalIndicesForKeys } from "@/game/presentation/blackjack/lib/stable-global-deal-indices";
+} from "@/game/simulation/blackjack";
+import { stableGlobalIndicesForKeys } from "@/game/presentation/blackjack/fx/stable-global-deal-indices";
 import {
   CARD_DEAL_DURATION_MS,
   CARD_SEQUENTIAL_STEP_MS,
   CARD_TOTAL_REVEAL_BUFFER_MS,
-} from "@/game/simulation/blackjack/constants";
+} from "@/game/simulation/blackjack";
 import { useSequentialRevealCount } from "@/shared/hooks/use-sequential-reveal-count";
 import { useDealAnimation } from "./DealAnimationContext";
 import { Card } from "./Card";

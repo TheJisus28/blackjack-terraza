@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import type { GamePhase, PlayerAction } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
-import { PLAYER_ACTION } from "@/game/simulation/blackjack/player-action-kind";
+import type { GamePhase, PlayerAction } from "@/game/simulation/blackjack";
+import { PHASE } from "@/game/simulation/blackjack";
+import { PLAYER_ACTION } from "@/game/simulation/blackjack";
 
 const KEY_MAP: Record<string, PlayerAction> = {
   h: PLAYER_ACTION.HIT,

@@ -1,4 +1,4 @@
-import type { Card, Rank, Suit } from "./types";
+import type { Card, Rank, Suit } from "../model/types";
 
 const SUITS: Suit[] = ["clubs", "diamonds", "hearts", "spades"];
 const RANKS: Rank[] = [

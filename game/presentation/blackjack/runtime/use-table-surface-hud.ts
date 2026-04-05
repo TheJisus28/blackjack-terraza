@@ -1,29 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { GamePhase } from "@/game/simulation/blackjack/types";
 import {
-  maxDealGlobalIndex,
+  type GamePhase,
   type TableCardLayout,
-} from "@/game/simulation/blackjack/deal-sequence";
+  maxDealGlobalIndex,
+} from "@/game/simulation/blackjack";
 import {
   dealWaveChromeDelayMs,
   nextFeedbackMaxGlobal,
-} from "@/game/presentation/blackjack/lib/deal-wave-transitions";
+} from "@/game/presentation/blackjack/fx/deal-wave-transitions";
 import {
   DEAL_WAVE_NODE,
-  type DealWavePresentationNode,
   type TableHudVariant,
-  TABLE_SURFACE_VISUAL,
-  type TableSurfaceVisualState,
   multiplayerOverlayUnlocked,
   shouldEnterDealWaveTransition,
-} from "@/game/presentation/blackjack/lib/table-surface-fsm";
+} from "@/game/presentation/blackjack/fx/table-surface-fsm";
 
 export interface TableSurfaceHudSnapshot {
-  visual: TableSurfaceVisualState;
   hudInteractive: boolean;
-  dealWaveNode: DealWavePresentationNode;
 }
 
 /**
@@ -35,9 +30,9 @@ export function useTableSurfaceHud(
   simPhase: GamePhase,
   layoutSig: string,
 ): TableSurfaceHudSnapshot {
-  const [dealWaveNode, setDealWaveNode] = useState<DealWavePresentationNode>(
-    DEAL_WAVE_NODE.IDLE,
-  );
+  const [dealWaveNode, setDealWaveNode] = useState<
+    (typeof DEAL_WAVE_NODE)[keyof typeof DEAL_WAVE_NODE]
+  >(DEAL_WAVE_NODE.IDLE);
   const [mpOverlay, setMpOverlay] = useState(false);
 
   const prevSimPhaseRef = useRef<GamePhase | undefined>(undefined);
@@ -69,13 +64,11 @@ export function useTableSurfaceHud(
     if (nextMax !== null) prevFeedbackMaxGRef.current = nextMax;
   }, [variant, simPhase, layout, layoutSig]);
 
-  const visual: TableSurfaceVisualState =
-    dealWaveNode === DEAL_WAVE_NODE.TIMED_WAVE ||
-    (variant === "multiplayer" && !mpOverlay)
-      ? TABLE_SURFACE_VISUAL.DEAL_WAVE_SUPPRESSED
-      : TABLE_SURFACE_VISUAL.HUD_INTERACTIVE;
+  const hudInteractive =
+    !(
+      dealWaveNode === DEAL_WAVE_NODE.TIMED_WAVE ||
+      (variant === "multiplayer" && !mpOverlay)
+    );
 
-  const hudInteractive = visual === TABLE_SURFACE_VISUAL.HUD_INTERACTIVE;
-
-  return { visual, hudInteractive, dealWaveNode };
+  return { hudInteractive };
 }

@@ -5,8 +5,8 @@ import type {
   GameState,
   Player,
   PlayerAction,
-} from "./types";
-import { createShoe, drawCard, shouldReshuffle } from "./deck";
+} from "./model/types";
+import { createShoe, drawCard, shouldReshuffle } from "./rules/deck";
 import {
   canDoubleDown,
   canSplit,
@@ -17,7 +17,7 @@ import {
   isBusted,
   isNaturalBlackjackCards,
   isTenValueRank,
-} from "./hand";
+} from "./rules/hand";
 import {
   DEFAULT_DECK_COUNT,
   DEFAULT_MIN_BET,
@@ -30,9 +30,9 @@ import {
   WIN_PAYOUT_MULTIPLIER,
   SURRENDER_RETURN_RATIO,
   INITIAL_DEAL_ROUNDS,
-} from "./constants";
-import { PHASE } from "./game-phase";
-import { PLAYER_ACTION } from "./player-action-kind";
+} from "./rules/constants";
+import { PHASE } from "./meta/game-phase";
+import { PLAYER_ACTION } from "./meta/player-action-kind";
 import { generateId } from "@/shared/lib/uuid";
 
 export function createGame(playerName: string): GameState {

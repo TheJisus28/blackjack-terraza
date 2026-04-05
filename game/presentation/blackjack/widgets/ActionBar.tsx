@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import type { GameState, PlayerAction } from "@/game/simulation/blackjack/types";
-import { canDoubleDown, canSplit, canSurrender } from "@/game/simulation/blackjack/hand";
+import type { GameState, PlayerAction } from "@/game/simulation/blackjack";
+import { canDoubleDown, canSplit, canSurrender } from "@/game/simulation/blackjack";
 
 interface ActionBarProps {
   gameState: GameState;

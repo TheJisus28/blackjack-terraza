@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { useRef } from "react";
-import type { Card as CardType } from "@/game/simulation/blackjack/types";
-import { getCardImagePath } from "@/game/simulation/blackjack/deck";
+import type { Card as CardType } from "@/game/simulation/blackjack";
+import { getCardImagePath } from "@/game/simulation/blackjack";
 import {
   CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_DEAL_DURATION_MS,
-} from "@/game/simulation/blackjack/constants";
+} from "@/game/simulation/blackjack";
 
 interface CardProps {
   card: CardType;

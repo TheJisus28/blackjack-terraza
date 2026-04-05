@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getSupabase } from "@/shared/lib/supabase";
 import { getChannelName, type BroadcastEvent } from "@/shared/lib/broadcast";
-import type { ClientGameState, TableApiPayload } from "@/game/simulation/blackjack/types";
-import { isActivePlayingTurnForPlayer } from "@/game/simulation/blackjack/view-queries";
+import {
+  type ClientGameState,
+  type TableApiPayload,
+  isActivePlayingTurnForPlayer,
+} from "@/game/simulation/blackjack";
 import { getPlayerId, getPlayerName } from "@/shared/lib/player-identity";
 import type { BlackjackSessionAction } from "@/shared/types/blackjack-session-action";
 
@@ -59,19 +62,6 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
       hasJoinedRef.current = false;
     }
   }, [tableId, playerId, playerName]);
-
-  const leaveTable = useCallback(async () => {
-    if (!playerId) return;
-    try {
-      await fetch(`/api/tables/${tableId}/leave`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ playerId }),
-      });
-    } catch {
-      /* ignore */
-    }
-  }, [tableId, playerId]);
 
   const sendAction = useCallback(
     async (action: BlackjackSessionAction, amount?: number) => {
@@ -163,8 +153,6 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     loading,
     error,
     sendAction,
-    leaveTable,
-    refreshState: fetchState,
   };
 }
 

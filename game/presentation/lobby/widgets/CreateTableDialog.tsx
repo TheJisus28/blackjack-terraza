@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DEFAULT_MIN_BET, DEFAULT_MAX_BET } from "@/game/simulation/blackjack/constants";
+import { DEFAULT_MIN_BET, DEFAULT_MAX_BET } from "@/game/simulation/blackjack";
 
 interface CreateTableDialogProps {
   open: boolean;

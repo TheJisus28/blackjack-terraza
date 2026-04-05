@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { GameResult, GameState, PlayerAction } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
+import type { GameResult, GameState, PlayerAction } from "@/game/simulation/blackjack";
 import {
+  PHASE,
   createGame,
   dealInitialCards,
   placeBet,
@@ -13,12 +13,10 @@ import {
   takeInsurance,
   declineInsurance,
   autoRebuyBrokePlayersInResults,
-} from "@/game/simulation/blackjack/engine";
-import {
   INSURANCE_TIMER_S,
   RESULTS_TIMER_S,
   RESULTS_REBUY_LEAD_S,
-} from "@/game/simulation/blackjack/constants";
+} from "@/game/simulation/blackjack";
 
 export function useGame(playerName = "Player") {
   const [gameState, setGameState] = useState<GameState>(() =>

@@ -1,5 +1,5 @@
-import { PHASE, type GamePhase } from "./game-phase";
-import type { TableStatus } from "./types";
+import { PHASE, type GamePhase } from "../meta/game-phase";
+import type { TableStatus } from "../model/types";
 
 /** `game_tables.status` after a successful POST .../action (lobby list). */
 export function lobbyTableStatusAfterEngineStep(phase: GamePhase): TableStatus {

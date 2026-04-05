@@ -6,4 +6,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Game layout
 
-Blackjack logic lives under `game/simulation/blackjack/` (rules, pure state). UI: `game/presentation/blackjack/scenes/` (solo vs multiplayer screens), `widgets/` (table pieces), `hooks/` (client orchestration). See `docs/PROJECT_STRUCTURE.md` and `game/README.md`.
+Blackjack logic lives under `game/simulation/blackjack/` (rules, pure state; subfolders `model/`, `meta/`, `rules/`, `table/`). UI: `game/presentation/blackjack/scenes/`, `widgets/`, `runtime/` (client hooks), `fx/` (presentation timing). See `docs/PROJECT_STRUCTURE.md` and `game/README.md`.

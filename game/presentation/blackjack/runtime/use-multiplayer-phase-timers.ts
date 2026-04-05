@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { ClientGameState } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
+import type { ClientGameState } from "@/game/simulation/blackjack";
+import { PHASE } from "@/game/simulation/blackjack";
 import {
   RESULTS_TIMER_S,
   RESULTS_REBUY_LEAD_S,
   BETTING_TIMER_S,
   INSURANCE_TIMER_S,
   COUNTDOWN_WARNING_THRESHOLD_S,
-} from "@/game/simulation/blackjack/constants";
+} from "@/game/simulation/blackjack";
 import { sounds } from "@/shared/audio/sounds";
 import {
   SESSION_TIMER_ACTION,

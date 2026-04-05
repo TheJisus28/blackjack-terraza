@@ -16,11 +16,11 @@ import {
   maxGlobalDealIndex,
   totalCardsOnTable,
   type TableCardLayout,
-} from "@/game/simulation/blackjack/deal-sequence";
+} from "@/game/simulation/blackjack";
 import {
   CARD_DEAL_DURATION_MS,
   CARD_SEQUENTIAL_STEP_MS,
-} from "@/game/simulation/blackjack/constants";
+} from "@/game/simulation/blackjack";
 
 export type DealAnimationApi = {
   /** Deal animation start delay (ms) vs the last settled “frame” */

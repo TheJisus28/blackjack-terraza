@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import type { TableCardLayout } from "@/game/simulation/blackjack/deal-sequence";
+import type { TableCardLayout } from "@/game/simulation/blackjack";
 import { DealAnimationProvider } from "./DealAnimationContext";
 
 interface CasinoTableProps {

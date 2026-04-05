@@ -1,5 +1,5 @@
-import type { GameState } from "./types";
-import { CARD_DEAL_DURATION_MS, CARD_SEQUENTIAL_STEP_MS } from "./constants";
+import type { GameState } from "../model/types";
+import { CARD_DEAL_DURATION_MS, CARD_SEQUENTIAL_STEP_MS } from "../rules/constants";
 
 export type TableCardLayout = Pick<GameState, "players" | "dealer">;
 

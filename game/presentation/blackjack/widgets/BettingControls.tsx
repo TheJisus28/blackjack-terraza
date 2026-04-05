@@ -6,7 +6,7 @@ import {
   CHIP_COLORS,
   CHIP_VALUES,
   KEY_TO_CHIP,
-} from "@/game/presentation/blackjack/lib/chip-constants";
+} from "@/game/presentation/blackjack/fx/chip-constants";
 
 interface BettingControlsProps {
   minBet: number;

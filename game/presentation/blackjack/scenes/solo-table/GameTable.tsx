@@ -2,20 +2,20 @@
 
 import { useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
-import type { PlayerAction } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
-import { useGame } from "@/game/presentation/blackjack/hooks/use-game";
-import { useTableSurfaceHud } from "@/game/presentation/blackjack/hooks/use-table-surface-hud";
-import { useBlackjackPlayingHotkeys } from "@/game/presentation/blackjack/hooks/use-blackjack-playing-hotkeys";
-import { useInsuranceCountdown } from "@/game/presentation/blackjack/hooks/use-insurance-countdown";
-import { useSounds } from "@/game/presentation/blackjack/hooks/use-sounds";
+import type { PlayerAction } from "@/game/simulation/blackjack";
+import { PHASE } from "@/game/simulation/blackjack";
+import { useGame } from "@/game/presentation/blackjack/runtime/use-game";
+import { useTableSurfaceHud } from "@/game/presentation/blackjack/runtime/use-table-surface-hud";
+import { useBlackjackPlayingHotkeys } from "@/game/presentation/blackjack/runtime/use-blackjack-playing-hotkeys";
+import { useInsuranceCountdown } from "@/game/presentation/blackjack/runtime/use-insurance-countdown";
+import { useSounds } from "@/game/presentation/blackjack/runtime/use-sounds";
 import { CasinoTable } from "@/game/presentation/blackjack/widgets/CasinoTable";
 import { DealerArea } from "@/game/presentation/blackjack/widgets/DealerArea";
 import { PlayerSeat, SeatsArc } from "@/game/presentation/blackjack/widgets/PlayerSeat";
 import { ActionBar } from "@/game/presentation/blackjack/widgets/ActionBar";
 import { BettingControls } from "@/game/presentation/blackjack/widgets/BettingControls";
 import { InsuranceControls } from "@/game/presentation/blackjack/widgets/InsuranceControls";
-import { dealLayoutSignature } from "@/game/simulation/blackjack/deal-sequence";
+import { dealLayoutSignature } from "@/game/simulation/blackjack";
 import { sounds } from "@/shared/audio/sounds";
 
 export function GameTable() {

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { sounds } from "@/shared/audio/sounds";
-import type { GamePhase } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
+import type { GamePhase } from "@/game/simulation/blackjack";
+import { PHASE } from "@/game/simulation/blackjack";
 import {
   assignGlobalDealIndices,
   dealLayoutSignature,
@@ -12,12 +12,12 @@ import {
   maxGlobalDealIndex,
   totalCardsOnTable,
   type TableCardLayout,
-} from "@/game/simulation/blackjack/deal-sequence";
+} from "@/game/simulation/blackjack";
 import {
   isInitialDealOrInsuranceReveal,
   isRoundEndReveal,
-} from "@/game/presentation/blackjack/lib/deal-wave-transitions";
-import { CARD_ANIM_DELAY_PER_CARD_MS, CARD_SEQUENTIAL_STEP_MS } from "@/game/simulation/blackjack/constants";
+} from "@/game/presentation/blackjack/fx/deal-wave-transitions";
+import { CARD_ANIM_DELAY_PER_CARD_MS, CARD_SEQUENTIAL_STEP_MS } from "@/game/simulation/blackjack";
 
 interface UseSoundsOptions {
   phase: GamePhase;

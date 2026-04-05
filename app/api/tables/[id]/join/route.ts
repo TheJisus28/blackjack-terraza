@@ -1,4 +1,5 @@
 import { getSupabase } from "@/shared/lib/supabase";
+import type { GameState } from "@/game/simulation/blackjack";
 import {
   addPlayer,
   removePlayer,
@@ -6,9 +7,8 @@ import {
   deserializeDeck,
   serializeDeck,
   toClientState,
-} from "@/game/simulation/blackjack/engine";
-import type { GameState } from "@/game/simulation/blackjack/types";
-import { lobbyTableStatusAfterSeatEvent } from "@/game/simulation/blackjack/table-row-status";
+  lobbyTableStatusAfterSeatEvent,
+} from "@/game/simulation/blackjack";
 import { broadcastToTable } from "@/shared/lib/broadcast";
 
 /**

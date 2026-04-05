@@ -1,7 +1,7 @@
 import {
   assignGlobalDealIndices,
   type TableCardLayout,
-} from "@/game/simulation/blackjack/deal-sequence";
+} from "@/game/simulation/blackjack";
 
 /**
  * Presentation helper: monotonic global indices per card so deal deadlines never collapse

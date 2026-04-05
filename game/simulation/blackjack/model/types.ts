@@ -47,13 +47,13 @@ export interface Player {
   insuranceWager?: number | null;
 }
 
-import type { GamePhase } from "./game-phase";
-import type { PlayerAction } from "./player-action-kind";
+import type { GamePhase } from "../meta/game-phase";
+import type { PlayerAction } from "../meta/player-action-kind";
 
-export type { GamePhase } from "./game-phase";
-export { PHASE } from "./game-phase";
-export type { PlayerAction } from "./player-action-kind";
-export { PLAYER_ACTION } from "./player-action-kind";
+export type { GamePhase } from "../meta/game-phase";
+export { PHASE } from "../meta/game-phase";
+export type { PlayerAction } from "../meta/player-action-kind";
+export { PLAYER_ACTION } from "../meta/player-action-kind";
 
 export interface GameState {
   id: string;
@@ -82,22 +82,6 @@ export interface GameResult {
 }
 
 export type TableStatus = "waiting" | "playing" | "finished";
-
-export interface TableInfo {
-  id: string;
-  name: string;
-  inviteCode: string;
-  isPrivate: boolean;
-  status: TableStatus;
-  maxPlayers: number;
-  minBet: number;
-  maxBet: number;
-  deckCount: number;
-  createdBy: string;
-  creatorId: string;
-  playerCount: number;
-  createdAt: string;
-}
 
 /** State sent to clients — never includes the deck */
 export type ClientGameState = Omit<GameState, "deck">;

@@ -1,13 +1,13 @@
 "use client";
 
-import type { GamePhase } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
+import type { GamePhase } from "@/game/simulation/blackjack";
+import { PHASE } from "@/game/simulation/blackjack";
 import {
   BETTING_TIMER_S,
   INSURANCE_TIMER_S,
   RESULTS_TIMER_S,
   COUNTDOWN_WARNING_THRESHOLD_S,
-} from "@/game/simulation/blackjack/constants";
+} from "@/game/simulation/blackjack";
 
 interface TableCountdownBarProps {
   phase: GamePhase;

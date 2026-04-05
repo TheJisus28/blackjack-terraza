@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { GamePhase } from "@/game/simulation/blackjack/types";
-import { PHASE } from "@/game/simulation/blackjack/game-phase";
-import { INSURANCE_TIMER_S } from "@/game/simulation/blackjack/constants";
+import type { GamePhase } from "@/game/simulation/blackjack";
+import { PHASE } from "@/game/simulation/blackjack";
+import { INSURANCE_TIMER_S } from "@/game/simulation/blackjack";
 
 /** UI countdown for the insurance decision window (solo or any client-local mirror of server time). */
 export function useInsuranceCountdown(

@@ -1,5 +1,5 @@
-import type { ClientGameState, GameState } from "./types";
-import { PHASE } from "./game-phase";
+import type { ClientGameState, GameState } from "../model/types";
+import { PHASE } from "../meta/game-phase";
 
 type TurnSlice = Pick<GameState, "phase" | "players" | "activePlayerIndex">;
 

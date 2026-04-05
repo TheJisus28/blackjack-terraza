@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPlayerId, getPlayerName, setPlayerName } from "@/shared/lib/player-identity";
-import { TableList } from "@/game/presentation/lobby/components/TableList";
-import { CreateTableDialog } from "@/game/presentation/lobby/components/CreateTableDialog";
+import { TableList } from "@/game/presentation/lobby/widgets/TableList";
+import { CreateTableDialog } from "@/game/presentation/lobby/widgets/CreateTableDialog";
 
 export default function LobbyPage() {
   const router = useRouter();

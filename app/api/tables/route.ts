@@ -4,8 +4,9 @@ import {
   addPlayer,
   toClientState,
   serializeDeck,
-} from "@/game/simulation/blackjack/engine";
-import { DEFAULT_MIN_BET, DEFAULT_MAX_BET } from "@/game/simulation/blackjack/constants";
+  DEFAULT_MIN_BET,
+  DEFAULT_MAX_BET,
+} from "@/game/simulation/blackjack";
 
 function generateInviteCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
