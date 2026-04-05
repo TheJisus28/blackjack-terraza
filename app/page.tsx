@@ -64,7 +64,15 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-gray-600">
-        Blackjack Terraza &mdash; By TheJisus28
+        Blackjack Terraza &mdash; By{" "}
+        <a
+          href="https://github.com/TheJisus28"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-400 hover:text-emerald-400 transition-colors underline-offset-2 hover:underline"
+        >
+          TheJisus28
+        </a>
       </footer>
     </div>
   );
