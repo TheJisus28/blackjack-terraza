@@ -6,6 +6,7 @@ import {
   BETTING_TIMER_S,
   INSURANCE_TIMER_S,
   RESULTS_TIMER_S,
+  DEALER_BLACKJACK_REVEAL_S,
   COUNTDOWN_WARNING_THRESHOLD_S,
 } from "@/game/simulation/blackjack";
 
@@ -20,7 +21,9 @@ export function TableCountdownBar({ phase, countdownSec }: TableCountdownBarProp
       ? BETTING_TIMER_S
       : phase === PHASE.INSURANCE
         ? INSURANCE_TIMER_S
-        : RESULTS_TIMER_S;
+        : phase === PHASE.RESOLVING
+          ? DEALER_BLACKJACK_REVEAL_S
+          : RESULTS_TIMER_S;
 
   const warn =
     countdownSec <= COUNTDOWN_WARNING_THRESHOLD_S &&

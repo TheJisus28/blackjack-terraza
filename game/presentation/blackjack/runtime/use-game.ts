@@ -13,9 +13,11 @@ import {
   takeInsurance,
   declineInsurance,
   autoRebuyBrokePlayersInResults,
+  applyDealerBlackjackRevealTimeout,
   INSURANCE_TIMER_S,
   RESULTS_TIMER_S,
   RESULTS_REBUY_LEAD_S,
+  DEALER_BLACKJACK_REVEAL_DELAY_MS,
 } from "@/game/simulation/blackjack";
 
 export function useGame(playerName = "Player") {
@@ -102,6 +104,27 @@ export function useGame(playerName = "Player") {
     }, ms);
     return () => window.clearTimeout(t);
   }, [gameState.phase, gameState.insuranceStartedAt, insuranceDecline]);
+
+  useEffect(() => {
+    if (
+      gameState.phase !== PHASE.RESOLVING ||
+      gameState.resolvingRevealStartedAt == null
+    ) {
+      return;
+    }
+    const deadline =
+      gameState.resolvingRevealStartedAt + DEALER_BLACKJACK_REVEAL_DELAY_MS;
+    const ms = Math.max(0, deadline - Date.now());
+    const t = window.setTimeout(() => {
+      setGameState((prev) => {
+        const { state, results } = applyDealerBlackjackRevealTimeout(prev);
+        if (results.length > 0) resultsRef.current = results;
+        return state;
+      });
+      setTimeout(() => setLastResults(resultsRef.current), 0);
+    }, ms);
+    return () => clearTimeout(t);
+  }, [gameState.phase, gameState.resolvingRevealStartedAt]);
 
   useEffect(() => {
     if (gameState.phase !== PHASE.FINISHED || !gameState.roundEndedAt) return;

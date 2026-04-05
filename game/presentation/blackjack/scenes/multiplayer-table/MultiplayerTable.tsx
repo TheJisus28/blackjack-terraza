@@ -269,12 +269,25 @@ function MultiplayerTableLoaded({
     countdown > 0 &&
     (gameState.phase === PHASE.BETTING ||
       gameState.phase === PHASE.FINISHED ||
-      gameState.phase === PHASE.INSURANCE) ? (
+      gameState.phase === PHASE.INSURANCE ||
+      (gameState.phase === PHASE.RESOLVING &&
+        gameState.resolvingRevealStartedAt != null)) ? (
       <TableCountdownBar phase={gameState.phase} countdownSec={countdown} />
     ) : null;
 
   const controls = (
     <>
+      {gameState.phase === PHASE.RESOLVING &&
+        gameState.resolvingRevealStartedAt != null &&
+        hudInteractive && (
+          <div className="flex flex-col items-center gap-2 mb-2">
+            {countdownBar}
+            <p className="text-center text-amber-200/95 text-sm font-medium max-w-sm">
+              Dealer blackjack — hands settle when the timer ends.
+            </p>
+          </div>
+        )}
+
       {gameState.phase === PHASE.WAITING && (
         <div className="flex flex-col items-center gap-3">
           <button

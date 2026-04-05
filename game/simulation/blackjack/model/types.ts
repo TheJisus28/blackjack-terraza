@@ -74,6 +74,8 @@ export interface GameState {
   roundEndedAt?: number;
   bettingStartedAt?: number;
   insuranceStartedAt?: number;
+  /** RESOLVING: wait before settle when dealer has natural and no player blackjack (see DEALER_BLACKJACK_REVEAL_*). */
+  resolvingRevealStartedAt?: number;
 }
 
 export interface GameResult {

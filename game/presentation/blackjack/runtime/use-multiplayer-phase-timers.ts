@@ -8,6 +8,7 @@ import {
   RESULTS_REBUY_LEAD_S,
   BETTING_TIMER_S,
   INSURANCE_TIMER_S,
+  DEALER_BLACKJACK_REVEAL_S,
   COUNTDOWN_WARNING_THRESHOLD_S,
 } from "@/game/simulation/blackjack";
 import { sounds } from "@/shared/audio/sounds";
@@ -30,7 +31,11 @@ export function useMultiplayerPhaseTimers(
 
   useEffect(() => {
     autoRebuyResultsSentRef.current = false;
-  }, [gameState?.phase, gameState?.roundEndedAt]);
+  }, [
+    gameState?.phase,
+    gameState?.roundEndedAt,
+    gameState?.resolvingRevealStartedAt,
+  ]);
 
   useEffect(() => {
     if (!gameState) return;
@@ -103,6 +108,22 @@ export function useMultiplayerPhaseTimers(
           sendAction(SESSION_TIMER_ACTION.AUTO_INSURANCE);
         }
       }, 250);
+    } else if (
+      gameState.phase === PHASE.RESOLVING &&
+      gameState.resolvingRevealStartedAt != null
+    ) {
+      timerSentRef.current = false;
+      interval = setInterval(() => {
+        const elapsed =
+          (Date.now() - gameState.resolvingRevealStartedAt!) / 1000;
+        const remaining = Math.max(0, DEALER_BLACKJACK_REVEAL_S - elapsed);
+        setCountdown(Math.ceil(remaining));
+
+        if (remaining <= 0 && !timerSentRef.current) {
+          timerSentRef.current = true;
+          sendAction(SESSION_TIMER_ACTION.AUTO_RESOLVE_DEALER_BJ);
+        }
+      }, 250);
     } else {
       setCountdown(null);
       lastTickRef.current = null;
@@ -116,6 +137,7 @@ export function useMultiplayerPhaseTimers(
     gameState?.roundEndedAt,
     gameState?.bettingStartedAt,
     gameState?.insuranceStartedAt,
+    gameState?.resolvingRevealStartedAt,
     gameState?.players,
     gameState?.minBet,
     sendAction,

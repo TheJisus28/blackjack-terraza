@@ -19,6 +19,7 @@ import {
   resolveInsurancePhase,
   autoRebuyBrokePlayersInResults,
   lobbyTableStatusAfterEngineStep,
+  applyDealerBlackjackRevealTimeout,
   playingParticipants,
   RESULTS_DELAY_MS,
   BETTING_DELAY_MS,
@@ -177,6 +178,11 @@ export async function POST(
       }
       const insRes = resolveInsurancePhase(gameState);
       gameState = insRes.state;
+      break;
+    }
+
+    case SESSION_ACTION.AUTO_RESOLVE_DEALER_BJ: {
+      gameState = applyDealerBlackjackRevealTimeout(gameState).state;
       break;
     }
 

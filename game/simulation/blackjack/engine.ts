@@ -31,6 +31,7 @@ import {
   WIN_PAYOUT_MULTIPLIER,
   SURRENDER_RETURN_RATIO,
   INITIAL_DEAL_ROUNDS,
+  DEALER_BLACKJACK_REVEAL_DELAY_MS,
 } from "./rules/constants";
 import { PHASE } from "./meta/game-phase";
 import { PLAYER_ACTION } from "./meta/player-action-kind";
@@ -98,6 +99,12 @@ export function placeBet(
   return { ...state, players: updatedPlayers, message: "" };
 }
 
+function anySeatedNaturalBlackjack(players: Player[]): boolean {
+  return players.some((p) =>
+    p.hands.some((h) => h.bet > 0 && h.status === "blackjack"),
+  );
+}
+
 export function dealInitialCards(state: GameState): GameState {
   if (state.phase !== PHASE.BETTING) return state;
 
@@ -145,6 +152,7 @@ export function dealInitialCards(state: GameState): GameState {
   if (dealerUp && isTenValueRank(dealerUp.rank)) {
     if (isNaturalBlackjackCards(dealerCards)) {
       const revealed = dealerCards.map((c) => ({ ...c, faceUp: true }));
+      const anyPbj = anySeatedNaturalBlackjack(players);
       return {
         ...state,
         deck,
@@ -152,6 +160,9 @@ export function dealInitialCards(state: GameState): GameState {
         players,
         phase: PHASE.RESOLVING,
         message: "Dealer blackjack",
+        ...(anyPbj
+          ? {}
+          : { resolvingRevealStartedAt: Date.now() }),
       };
     }
     return {
@@ -244,6 +255,7 @@ export function resolveInsurancePhase(state: GameState): {
       }
     }
     players = players.map((p) => stripPlayerInsurance(p));
+    const anyPbj = anySeatedNaturalBlackjack(players);
     const nextState: GameState = {
       ...state,
       dealer: { cards: revealed, status: "standing" },
@@ -252,7 +264,16 @@ export function resolveInsurancePhase(state: GameState): {
       message: "Dealer blackjack",
       insuranceStartedAt: undefined,
     };
-    return resolveRound(nextState);
+    if (anyPbj) {
+      return resolveRound(nextState);
+    }
+    return {
+      state: {
+        ...nextState,
+        resolvingRevealStartedAt: Date.now(),
+      },
+      results: [],
+    };
   }
 
   players = players.map((p) => stripPlayerInsurance(p));
@@ -720,6 +741,7 @@ export function resolveRound(state: GameState): {
       phase: PHASE.FINISHED,
       message,
       roundEndedAt: Date.now(),
+      resolvingRevealStartedAt: undefined,
     },
     results,
   };
@@ -740,9 +762,33 @@ export function runToCompletion(state: GameState): {
     state = playDealerTurn(state);
   }
   if (state.phase === PHASE.RESOLVING) {
+    if (state.resolvingRevealStartedAt != null) {
+      return { state, results: [] };
+    }
     return resolveRound(state);
   }
   return { state, results: [] };
+}
+
+/** After {@link DEALER_BLACKJACK_REVEAL_DELAY_MS}, settle hands that were waiting on dealer natural reveal. */
+export function applyDealerBlackjackRevealTimeout(state: GameState): {
+  state: GameState;
+  results: GameResult[];
+} {
+  if (
+    state.phase !== PHASE.RESOLVING ||
+    state.resolvingRevealStartedAt == null
+  ) {
+    return { state, results: [] };
+  }
+  const elapsed = Date.now() - state.resolvingRevealStartedAt;
+  if (elapsed < DEALER_BLACKJACK_REVEAL_DELAY_MS) {
+    return { state, results: [] };
+  }
+  return resolveRound({
+    ...state,
+    resolvingRevealStartedAt: undefined,
+  });
 }
 
 export function startNewRound(state: GameState): GameState {
@@ -768,6 +814,7 @@ export function startNewRound(state: GameState): GameState {
     players,
     activePlayerIndex: 0,
     message: "Place your bet",
+    resolvingRevealStartedAt: undefined,
   };
 }
 
@@ -996,6 +1043,7 @@ export function startBetting(state: GameState): GameState {
     roundEndedAt: undefined,
     bettingStartedAt: Date.now(),
     insuranceStartedAt: undefined,
+    resolvingRevealStartedAt: undefined,
   };
 }
 
