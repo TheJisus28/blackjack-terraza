@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { Player } from "@/lib/blackjack/types";
 import { HandDisplay } from "./HandDisplay";
 import { ChipStack } from "./ChipStack";
@@ -55,10 +56,10 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
       )}
 
       {/* Avatar + info */}
-      <div className="flex flex-col items-center gap-0.5">
+      <div className="flex flex-col items-center gap-0.5 lg:gap-1">
         <div
-          className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br ${avatarColor}
-            flex items-center justify-center text-white text-[10px] sm:text-xs lg:text-sm font-bold shadow-md
+          className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-11 lg:h-11 rounded-full bg-gradient-to-br ${avatarColor}
+            flex items-center justify-center text-white text-[10px] sm:text-xs lg:text-base font-bold shadow-md
             ${isMe ? "ring-2 ring-emerald-400 ring-offset-1 ring-offset-transparent" : ""}
             ${isCurrentTurn ? "animate-pulse" : ""}
           `}
@@ -66,12 +67,12 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
           {initial}
         </div>
         <span
-          className={`text-[9px] sm:text-[10px] lg:text-xs font-medium max-w-[60px] lg:max-w-[80px] truncate leading-tight
-            ${isMe ? "text-emerald-300" : "text-white/60"}`}
+          className={`text-[9px] sm:text-[10px] lg:text-sm font-medium max-w-[60px] lg:max-w-[100px] truncate leading-tight
+            ${isMe ? "text-emerald-300" : "text-white/70"}`}
         >
           {player.name}
         </span>
-        <span className="text-[8px] sm:text-[9px] lg:text-[11px] text-yellow-300/50 tabular-nums font-medium">
+        <span className="text-[8px] sm:text-[9px] lg:text-xs text-yellow-300/60 tabular-nums font-semibold">
           ${player.chips}
         </span>
       </div>
@@ -83,6 +84,18 @@ export function PlayerSeat({ player, isCurrentTurn, isMe }: PlayerSeatProps) {
  * Distributes seats evenly across the bottom of the table in a subtle arc.
  * Uses flexbox + dynamic zoom so seats scale down with more players.
  */
+function useIsDesktop() {
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return desktop;
+}
+
 export function SeatsArc({
   children,
   count,
@@ -90,22 +103,28 @@ export function SeatsArc({
   children: React.ReactNode[];
   count: number;
 }) {
+  const isDesktop = useIsDesktop();
+
   function getArcOffset(index: number, total: number): number {
     if (total <= 1) return 0;
     const mid = (total - 1) / 2;
     const dist = Math.abs(index - mid) / mid;
-    return dist * (total <= 3 ? 10 : 6);
+    return dist * (total <= 3 ? (isDesktop ? 16 : 10) : (isDesktop ? 10 : 6));
   }
 
-  // Dynamic scale: fewer players = bigger, more = smaller.
-  // `zoom` affects layout (unlike transform: scale) so items actually shrink.
-  const seatZoom =
-    count <= 1 ? 0.9 :
-    count <= 2 ? 0.82 :
-    count <= 3 ? 0.72 :
-    count <= 4 ? 0.62 :
-    count <= 5 ? 0.55 :
-    0.48;
+  const seatZoom = isDesktop
+    ? (count <= 1 ? 1.3 :
+       count <= 2 ? 1.2 :
+       count <= 3 ? 1.1 :
+       count <= 4 ? 0.95 :
+       count <= 5 ? 0.82 :
+       0.7)
+    : (count <= 1 ? 0.9 :
+       count <= 2 ? 0.82 :
+       count <= 3 ? 0.72 :
+       count <= 4 ? 0.62 :
+       count <= 5 ? 0.55 :
+       0.48);
 
   return (
     <div className="flex items-end justify-evenly w-full">

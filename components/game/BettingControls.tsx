@@ -36,11 +36,6 @@ export function BettingControls({
     setCurrentBet((prev) => Math.min(prev + value, effectiveMax));
   };
 
-  const allIn = () => {
-    sounds.chipPlace();
-    setCurrentBet(effectiveMax);
-  };
-
   const clearBet = () => setCurrentBet(0);
 
   const handleBet = () => {
@@ -80,12 +75,6 @@ export function BettingControls({
           className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all cursor-pointer"
         >
           Limpiar
-        </button>
-        <button
-          onClick={allIn}
-          className="px-4 py-2 rounded-lg bg-red-500/80 hover:bg-red-500 text-white text-sm font-bold transition-all cursor-pointer"
-        >
-          All In
         </button>
         <button
           onClick={handleBet}
