@@ -41,6 +41,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   const [showResult, setShowResult] = useState(false);
   const prevPhaseRef = useRef(gameState?.phase);
   const timerSentRef = useRef(false);
+  const lastTickRef = useRef<number | null>(null);
 
   // Animation delay: hide messages/controls until card animations finish
   useEffect(() => {
@@ -91,10 +92,17 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       }, 250);
     } else if (gameState.phase === "betting" && gameState.bettingStartedAt) {
       timerSentRef.current = false;
+      lastTickRef.current = null;
       interval = setInterval(() => {
         const elapsed = (Date.now() - gameState.bettingStartedAt!) / 1000;
         const remaining = Math.max(0, BETTING_TIMER_S - elapsed);
-        setCountdown(Math.ceil(remaining));
+        const rounded = Math.ceil(remaining);
+        setCountdown(rounded);
+
+        if (rounded > 0 && rounded <= COUNTDOWN_WARNING_THRESHOLD_S && rounded !== lastTickRef.current) {
+          lastTickRef.current = rounded;
+          sounds.tick();
+        }
 
         if (remaining <= 0 && !timerSentRef.current) {
           timerSentRef.current = true;
@@ -103,6 +111,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       }, 250);
     } else {
       setCountdown(null);
+      lastTickRef.current = null;
     }
 
     return () => {
@@ -134,6 +143,18 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [gameState?.phase, isMyTurn, sendAction]);
+
+  const totalPlayerCards = gameState?.players.reduce(
+    (sum, p) => sum + p.hands.reduce((s, h) => s + h.cards.length, 0), 0,
+  ) ?? 0;
+
+  useSounds({
+    phase: gameState?.phase ?? "waiting",
+    dealerCardCount: gameState?.dealer.cards.length ?? 0,
+    playerCardCount: totalPlayerCards,
+    resultOutcome: undefined,
+    isMyTurn,
+  });
 
   const copyInviteLink = useCallback(async () => {
     const code = (tableInfo as Record<string, string>)?.invite_code;
@@ -169,18 +190,6 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   const pseudoGameState = { ...gameState, deck: [] as never[] };
   const inviteCode = (tableInfo as Record<string, string>)?.invite_code ?? "";
   const hasBet = myPlayer?.hands.length ? myPlayer.hands[0]?.bet > 0 : false;
-
-  const totalPlayerCards = gameState.players.reduce(
-    (sum, p) => sum + p.hands.reduce((s, h) => s + h.cards.length, 0), 0,
-  );
-
-  useSounds({
-    phase: gameState.phase,
-    dealerCardCount: gameState.dealer.cards.length,
-    playerCardCount: totalPlayerCards,
-    resultOutcome: undefined,
-    isMyTurn,
-  });
 
   const header = (
     <header className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-black/40 backdrop-blur-sm border-b border-white/5">

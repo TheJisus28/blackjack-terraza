@@ -81,6 +81,10 @@ export const sounds = {
     play("/sounds/chips-stack.ogg", 0.35);
   },
 
+  tick() {
+    play("/sounds/tick.ogg", 0.5);
+  },
+
   preloadAll() {
     for (const src of [
       ...CARD_DEAL_SOUNDS,
@@ -90,6 +94,7 @@ export const sounds = {
       "/sounds/card-shuffle.ogg",
       "/sounds/win.ogg",
       "/sounds/lose.ogg",
+      "/sounds/tick.ogg",
     ]) {
       preload(src);
     }
