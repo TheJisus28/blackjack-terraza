@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { GameState, Player } from "@/lib/blackjack/types";
+import type { GameState, Player } from "@/game/simulation/blackjack/types";
 import { HandDisplay } from "./HandDisplay";
 import { ChipStack } from "./ChipStack";
 

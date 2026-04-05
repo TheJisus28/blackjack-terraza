@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
-import { sounds } from "@/lib/sounds";
-import { CHIP_COLORS, CHIP_VALUES, KEY_TO_CHIP } from "./chipConstants";
+import { sounds } from "@/shared/audio/sounds";
+import {
+  CHIP_COLORS,
+  CHIP_VALUES,
+  KEY_TO_CHIP,
+} from "@/game/presentation/blackjack/lib/chip-constants";
 
 interface BettingControlsProps {
   minBet: number;
@@ -65,7 +69,7 @@ export function BettingControls({
     <div className="flex flex-col items-center gap-4">
       <div className="text-center">
         <p className="text-emerald-300 text-sm font-medium uppercase tracking-wider mb-1">
-          {currentBet > 0 ? "Tu apuesta" : `Mínimo $${minBet}`}
+          {currentBet > 0 ? "Your bet" : `Min $${minBet}`}
         </p>
         <p className={`text-4xl font-bold tabular-nums ${currentBet > 0 ? "text-white" : "text-white/30"}`}>
           ${currentBet}
@@ -94,7 +98,7 @@ export function BettingControls({
           onClick={clearBet}
           className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all cursor-pointer"
         >
-          Limpiar
+          Clear
         </button>
         <button
           onClick={handleBet}
@@ -102,7 +106,7 @@ export function BettingControls({
           className="px-8 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed
             text-white font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all active:scale-95 cursor-pointer"
         >
-          Repartir
+          Deal
         </button>
       </div>
     </div>

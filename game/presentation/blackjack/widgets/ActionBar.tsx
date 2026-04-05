@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import type { GameState, PlayerAction } from "@/lib/blackjack/types";
-import { canDoubleDown, canSplit, canSurrender } from "@/lib/blackjack/hand";
+import type { GameState, PlayerAction } from "@/game/simulation/blackjack/types";
+import { canDoubleDown, canSplit, canSurrender } from "@/game/simulation/blackjack/hand";
 
 interface ActionBarProps {
   gameState: GameState;
@@ -45,20 +45,20 @@ export function ActionBar({ gameState, onAction }: ActionBarProps) {
       <ActionButton
         onClick={() => onAction("hit")}
         variant="primary"
-        label="Pedir"
+        label="Hit"
         shortcut="H"
       />
       <ActionButton
         onClick={() => onAction("stand")}
         variant="secondary"
-        label="Plantarse"
+        label="Stand"
         shortcut="S"
       />
       {showDouble && (
         <ActionButton
           onClick={() => onAction("double")}
           variant="accent"
-          label="Doblar"
+          label="Double"
           shortcut="D"
         />
       )}
@@ -66,7 +66,7 @@ export function ActionBar({ gameState, onAction }: ActionBarProps) {
         <ActionButton
           onClick={() => onAction("split")}
           variant="accent"
-          label="Dividir"
+          label="Split"
           shortcut="P"
         />
       )}
@@ -74,7 +74,7 @@ export function ActionBar({ gameState, onAction }: ActionBarProps) {
         <ActionButton
           onClick={() => onAction("surrender")}
           variant="danger"
-          label="Rendirse"
+          label="Surrender"
           shortcut="R"
         />
       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { MultiplayerTable } from "@/components/game/MultiplayerTable";
+import { MultiplayerTable } from "@/game/presentation/blackjack";
 
 export default function TablePage({
   params,

@@ -16,16 +16,16 @@ import {
   maxGlobalDealIndex,
   totalCardsOnTable,
   type TableCardLayout,
-} from "@/lib/blackjack/deal-sequence";
+} from "@/game/simulation/blackjack/deal-sequence";
 import {
   CARD_DEAL_DURATION_MS,
   CARD_SEQUENTIAL_STEP_MS,
-} from "@/lib/blackjack/constants";
+} from "@/game/simulation/blackjack/constants";
 
 export type DealAnimationApi = {
-  /** Retardo del inicio de la animación de reparto (ms) respecto al “último frame” ya asentado */
+  /** Deal animation start delay (ms) vs the last settled “frame” */
   getDealDelayMs: (globalDealIndex: number) => number;
-  /** Cuándo debe mostrarse el total que incluye esa carta (ms desde el montaje del estado actual) */
+  /** When the hand total that includes this card should appear (ms from current layout mount) */
   getRevealDeadlineMs: (globalDealIndex: number) => number;
 };
 
@@ -36,8 +36,8 @@ export function useDealAnimation(): DealAnimationApi | null {
 }
 
 /**
- * Evita usar `globalIndex * STEP` en cada carta: al pedir hit el índice global es alto y la carta
- * tardaba segundos en animarse. Aquí solo se escala el “lote” nuevo desde prevMaxGlobal.
+ * Avoids `globalIndex * STEP` per card (late hits would delay for seconds). New batches are timed
+ * relative to the last settled `prevMaxGlobal` instead.
  */
 export function DealAnimationProvider({
   layout,
@@ -60,8 +60,8 @@ export function DealAnimationProvider({
 
   const getDealDelayMs = useCallback((globalDealIndex: number) => {
     const prev = prevMaxGlobalRef.current;
-    // Reparto desde mesa vacía: línea temporal absoluta hasta que acabe la ola.
-    // Si fijáramos prev=maxG en el primer layout, un re-render pondría retraso 0 en todas.
+    // Empty table → full deal: absolute timeline until the wave ends.
+    // If we set prev=maxG on first layout, a re-render would give delay 0 for every card.
     if (prev < 0) {
       return globalDealIndex * CARD_SEQUENTIAL_STEP_MS;
     }
@@ -96,22 +96,21 @@ export function DealAnimationProvider({
 
     const oldPrev = prevMaxGlobalRef.current;
 
-    // Misma firma de max global (p. ej. solo cambia faceUp): asentar ya.
+    // Same max global (e.g. only faceUp changed): commit immediately.
     if (maxG <= oldPrev) {
       prevMaxGlobalRef.current = maxG;
       return clearScheduled;
     }
 
-    // Cualquier lote nuevo (reparto inicial, hit, robo múltiple del crupier en un tick):
-    // no fijar prevMax hasta que acabe la ola; si no, un re-render pone retraso 0 en todas
-    // y las animaciones CSS se reinician o se desincronizan.
+    // Any new batch (initial deal, hit, dealer multi-draw in one tick): do not commit prevMax
+    // until the wave ends, or a re-render sets delay 0 on all cards and CSS animations desync.
     const ms = feedbackWaveDurationMs(layout, oldPrev);
     waveCommitTimeoutRef.current = setTimeout(() => {
       waveCommitTimeoutRef.current = null;
       prevMaxGlobalRef.current = maxG;
     }, ms > 0 ? ms : 0);
     return clearScheduled;
-    // `layout` solo por closure; no incluir referencia del objeto (MultiplayerTable recrea cada render).
+    // `layout` read from closure only; omit object identity (parent may recreate each render).
   }, [layoutSig, maxG, total]);
 
   return (

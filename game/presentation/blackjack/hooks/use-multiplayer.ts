@@ -1,30 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getSupabase } from "@/lib/supabase";
-import { getChannelName, type BroadcastEvent } from "@/lib/broadcast";
-import type { ClientGameState, PlayerAction } from "@/lib/blackjack/types";
-import { getPlayerId, getPlayerName } from "@/lib/player-identity";
+import { getSupabase } from "@/shared/lib/supabase";
+import { getChannelName, type BroadcastEvent } from "@/shared/lib/broadcast";
+import type { ClientGameState, TableApiPayload } from "@/game/simulation/blackjack/types";
+import { isActivePlayingTurnForPlayer } from "@/game/simulation/blackjack/view-queries";
+import { getPlayerId, getPlayerName } from "@/shared/lib/player-identity";
+import type { BlackjackSessionAction } from "@/shared/types/blackjack-session-action";
 
 interface UseMultiplayerOptions {
   tableId: string;
 }
 
-type GameAction =
-  | PlayerAction
-  | "bet"
-  | "start_game"
-  | "auto_clear"
-  | "auto_deal"
-  | "auto_insurance"
-  | "insurance_accept"
-  | "insurance_decline"
-  | "auto_rebuy_results"
-  | "rebuy";
-
 export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
   const [gameState, setGameState] = useState<ClientGameState | null>(null);
-  const [tableInfo, setTableInfo] = useState<Record<string, unknown> | null>(null);
+  const [tableInfo, setTableInfo] = useState<TableApiPayload | null>(null);
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,16 +28,16 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     try {
       const res = await fetch(`/api/tables/${tableId}`);
       if (!res.ok) {
-        setError("Mesa no encontrada");
+        setError("Table not found");
         setLoading(false);
         return;
       }
-      const data = await res.json();
+      const data = (await res.json()) as TableApiPayload;
       setTableInfo(data);
       setGameState(data.game_state);
       setLoading(false);
     } catch {
-      setError("Error al cargar la mesa");
+      setError("Failed to load table");
       setLoading(false);
     }
   }, [tableId]);
@@ -84,7 +74,7 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
   }, [tableId, playerId]);
 
   const sendAction = useCallback(
-    async (action: GameAction, amount?: number) => {
+    async (action: BlackjackSessionAction, amount?: number) => {
       try {
         const res = await fetch(`/api/tables/${tableId}/action`, {
           method: "POST",
@@ -125,7 +115,7 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
             fetchState();
             break;
           case "table_closed":
-            setError("La mesa fue cerrada");
+            setError("This table was closed");
             break;
         }
       })
@@ -161,8 +151,7 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
 
   const myPlayer = gameState?.players.find((p) => p.id === playerId) ?? null;
   const isMyTurn =
-    gameState?.phase === "playing" &&
-    gameState.players[gameState.activePlayerIndex]?.id === playerId;
+    gameState != null && isActivePlayingTurnForPlayer(gameState, playerId);
 
   return {
     gameState,
@@ -178,3 +167,5 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     refreshState: fetchState,
   };
 }
+
+export type UseMultiplayerReturn = ReturnType<typeof useMultiplayer>;

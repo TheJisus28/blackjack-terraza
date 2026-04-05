@@ -2,17 +2,17 @@
 
 import Image from "next/image";
 import { useRef } from "react";
-import type { Card as CardType } from "@/lib/blackjack/types";
-import { getCardImagePath } from "@/lib/blackjack/deck";
+import type { Card as CardType } from "@/game/simulation/blackjack/types";
+import { getCardImagePath } from "@/game/simulation/blackjack/deck";
 import {
   CARD_ANIM_DELAY_PER_CARD_MS,
   CARD_DEAL_DURATION_MS,
-} from "@/lib/blackjack/constants";
+} from "@/game/simulation/blackjack/constants";
 
 interface CardProps {
   card: CardType;
   index?: number;
-  /** Si se define, sustituye el retardo por índice local (cola global de la mesa) */
+  /** When set, overrides stagger delay using the table-wide deal queue */
   dealDelayMs?: number;
   className?: string;
   flip?: boolean;

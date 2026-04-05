@@ -9,7 +9,7 @@ export const CHIP_COLORS: Record<number, string> = {
   500: "from-amber-500 to-amber-700 border-amber-300",
 };
 
-/** Teclas 1–6 = fichas (misma fila que apuesta normal) */
+/** Keys 1–6 select chips (same row as normal bet UI) */
 export const KEY_TO_CHIP: Record<string, number> = {
   "1": 10,
   "2": 25,

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { GameResult, GameState, PlayerAction } from "@/lib/blackjack/types";
+import type { GameResult, GameState, PlayerAction } from "@/game/simulation/blackjack/types";
+import { PHASE } from "@/game/simulation/blackjack/game-phase";
 import {
   createGame,
   dealInitialCards,
@@ -12,14 +13,14 @@ import {
   takeInsurance,
   declineInsurance,
   autoRebuyBrokePlayersInResults,
-} from "@/lib/blackjack/engine";
+} from "@/game/simulation/blackjack/engine";
 import {
   INSURANCE_TIMER_S,
   RESULTS_TIMER_S,
   RESULTS_REBUY_LEAD_S,
-} from "@/lib/blackjack/constants";
+} from "@/game/simulation/blackjack/constants";
 
-export function useGame(playerName = "Jugador") {
+export function useGame(playerName = "Player") {
   const [gameState, setGameState] = useState<GameState>(() =>
     createGame(playerName),
   );
@@ -93,7 +94,8 @@ export function useGame(playerName = "Jugador") {
   }, [playerId]);
 
   useEffect(() => {
-    if (gameState.phase !== "insurance" || !gameState.insuranceStartedAt) return;
+    if (gameState.phase !== PHASE.INSURANCE || !gameState.insuranceStartedAt)
+      return;
     const deadline =
       gameState.insuranceStartedAt + INSURANCE_TIMER_S * 1000;
     const ms = Math.max(0, deadline - Date.now());
@@ -104,7 +106,7 @@ export function useGame(playerName = "Jugador") {
   }, [gameState.phase, gameState.insuranceStartedAt, insuranceDecline]);
 
   useEffect(() => {
-    if (gameState.phase !== "finished" || !gameState.roundEndedAt) return;
+    if (gameState.phase !== PHASE.FINISHED || !gameState.roundEndedAt) return;
     if (player.chips >= gameState.minBet) return;
 
     const minElapsedMs = (RESULTS_TIMER_S - RESULTS_REBUY_LEAD_S) * 1000;
@@ -112,7 +114,7 @@ export function useGame(playerName = "Jugador") {
     const ms = Math.max(0, deadline - Date.now());
     const t = window.setTimeout(() => {
       setGameState((prev) => {
-        if (prev.phase !== "finished") return prev;
+        if (prev.phase !== PHASE.FINISHED) return prev;
         return autoRebuyBrokePlayersInResults(prev);
       });
     }, ms);

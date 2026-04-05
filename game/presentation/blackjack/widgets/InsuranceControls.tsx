@@ -1,8 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { sounds } from "@/lib/sounds";
-import { CHIP_COLORS, CHIP_VALUES, KEY_TO_CHIP } from "./chipConstants";
+import { sounds } from "@/shared/audio/sounds";
+import {
+  CHIP_COLORS,
+  CHIP_VALUES,
+  KEY_TO_CHIP,
+} from "@/game/presentation/blackjack/lib/chip-constants";
 
 interface InsuranceControlsProps {
   maxInsurance: number;
@@ -71,12 +75,12 @@ export function InsuranceControls({
   return (
     <div className="flex flex-col items-center gap-4 px-4">
       <p className="text-center text-xs text-amber-200/80 max-w-sm">
-        As del crupier — seguro hasta la mitad de tu apuesta (paga 2:1 si hay blackjack del crupier).
+        Dealer shows an ace — insurance up to half your bet (pays 2:1 if dealer has blackjack).
       </p>
 
       <div className="text-center">
         <p className="text-amber-300 text-sm font-medium uppercase tracking-wider mb-1">
-          {current > 0 ? "Tu seguro" : `Máximo $${effectiveMax}`}
+          {current > 0 ? "Your insurance" : `Max $${effectiveMax}`}
         </p>
         <p
           className={`text-4xl font-bold tabular-nums ${current > 0 ? "text-white" : "text-white/30"}`}
@@ -109,14 +113,14 @@ export function InsuranceControls({
           onClick={clear}
           className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all cursor-pointer"
         >
-          Limpiar
+          Clear
         </button>
         <button
           type="button"
           onClick={onDecline}
           className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium border border-white/15 transition-all cursor-pointer"
         >
-          No gracias
+          No thanks
         </button>
         <button
           type="button"
@@ -125,12 +129,12 @@ export function InsuranceControls({
           className="px-8 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed
             text-white font-bold text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer"
         >
-          Confirmar seguro
+          Confirm insurance
         </button>
       </div>
 
       {countdownSec != null && countdownSec > 0 && (
-        <p className="text-xs text-gray-400 tabular-nums">Seguro: {countdownSec}s</p>
+        <p className="text-xs text-gray-400 tabular-nums">Insurance: {countdownSec}s</p>
       )}
     </div>
   );

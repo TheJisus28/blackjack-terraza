@@ -1,4 +1,4 @@
-import { GameTable } from "@/components/game/GameTable";
+import { GameTable } from "@/game/presentation/blackjack";
 
 export const metadata = {
   title: "Jugar | Blackjack Terraza",

@@ -47,7 +47,7 @@ export function isTenValueRank(rank: Rank): boolean {
   );
 }
 
-/** Blackjack natural mirando las dos cartas (peek del crupier, ignora faceUp). */
+/** Natural blackjack from two cards (dealer peek; ignores faceUp). */
 export function isNaturalBlackjackCards(cards: Card[]): boolean {
   if (cards.length !== 2) return false;
   const ranks = cards.map((c) => c.rank);

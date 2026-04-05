@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Cuántas cartas cuentan para el total mostrado, alineado con el fin de cada animación.
- * `revealAtMsForLocalIndex(i)` = ms hasta que la carta local `i` ha terminado de repartirse.
+ * How many cards count toward the displayed hand total, aligned with each deal animation end.
+ * `revealAtMsForLocalIndex(i)` = ms until local card `i` has finished dealing.
  */
 export function useSequentialRevealCount(
   cardCount: number,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DEFAULT_MIN_BET, DEFAULT_MAX_BET } from "@/lib/blackjack/constants";
+import { DEFAULT_MIN_BET, DEFAULT_MAX_BET } from "@/game/simulation/blackjack/constants";
 
 interface CreateTableDialogProps {
   open: boolean;
@@ -31,18 +31,18 @@ export function CreateTableDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
       <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl p-6 shadow-2xl">
-        <h2 className="text-xl font-bold text-white mb-6">Crear Mesa</h2>
+        <h2 className="text-xl font-bold text-white mb-6">Create table</h2>
 
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">
-              Nombre de la mesa
+              Table name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Mesa de los panas"
+              placeholder="Friday night blackjack"
               maxLength={72}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white
                 placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 transition-colors"
@@ -51,7 +51,7 @@ export function CreateTableDialog({
 
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-gray-400">
-              Mesa privada
+              Private table
             </label>
             <button
               type="button"
@@ -68,7 +68,7 @@ export function CreateTableDialog({
 
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">
-              Jugadores max: {maxPlayers}
+              Max players: {maxPlayers}
             </label>
             <input
               type="range"
@@ -92,7 +92,7 @@ export function CreateTableDialog({
           <button
             onClick={() =>
               onCreate({
-                name: name || "Mesa sin nombre",
+                name: name || "Untitled table",
                 isPrivate,
                 maxPlayers,
                 minBet: DEFAULT_MIN_BET,
@@ -103,7 +103,7 @@ export function CreateTableDialog({
             className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white
               font-bold disabled:opacity-50 transition-colors cursor-pointer"
           >
-            {loading ? "Creando..." : "Crear"}
+            {loading ? "Creating..." : "Crear"}
           </button>
         </div>
       </div>

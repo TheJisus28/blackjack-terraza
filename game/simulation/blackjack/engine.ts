@@ -31,12 +31,14 @@ import {
   SURRENDER_RETURN_RATIO,
   INITIAL_DEAL_ROUNDS,
 } from "./constants";
-import { generateId } from "../uuid";
+import { PHASE } from "./game-phase";
+import { PLAYER_ACTION } from "./player-action-kind";
+import { generateId } from "@/shared/lib/uuid";
 
 export function createGame(playerName: string): GameState {
   return {
     id: generateId(),
-    phase: "betting",
+    phase: PHASE.BETTING,
     deck: createShoe(DEFAULT_DECK_COUNT),
     dealer: { cards: [], status: "playing" },
     players: [
@@ -53,7 +55,7 @@ export function createGame(playerName: string): GameState {
     minBet: DEFAULT_MIN_BET,
     maxBet: DEFAULT_MAX_BET,
     deckCount: DEFAULT_DECK_COUNT,
-    message: "Coloca tu apuesta",
+    message: "Place your bet",
   };
 }
 
@@ -62,8 +64,8 @@ export function placeBet(
   playerId: string,
   amount: number,
 ): GameState {
-  if (state.phase !== "betting") {
-    return { ...state, message: "No es momento de apostar" };
+  if (state.phase !== PHASE.BETTING) {
+    return { ...state, message: "Not time to bet" };
   }
 
   const playerIndex = state.players.findIndex((p) => p.id === playerId);
@@ -71,14 +73,14 @@ export function placeBet(
 
   const player = state.players[playerIndex];
   if (amount < state.minBet || amount > state.maxBet) {
-    const maxLabel = state.maxBet >= 999_999 ? "tus fichas" : `$${state.maxBet}`;
+    const maxLabel = state.maxBet >= 999_999 ? "your chips" : `$${state.maxBet}`;
     return {
       ...state,
-      message: `Apuesta debe ser entre $${state.minBet} y ${maxLabel}`,
+      message: `Bet must be between $${state.minBet} y ${maxLabel}`,
     };
   }
   if (amount > player.chips) {
-    return { ...state, message: "No tienes suficientes fichas" };
+    return { ...state, message: "Not enough chips" };
   }
 
   const updatedPlayers = [...state.players];
@@ -93,13 +95,13 @@ export function placeBet(
 }
 
 export function dealInitialCards(state: GameState): GameState {
-  if (state.phase !== "betting") return state;
+  if (state.phase !== PHASE.BETTING) return state;
 
   const activePlayers = state.players.filter(
     (p) => p.hands.length > 0 && p.hands[0].bet > 0,
   );
   if (activePlayers.length === 0) {
-    return { ...state, message: "Necesitas apostar primero" };
+    return { ...state, message: "You must place a bet first" };
   }
 
   let deck = [...state.deck];
@@ -134,7 +136,7 @@ export function dealInitialCards(state: GameState): GameState {
   );
   const firstActive = findNextActiveHand(players, 0, 0);
 
-  // Carta alta 10 (no As): peek — si hay blackjack del crupier, se acaba la ronda
+  // Ten-value upcard (not ace): peek — dealer natural ends the round
   if (dealerUp && isTenValueRank(dealerUp.rank)) {
     if (isNaturalBlackjackCards(dealerCards)) {
       const revealed = dealerCards.map((c) => ({ ...c, faceUp: true }));
@@ -143,8 +145,8 @@ export function dealInitialCards(state: GameState): GameState {
         deck,
         dealer: { cards: revealed, status: "standing" },
         players,
-        phase: "resolving",
-        message: "Blackjack del crupier",
+        phase: PHASE.RESOLVING,
+        message: "Dealer blackjack",
       };
     }
     return {
@@ -152,15 +154,15 @@ export function dealInitialCards(state: GameState): GameState {
       deck,
       dealer: { cards: dealerCards, status: "playing" },
       players,
-      phase: allSettled ? "dealer_turn" : "playing",
+      phase: allSettled ? PHASE.DEALER_TURN : PHASE.PLAYING,
       activePlayerIndex: firstActive?.playerIndex ?? 0,
       message: allSettled
-        ? "Turno del dealer"
-        : `Turno de ${players[firstActive?.playerIndex ?? 0]?.name ?? ""}`,
+        ? "Dealer's turn"
+        : `${players[firstActive?.playerIndex ?? 0]?.name ?? ""}'s turn`,
     };
   }
 
-  // As visible: ofrecer seguro antes de continuar
+  // Visible ace: offer insurance before continuing
   if (dealerUp?.rank === "ace") {
     const playersWithInsurance = players.map((p) => {
       if (p.hands.length > 0 && p.hands[0].bet > 0) {
@@ -173,9 +175,9 @@ export function dealInitialCards(state: GameState): GameState {
       deck,
       dealer: { cards: dealerCards, status: "playing" },
       players: playersWithInsurance,
-      phase: "insurance",
+      phase: PHASE.INSURANCE,
       insuranceStartedAt: Date.now(),
-      message: "Seguro disponible (As del crupier)",
+      message: "Insurance offered (dealer shows Ace)",
     };
   }
 
@@ -184,11 +186,11 @@ export function dealInitialCards(state: GameState): GameState {
     deck,
     dealer: { cards: dealerCards, status: "playing" },
     players,
-    phase: allSettled ? "dealer_turn" : "playing",
+    phase: allSettled ? PHASE.DEALER_TURN : PHASE.PLAYING,
     activePlayerIndex: firstActive?.playerIndex ?? 0,
     message: allSettled
-      ? "Turno del dealer"
-      : `Turno de ${players[firstActive?.playerIndex ?? 0]?.name ?? ""}`,
+      ? "Dealer's turn"
+      : `${players[firstActive?.playerIndex ?? 0]?.name ?? ""}'s turn`,
   };
 }
 
@@ -198,7 +200,7 @@ function stripPlayerInsurance(p: Player): Player {
 }
 
 export function allInsuranceAnswered(state: GameState): boolean {
-  if (state.phase !== "insurance") return false;
+  if (state.phase !== PHASE.INSURANCE) return false;
   return state.players.every((p) => {
     if (!p.hands[0] || p.hands[0].bet <= 0) return true;
     return p.insuranceWager != null;
@@ -241,8 +243,8 @@ export function resolveInsurancePhase(state: GameState): {
       ...state,
       dealer: { cards: revealed, status: "standing" },
       players,
-      phase: "resolving",
-      message: "Blackjack del crupier",
+      phase: PHASE.RESOLVING,
+      message: "Dealer blackjack",
       insuranceStartedAt: undefined,
     };
     return resolveRound(nextState);
@@ -262,11 +264,11 @@ export function resolveInsurancePhase(state: GameState): {
       ...state,
       dealer: { ...state.dealer, cards: state.dealer.cards },
       players,
-      phase: allSettled ? "dealer_turn" : "playing",
+      phase: allSettled ? PHASE.DEALER_TURN : PHASE.PLAYING,
       activePlayerIndex: firstActive?.playerIndex ?? 0,
       message: allSettled
-        ? "Turno del dealer"
-        : `Turno de ${players[firstActive?.playerIndex ?? 0]?.name ?? ""}`,
+        ? "Dealer's turn"
+        : `${players[firstActive?.playerIndex ?? 0]?.name ?? ""}'s turn`,
       insuranceStartedAt: undefined,
     },
     results: [],
@@ -278,7 +280,7 @@ export function takeInsurance(
   playerId: string,
   amount?: number,
 ): { state: GameState; results: GameResult[] } {
-  if (state.phase !== "insurance") return { state, results: [] };
+  if (state.phase !== PHASE.INSURANCE) return { state, results: [] };
 
   const idx = state.players.findIndex((p) => p.id === playerId);
   if (idx === -1) return { state, results: [] };
@@ -317,7 +319,7 @@ export function declineInsurance(
   state: GameState,
   playerId: string,
 ): { state: GameState; results: GameResult[] } {
-  if (state.phase !== "insurance") return { state, results: [] };
+  if (state.phase !== PHASE.INSURANCE) return { state, results: [] };
 
   const idx = state.players.findIndex((p) => p.id === playerId);
   if (idx === -1) return { state, results: [] };
@@ -370,17 +372,17 @@ function advanceToNextPlayer(state: GameState): GameState {
     const nextPlayer = players[next.playerIndex];
     const handLabel =
       nextPlayer.hands.length > 1
-        ? ` - Mano ${next.handIndex + 1}`
+        ? ` — Hand ${next.handIndex + 1}`
         : "";
     return {
       ...state,
       players,
       activePlayerIndex: next.playerIndex,
-      message: `Turno de ${nextPlayer.name}${handLabel}`,
+      message: `${nextPlayer.name}${handLabel}`,
     };
   }
 
-  return { ...state, players, phase: "dealer_turn", message: "Turno del dealer" };
+  return { ...state, players, phase: PHASE.DEALER_TURN, message: "Dealer's turn" };
 }
 
 export function playerAction(
@@ -388,11 +390,11 @@ export function playerAction(
   playerId: string,
   action: PlayerAction,
 ): GameState {
-  if (state.phase !== "playing") return state;
+  if (state.phase !== PHASE.PLAYING) return state;
 
   const playerIndex = state.players.findIndex((p) => p.id === playerId);
   if (playerIndex === -1 || playerIndex !== state.activePlayerIndex) {
-    return { ...state, message: "No es tu turno" };
+    return { ...state, message: "Not your turn" };
   }
 
   const player = state.players[playerIndex];
@@ -400,15 +402,15 @@ export function playerAction(
   if (!hand || hand.status !== "playing") return state;
 
   switch (action) {
-    case "hit":
+    case PLAYER_ACTION.HIT:
       return handleHit(state, playerIndex);
-    case "stand":
+    case PLAYER_ACTION.STAND:
       return handleStand(state, playerIndex);
-    case "double":
+    case PLAYER_ACTION.DOUBLE:
       return handleDouble(state, playerIndex);
-    case "split":
+    case PLAYER_ACTION.SPLIT:
       return handleSplit(state, playerIndex);
-    case "surrender":
+    case PLAYER_ACTION.SURRENDER:
       return handleSurrender(state, playerIndex);
     default:
       return state;
@@ -436,7 +438,7 @@ function handleHit(state: GameState, playerIndex: number): GameState {
 
   if (hand.status !== "playing") {
     if (hand.status === "busted") {
-      newState.message = `${player.name} se pasó!`;
+      newState.message = `${player.name} busts!`;
     }
     newState = advanceToNextPlayer(newState);
   }
@@ -459,7 +461,7 @@ function handleDouble(state: GameState, playerIndex: number): GameState {
   const hand = player.hands[player.activeHandIndex];
 
   if (!canDoubleDown(hand) || player.chips < hand.bet) {
-    return { ...state, message: "No puedes doblar" };
+    return { ...state, message: "Cannot double down" };
   }
 
   player.chips -= hand.bet;
@@ -483,7 +485,7 @@ function handleSplit(state: GameState, playerIndex: number): GameState {
   const hand = player.hands[player.activeHandIndex];
 
   if (!canSplit(hand) || player.chips < hand.bet) {
-    return { ...state, message: "No puedes dividir" };
+    return { ...state, message: "Cannot split" };
   }
 
   player.chips -= hand.bet;
@@ -527,7 +529,7 @@ function handleSurrender(state: GameState, playerIndex: number): GameState {
   const hand = player.hands[player.activeHandIndex];
 
   if (!canSurrender(hand)) {
-    return { ...state, message: "No puedes rendirte" };
+    return { ...state, message: "Cannot surrender" };
   }
 
   hand.status = "surrendered";
@@ -537,9 +539,9 @@ function handleSurrender(state: GameState, playerIndex: number): GameState {
 }
 
 /**
- * Hay al menos una mano con apuesta que no está fuera (busted/surrendered).
- * No usar `hands.every` sobre arrays vacíos: [].every(...) es true y hacía que el
- * crupier no robaba si había espectadores con hands: [] en la mesa.
+ * At least one staked hand is still in play (not busted/surrendered).
+ * Do not use `hands.every` on empty arrays: [].every(...) is true and used to
+ * skip dealer hits when spectators had `hands: []`.
  */
 function hasLivingStakedHand(state: GameState): boolean {
   return state.players.some((p) =>
@@ -553,12 +555,12 @@ function hasLivingStakedHand(state: GameState): boolean {
 }
 
 export function playDealerTurn(state: GameState): GameState {
-  if (state.phase !== "dealer_turn") return state;
+  if (state.phase !== PHASE.DEALER_TURN) return state;
 
   let deck = [...state.deck];
   const dealerCards = state.dealer.cards.map((c) => ({ ...c, faceUp: true }));
 
-  // Si todas las manos con apuesta están bust/rendición, solo se revela — no robar
+  // If every staked hand is bust or surrender, only reveal hole — no draw
   if (hasLivingStakedHand(state)) {
     while (getHandValue(dealerCards) < DEALER_STAND_VALUE) {
       const result = drawCard(deck);
@@ -577,10 +579,10 @@ export function playDealerTurn(state: GameState): GameState {
       cards: dealerCards,
       status: dealerBusted ? "busted" : "standing",
     },
-    phase: "resolving",
+    phase: PHASE.RESOLVING,
     message: dealerBusted
-      ? `Dealer se pasó con ${dealerValue}!`
-      : `Dealer se planta con ${dealerValue}`,
+      ? `Dealer busts with ${dealerValue}!`
+      : `Dealer stands on ${dealerValue}`,
   };
 }
 
@@ -588,7 +590,7 @@ export function resolveRound(state: GameState): {
   state: GameState;
   results: GameResult[];
 } {
-  if (state.phase !== "resolving") return { state, results: [] };
+  if (state.phase !== PHASE.RESOLVING) return { state, results: [] };
 
   const dealerValue = getHandValue(state.dealer.cards);
   const dealerBJ = isBlackjack(state.dealer.cards);
@@ -676,10 +678,10 @@ export function resolveRound(state: GameState): {
 
   const outcomeLabels: Record<string, string> = {
     blackjack: "Blackjack!",
-    win: "Ganaste!",
-    lose: "Perdiste",
-    push: "Empate",
-    surrender: "Rendido",
+    win: "You win!",
+    lose: "You lose",
+    push: "Push",
+    surrender: "Surrendered",
   };
 
   const message = results.map((r) => outcomeLabels[r.outcome]).join(" | ");
@@ -689,7 +691,7 @@ export function resolveRound(state: GameState): {
       ...state,
       deck,
       players,
-      phase: "finished",
+      phase: PHASE.FINISHED,
       message,
       roundEndedAt: Date.now(),
     },
@@ -705,13 +707,13 @@ export function runToCompletion(state: GameState): {
   state: GameState;
   results: GameResult[];
 } {
-  if (state.phase === "insurance") {
+  if (state.phase === PHASE.INSURANCE) {
     return { state, results: [] };
   }
-  if (state.phase === "dealer_turn") {
+  if (state.phase === PHASE.DEALER_TURN) {
     state = playDealerTurn(state);
   }
-  if (state.phase === "resolving") {
+  if (state.phase === PHASE.RESOLVING) {
     return resolveRound(state);
   }
   return { state, results: [] };
@@ -735,11 +737,11 @@ export function startNewRound(state: GameState): GameState {
   return {
     ...state,
     deck,
-    phase: "betting",
+    phase: PHASE.BETTING,
     dealer: { cards: [], status: "playing" },
     players,
     activePlayerIndex: 0,
-    message: "Coloca tu apuesta",
+    message: "Place your bet",
   };
 }
 
@@ -760,7 +762,7 @@ export function createMultiplayerGame(options: {
   const deckCount = options.deckCount ?? DEFAULT_DECK_COUNT;
   return {
     id: generateId(),
-    phase: "waiting",
+    phase: PHASE.WAITING,
     deck: createShoe(deckCount),
     dealer: { cards: [], status: "playing" },
     players: [],
@@ -768,7 +770,7 @@ export function createMultiplayerGame(options: {
     minBet: options.minBet ?? DEFAULT_MIN_BET,
     maxBet: options.maxBet ?? DEFAULT_MAX_BET,
     deckCount,
-    message: "Esperando jugadores...",
+    message: "Waiting for players...",
   };
 }
 
@@ -789,19 +791,19 @@ export function addPlayer(
   };
 
   const midRound =
-    state.phase === "playing" ||
-    state.phase === "insurance" ||
-    state.phase === "dealer_turn" ||
-    state.phase === "resolving";
+    state.phase === PHASE.PLAYING ||
+    state.phase === PHASE.INSURANCE ||
+    state.phase === PHASE.DEALER_TURN ||
+    state.phase === PHASE.RESOLVING;
 
   return {
     ...state,
     players: [...state.players, newPlayer],
     message: midRound
-      ? `${playerName} se unió — espera a la siguiente ronda`
+      ? `${playerName} joined — wait for the next round`
       : state.players.length === 0
-        ? `${playerName} se unió. Esperando más jugadores...`
-        : `${playerName} se unió!`,
+        ? `${playerName} joined. Waiting for more players...`
+        : `${playerName} joined!`,
   };
 }
 
@@ -812,13 +814,13 @@ export function removePlayer(state: GameState, playerId: string): GameState {
   const players = state.players.filter((p) => p.id !== playerId);
 
   if (players.length === 0) {
-    return { ...state, players, phase: "finished", message: "" };
+    return { ...state, players, phase: PHASE.FINISHED, message: "" };
   }
 
   let { activePlayerIndex, phase } = state;
   let message = state.message;
 
-  if (phase === "playing") {
+  if (phase === PHASE.PLAYING) {
     if (removedIndex === activePlayerIndex) {
       // The active player left — find the next active hand
       if (activePlayerIndex >= players.length) {
@@ -828,22 +830,22 @@ export function removePlayer(state: GameState, playerId: string): GameState {
       if (next) {
         activePlayerIndex = next.playerIndex;
         players[next.playerIndex].activeHandIndex = next.handIndex;
-        message = `Turno de ${players[next.playerIndex].name}`;
+        message = `${players[next.playerIndex].name}'s turn`;
       } else {
-        phase = "dealer_turn";
-        message = "Turno del dealer";
+        phase = PHASE.DEALER_TURN;
+        message = "Dealer's turn";
       }
     } else if (removedIndex < activePlayerIndex) {
       activePlayerIndex--;
     }
   }
 
-  if (phase === "betting") {
+  if (phase === PHASE.BETTING) {
     // If all remaining players already bet, proceed to deal
     const allBet = players.length > 0 &&
       players.every((p) => p.hands.length > 0 && p.hands[0].bet > 0);
     if (allBet) {
-      let dealt = dealInitialCards({
+      const dealt = dealInitialCards({
         ...state, players, activePlayerIndex, phase, message,
       });
       const { state: completed } = runToCompletion(dealt);
@@ -851,7 +853,7 @@ export function removePlayer(state: GameState, playerId: string): GameState {
     }
   }
 
-  if (phase === "insurance") {
+  if (phase === PHASE.INSURANCE) {
     const st: GameState = { ...state, players, activePlayerIndex, phase, message };
     if (allInsuranceAnswered(st)) {
       return resolveInsurancePhase(st).state;
@@ -861,9 +863,24 @@ export function removePlayer(state: GameState, playerId: string): GameState {
   return { ...state, players, activePlayerIndex, phase, message };
 }
 
+/** After {@link removePlayer}, finish the round if the table moved to dealer_turn mid player phase. */
+export function completeRoundIfDealerTurnAfterLeave(
+  stateBeforeRemove: GameState,
+  stateAfterRemove: GameState,
+): GameState {
+  if (
+    stateAfterRemove.phase === PHASE.DEALER_TURN &&
+    (stateBeforeRemove.phase === PHASE.PLAYING ||
+      stateBeforeRemove.phase === PHASE.INSURANCE)
+  ) {
+    return runToCompletion(stateAfterRemove).state;
+  }
+  return stateAfterRemove;
+}
+
 export function startBetting(state: GameState): GameState {
   if (state.players.length === 0) {
-    return { ...state, message: "No hay jugadores" };
+    return { ...state, message: "No players" };
   }
   const players = state.players.map((p) => {
     const { insuranceWager: _, ...rest } = p;
@@ -883,11 +900,11 @@ export function startBetting(state: GameState): GameState {
   return {
     ...state,
     deck,
-    phase: "betting",
+    phase: PHASE.BETTING,
     dealer: { cards: [], status: "playing" },
     players,
     activePlayerIndex: 0,
-    message: "Coloquen sus apuestas!",
+    message: "Place your bets!",
     roundEndedAt: undefined,
     bettingStartedAt: Date.now(),
     insuranceStartedAt: undefined,
@@ -896,21 +913,21 @@ export function startBetting(state: GameState): GameState {
 
 /** Transition from finished → betting after the results timer */
 export function autoClearTable(state: GameState): GameState {
-  if (state.phase !== "finished") return state;
+  if (state.phase !== PHASE.FINISHED) return state;
   return startBetting(state);
 }
 
 function formatPlayersRechargedMessage(names: string[]): string {
-  if (names.length === 1) return `${names[0]} recargó fichas!`;
-  if (names.length === 2) return `${names[0]} y ${names[1]} recargaron fichas!`;
+  if (names.length === 1) return `${names[0]} received a chip rebuy!`;
+  if (names.length === 2) return `${names[0]} and ${names[1]} received chip rebuys!`;
   const head = names.slice(0, -1).join(", ");
   const tail = names[names.length - 1];
-  return `${head} y ${tail} recargaron fichas!`;
+  return `${head} and ${tail} received chip rebuys!`;
 }
 
-/** Fase resultados: suma REBUY_CHIPS a quien no alcanza la apuesta mínima (idempotente). */
+/** Results phase: add REBUY_CHIPS to anyone below min bet (idempotent). */
 export function autoRebuyBrokePlayersInResults(state: GameState): GameState {
-  if (state.phase !== "finished") return state;
+  if (state.phase !== PHASE.FINISHED) return state;
   const min = state.minBet;
   const players = deepClonePlayers(state.players);
   const reboughtNames: string[] = [];
@@ -947,7 +964,7 @@ export function rebuyPlayer(state: GameState, playerId: string): GameState {
 
 export function allBetsPlaced(state: GameState): boolean {
   return (
-    state.phase === "betting" &&
+    state.phase === PHASE.BETTING &&
     state.players.length > 0 &&
     state.players.every((p) => p.hands.length > 0 && p.hands[0].bet > 0)
   );

@@ -76,7 +76,7 @@ export function TableList({ tables, loading }: TableListProps) {
                 ? "text-emerald-400 bg-emerald-500/10"
                 : "text-amber-400 bg-amber-500/10"
             }`}>
-              {table.status === "waiting" ? "Esperando" : "En juego"}
+              {table.status === "waiting" ? "Waiting" : "In play"}
             </span>
 
             {table.status === "playing" && table.player_count < table.max_players && (

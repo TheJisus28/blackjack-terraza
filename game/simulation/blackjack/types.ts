@@ -43,27 +43,17 @@ export interface Player {
   activeHandIndex: number;
   isActive: boolean;
   inactiveRounds?: number;
-  /** Fase seguro: null = pendiente, 0 = rechazó, >0 = monto del seguro (paga 2:1 si hay BJ del crupier) */
+  /** Insurance: null = pending, 0 = declined, >0 = wager (pays 2:1 on dealer natural) */
   insuranceWager?: number | null;
 }
 
-export type GamePhase =
-  | "waiting"
-  | "betting"
-  | "dealing"
-  | "insurance"
-  | "playing"
-  | "dealer_turn"
-  | "resolving"
-  | "finished";
+import type { GamePhase } from "./game-phase";
+import type { PlayerAction } from "./player-action-kind";
 
-export type PlayerAction =
-  | "hit"
-  | "stand"
-  | "double"
-  | "split"
-  | "surrender"
-  | "bet";
+export type { GamePhase } from "./game-phase";
+export { PHASE } from "./game-phase";
+export type { PlayerAction } from "./player-action-kind";
+export { PLAYER_ACTION } from "./player-action-kind";
 
 export interface GameState {
   id: string;
@@ -129,3 +119,6 @@ export interface TableRow {
   player_count: number;
   created_at: string;
 }
+
+/** JSON from `GET /api/tables/[id]` (Supabase row, snake_case; deck not exposed on this route). */
+export type TableApiPayload = Omit<TableRow, "deck_data">;

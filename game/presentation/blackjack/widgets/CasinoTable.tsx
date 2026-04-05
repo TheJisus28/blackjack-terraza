@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import type { TableCardLayout } from "@/lib/blackjack/deal-sequence";
+import type { TableCardLayout } from "@/game/simulation/blackjack/deal-sequence";
 import { DealAnimationProvider } from "./DealAnimationContext";
 
 interface CasinoTableProps {
@@ -10,7 +10,7 @@ interface CasinoTableProps {
   controlsSlot: ReactNode;
   messageSlot?: ReactNode;
   headerSlot: ReactNode;
-  /** Mesa actual para retrasos de carta relativos (hit / robos del crupier) */
+  /** Current layout for relative card delays (hits / dealer draws) */
   tableLayout?: TableCardLayout;
 }
 

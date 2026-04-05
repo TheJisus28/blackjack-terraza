@@ -11,6 +11,8 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000). Configure Supabase in `.env.local` if you use multiplayer tables.
 
+See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for the **game-style** layout: `game/simulation/`, `game/presentation/`, `shared/`, and `app/`.
+
 ## Scripts
 
 | Command   | Description        |

@@ -1,4 +1,4 @@
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase } from "@/shared/lib/supabase";
 
 export async function GET(
   _request: Request,
@@ -14,7 +14,7 @@ export async function GET(
     .single();
 
   if (error || !data) {
-    return Response.json({ error: "Mesa no encontrada" }, { status: 404 });
+    return Response.json({ error: "Table not found" }, { status: 404 });
   }
 
   return Response.json(data);

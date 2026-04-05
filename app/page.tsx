@@ -8,7 +8,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Juega gratis con amigos
+            Play free with friends
           </div>
 
           <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-4">
@@ -20,8 +20,8 @@ export default function Home() {
           </h1>
 
           <p className="text-lg sm:text-xl text-gray-400 max-w-md mx-auto leading-relaxed">
-            Blackjack multijugador en tiempo real. Crea mesas, invita amigos y
-            juega como en un casino de verdad.
+            Real-time multiplayer blackjack. Create tables, invite friends, and
+            play like a real casino.
           </p>
         </div>
 
@@ -31,32 +31,32 @@ export default function Home() {
             className="px-8 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium text-base
               transition-all active:scale-95"
           >
-            Jugar Solo
+            Solo
           </Link>
           <Link
             href="/lobby"
             className="px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-base
               shadow-lg shadow-emerald-500/25 transition-all active:scale-95"
           >
-            Multijugador
+            Multiplayer
           </Link>
         </div>
 
         {/* Features */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-20 max-w-3xl w-full">
           <FeatureCard
-            title="Reglas Reales"
-            description="Split, double down, surrender. Blackjack paga 3:2."
+            title="Real rules"
+            description="Split, double down, surrender. Blackjack pays 3:2."
             icon="&#127183;"
           />
           <FeatureCard
-            title="Mesas Privadas"
-            description="Crea una mesa y comparte el link con tus amigos."
+            title="Private tables"
+            description="Create a table and share the link with friends."
             icon="&#128279;"
           />
           <FeatureCard
-            title="Tiempo Real"
-            description="Juega en vivo con otros jugadores sin retrasos."
+            title="Real time"
+            description="Play live with other players with minimal delay."
             icon="&#9889;"
           />
         </div>

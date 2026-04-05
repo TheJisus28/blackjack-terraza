@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getPlayerId, getPlayerName, setPlayerName } from "@/lib/player-identity";
-import { TableList } from "@/components/lobby/TableList";
-import { CreateTableDialog } from "@/components/lobby/CreateTableDialog";
+import { getPlayerId, getPlayerName, setPlayerName } from "@/shared/lib/player-identity";
+import { TableList } from "@/game/presentation/lobby/components/TableList";
+import { CreateTableDialog } from "@/game/presentation/lobby/components/CreateTableDialog";
 
 export default function LobbyPage() {
   const router = useRouter();
@@ -104,14 +104,14 @@ export default function LobbyPage() {
           <h1 className="text-3xl font-bold text-white mb-2">
             Blackjack <span className="text-emerald-400">Terraza</span>
           </h1>
-          <p className="text-gray-400 mb-8">Elige tu nombre para jugar</p>
+          <p className="text-gray-400 mb-8">Choose your display name</p>
 
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSetName()}
-            placeholder="Tu nombre..."
+            placeholder="Your name..."
             maxLength={20}
             autoFocus
             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-center
@@ -124,14 +124,14 @@ export default function LobbyPage() {
             className="w-full px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
               disabled:opacity-40 transition-colors cursor-pointer"
           >
-            Entrar al Lobby
+            Enter lobby
           </button>
 
           <Link
             href="/"
             className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-300 transition-colors"
           >
-            Volver al inicio
+            Back to home
           </Link>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function LobbyPage() {
           Blackjack <span className="text-emerald-400">Terraza</span>
         </Link>
         <span className="text-sm text-gray-400">
-          Hola, <span className="text-white font-medium">{name}</span>
+          Hi, <span className="text-white font-medium">{name}</span>
         </span>
       </header>
 
@@ -164,7 +164,7 @@ export default function LobbyPage() {
             className="flex-1 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
               transition-colors cursor-pointer"
           >
-            Crear Mesa
+            Create table
           </button>
 
           <div className="flex flex-1 gap-2">
@@ -173,7 +173,7 @@ export default function LobbyPage() {
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
               onKeyDown={(e) => e.key === "Enter" && handleJoinByCode()}
-              placeholder="Codigo..."
+              placeholder="Code..."
               maxLength={6}
               className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white
                 placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 transition-colors
@@ -185,7 +185,7 @@ export default function LobbyPage() {
               className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium
                 disabled:opacity-40 transition-colors cursor-pointer"
             >
-              Unirse
+              Join
             </button>
           </div>
         </div>
@@ -194,13 +194,13 @@ export default function LobbyPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-white">
-              Mesas Publicas
+              Public tables
             </h2>
             <button
               onClick={fetchTables}
               className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
             >
-              Actualizar
+              Refresh
             </button>
           </div>
 

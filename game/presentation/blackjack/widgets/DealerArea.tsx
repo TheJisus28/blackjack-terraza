@@ -1,19 +1,17 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import type { GameState } from "@/lib/blackjack/types";
-import { getHandValue } from "@/lib/blackjack/hand";
-import {
-  assignGlobalDealIndices,
-  dealLayoutSignature,
-  dealerCardKey,
-} from "@/lib/blackjack/deal-sequence";
+import type { GameState } from "@/game/simulation/blackjack/types";
+import { PHASE } from "@/game/simulation/blackjack/game-phase";
+import { getHandValue } from "@/game/simulation/blackjack/hand";
+import { dealLayoutSignature, dealerCardKey } from "@/game/simulation/blackjack/deal-sequence";
+import { stableGlobalIndicesForKeys } from "@/game/presentation/blackjack/lib/stable-global-deal-indices";
 import {
   CARD_DEAL_DURATION_MS,
   CARD_SEQUENTIAL_STEP_MS,
   CARD_TOTAL_REVEAL_BUFFER_MS,
-} from "@/lib/blackjack/constants";
-import { useSequentialRevealCount } from "@/hooks/use-sequential-reveal-count";
+} from "@/game/simulation/blackjack/constants";
+import { useSequentialRevealCount } from "@/shared/hooks/use-sequential-reveal-count";
 import { useDealAnimation } from "./DealAnimationContext";
 import { Card } from "./Card";
 
@@ -26,26 +24,20 @@ interface DealerAreaProps {
 export function DealerArea({ gameState }: DealerAreaProps) {
   const dealAnim = useDealAnimation();
   const { dealer, phase, players } = gameState;
-  const showFullValue = phase === "resolving" || phase === "finished";
+  const showFullValue =
+    phase === PHASE.RESOLVING || phase === PHASE.FINISHED;
 
   const tableLayout = { players, dealer };
   const layoutSig = dealLayoutSignature(tableLayout);
-  const globalIndexByLocal = useMemo(() => {
-    const map = assignGlobalDealIndices(tableLayout);
-    const n = dealer.cards.length;
-    const out: number[] = [];
-    for (let ci = 0; ci < n; ci++) {
-      const key = dealerCardKey(ci);
-      let g = map.get(key);
-      if (g === undefined) {
-        g = ci === 0 ? 0 : out[ci - 1]! + 1;
-      } else if (ci > 0 && g <= out[ci - 1]!) {
-        g = out[ci - 1]! + 1;
-      }
-      out.push(g);
-    }
-    return out;
-  }, [layoutSig, dealer.cards.length]);
+  const dealerKeys = useMemo(
+    () =>
+      Array.from({ length: dealer.cards.length }, (_, ci) => dealerCardKey(ci)),
+    [dealer.cards.length],
+  );
+  const globalIndexByLocal = useMemo(
+    () => stableGlobalIndicesForKeys(tableLayout, dealerKeys),
+    [layoutSig, dealerKeys],
+  );
 
   const globalFor = useCallback(
     (ci: number) => globalIndexByLocal[ci] ?? 0,

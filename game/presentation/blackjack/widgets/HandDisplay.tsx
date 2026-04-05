@@ -1,20 +1,20 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import type { Hand } from "@/lib/blackjack/types";
-import { getHandValue } from "@/lib/blackjack/hand";
+import type { Hand } from "@/game/simulation/blackjack/types";
+import { getHandValue } from "@/game/simulation/blackjack/hand";
 import {
-  assignGlobalDealIndices,
   dealLayoutSignature,
   playerCardKey,
   type TableCardLayout,
-} from "@/lib/blackjack/deal-sequence";
+} from "@/game/simulation/blackjack/deal-sequence";
+import { stableGlobalIndicesForKeys } from "@/game/presentation/blackjack/lib/stable-global-deal-indices";
 import {
   CARD_DEAL_DURATION_MS,
   CARD_SEQUENTIAL_STEP_MS,
   CARD_TOTAL_REVEAL_BUFFER_MS,
-} from "@/lib/blackjack/constants";
-import { useSequentialRevealCount } from "@/hooks/use-sequential-reveal-count";
+} from "@/game/simulation/blackjack/constants";
+import { useSequentialRevealCount } from "@/shared/hooks/use-sequential-reveal-count";
 import { useDealAnimation } from "./DealAnimationContext";
 import { Card } from "./Card";
 
@@ -39,23 +39,17 @@ export function HandDisplay({
 }: HandDisplayProps) {
   const dealAnim = useDealAnimation();
   const layoutSig = dealLayoutSignature(tableLayout);
-  /** Evita dos cartas con g=0 (fallback) → mismos deadlines y BLACKJACK antes de tiempo. */
-  const globalIndexByLocal = useMemo(() => {
-    const map = assignGlobalDealIndices(tableLayout);
-    const n = hand.cards.length;
-    const out: number[] = [];
-    for (let ci = 0; ci < n; ci++) {
-      const key = playerCardKey(playerIndex, handIndex, ci);
-      let g = map.get(key);
-      if (g === undefined) {
-        g = ci === 0 ? 0 : out[ci - 1]! + 1;
-      } else if (ci > 0 && g <= out[ci - 1]!) {
-        g = out[ci - 1]! + 1;
-      }
-      out.push(g);
-    }
-    return out;
-  }, [layoutSig, hand.cards.length, playerIndex, handIndex]);
+  const cardKeys = useMemo(
+    () =>
+      Array.from({ length: hand.cards.length }, (_, ci) =>
+        playerCardKey(playerIndex, handIndex, ci),
+      ),
+    [hand.cards.length, playerIndex, handIndex],
+  );
+  const globalIndexByLocal = useMemo(
+    () => stableGlobalIndicesForKeys(tableLayout, cardKeys),
+    [layoutSig, cardKeys],
+  );
 
   const globalFor = useCallback(
     (ci: number) => globalIndexByLocal[ci] ?? 0,
@@ -95,8 +89,8 @@ export function HandDisplay({
   const statusLabels: Record<string, string> = {
     blackjack: "BLACKJACK!",
     busted: "BUST",
-    standing: "PLANTADO",
-    surrendered: "RENDIDO",
+    standing: "STAND",
+    surrendered: "SURRENDER",
     playing: "",
   };
 

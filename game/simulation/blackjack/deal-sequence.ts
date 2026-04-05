@@ -3,7 +3,7 @@ import { CARD_DEAL_DURATION_MS, CARD_SEQUENTIAL_STEP_MS } from "./constants";
 
 export type TableCardLayout = Pick<GameState, "players" | "dealer">;
 
-/** Firma estable para memoizar el mapa de índices según cartas visibles */
+/** Stable signature to memoize the index map from visible cards */
 export function dealLayoutSignature(state: TableCardLayout): string {
   return JSON.stringify({
     p: state.players.map((p) =>
@@ -22,10 +22,10 @@ export function dealerCardKey(ci: number): string {
 }
 
 /**
- * Orden visual de reparto (una carta tras otra en toda la mesa):
- * 1) Dos rondas como el motor: por ronda, cada jugador con apuesta en mano 0 (en orden), luego crupier.
- * 2) Resto de cartas de jugadores (pi, hi, ci) no asignadas aún.
- * 3) Cartas del crupier no asignadas (p. ej. robos).
+ * Global visual deal order (one card at a time table-wide):
+ * 1) Two rounds like the engine: each round, every player with a bet on hand 0 (seat order), then dealer.
+ * 2) Remaining player cards (pi, hi, ci) not yet assigned.
+ * 3) Remaining dealer cards (e.g. hits).
  */
 export function assignGlobalDealIndices(state: TableCardLayout): Map<string, number> {
   const map = new Map<string, number>();
@@ -83,9 +83,9 @@ export function maxDealGlobalIndex(layout: TableCardLayout): number {
 }
 
 /**
- * Tiempo hasta que termina la animación del **lote nuevo** de cartas respecto al último
- * `maxGlobal` asentado (misma lógica que DealAnimationProvider). Sirve para feedback / sonidos
- * al pasar a finished con robos del crupier sin usar `maxG * STEP` de toda la mesa desde cero.
+ * Time until the **new batch** of card animations finishes vs the last settled `maxGlobal`
+ * (same logic as DealAnimationProvider). Used for UI feedback / sounds when the dealer draws
+ * many cards without scaling from a full-table `maxG * STEP` from zero.
  */
 export function feedbackWaveDurationMs(
   layout: TableCardLayout,
@@ -102,7 +102,3 @@ export function feedbackWaveDurationMs(
   );
 }
 
-/** Desde índice global 0 (p. ej. reparto inicial completo) */
-export function maxDealAnimationDurationMs(state: TableCardLayout): number {
-  return feedbackWaveDurationMs(state, -1);
-}
