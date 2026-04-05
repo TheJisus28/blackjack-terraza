@@ -536,20 +536,30 @@ function handleSurrender(state: GameState, playerIndex: number): GameState {
   return advanceToNextPlayer({ ...state, players });
 }
 
+/**
+ * Hay al menos una mano con apuesta que no está fuera (busted/surrendered).
+ * No usar `hands.every` sobre arrays vacíos: [].every(...) es true y hacía que el
+ * crupier no robaba si había espectadores con hands: [] en la mesa.
+ */
+function hasLivingStakedHand(state: GameState): boolean {
+  return state.players.some((p) =>
+    p.hands.some(
+      (h) =>
+        h.bet > 0 &&
+        h.status !== "busted" &&
+        h.status !== "surrendered",
+    ),
+  );
+}
+
 export function playDealerTurn(state: GameState): GameState {
   if (state.phase !== "dealer_turn") return state;
 
   let deck = [...state.deck];
   const dealerCards = state.dealer.cards.map((c) => ({ ...c, faceUp: true }));
 
-  // If all players busted/surrendered, dealer just reveals — no need to draw
-  const allPlayersBustedOrSurrendered = state.players.every((p) =>
-    p.hands.every(
-      (h) => h.bet === 0 || h.status === "busted" || h.status === "surrendered",
-    ),
-  );
-
-  if (!allPlayersBustedOrSurrendered) {
+  // Si todas las manos con apuesta están bust/rendición, solo se revela — no robar
+  if (hasLivingStakedHand(state)) {
     while (getHandValue(dealerCards) < DEALER_STAND_VALUE) {
       const result = drawCard(deck);
       dealerCards.push(result.card);

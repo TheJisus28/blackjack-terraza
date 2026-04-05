@@ -9,8 +9,12 @@ import {
   playerCardKey,
   type TableCardLayout,
 } from "@/lib/blackjack/deal-sequence";
-import { CARD_SEQUENTIAL_STEP_MS } from "@/lib/blackjack/constants";
+import {
+  CARD_DEAL_DURATION_MS,
+  CARD_SEQUENTIAL_STEP_MS,
+} from "@/lib/blackjack/constants";
 import { useSequentialRevealCount } from "@/hooks/use-sequential-reveal-count";
+import { useDealAnimation } from "./DealAnimationContext";
 import { Card } from "./Card";
 
 interface HandDisplayProps {
@@ -32,18 +36,31 @@ export function HandDisplay({
   label,
   showValue = true,
 }: HandDisplayProps) {
+  const dealAnim = useDealAnimation();
   const layoutSig = dealLayoutSignature(tableLayout);
   const indexMap = useMemo(
     () => assignGlobalDealIndices(tableLayout),
     [layoutSig],
   );
 
-  const resolveGlobalIndex = useCallback(
+  const globalFor = useCallback(
     (ci: number) => indexMap.get(playerCardKey(playerIndex, handIndex, ci)) ?? 0,
     [indexMap, playerIndex, handIndex],
   );
 
-  const revealedCount = useSequentialRevealCount(hand.cards.length, resolveGlobalIndex);
+  const revealAtMsForLocalIndex = useCallback(
+    (ci: number) => {
+      const g = globalFor(ci);
+      if (dealAnim) return dealAnim.getRevealDeadlineMs(g);
+      return g * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
+    },
+    [dealAnim, globalFor],
+  );
+
+  const revealedCount = useSequentialRevealCount(
+    hand.cards.length,
+    revealAtMsForLocalIndex,
+  );
   const cardsForTotal = hand.cards.slice(0, revealedCount);
   const value = getHandValue(cardsForTotal);
   const visibleForTotal = cardsForTotal.filter((c) => c.faceUp);
@@ -80,17 +97,20 @@ export function HandDisplay({
       )}
 
       <div className="flex -space-x-6 lg:-space-x-7">
-        {hand.cards.map((card, i) => (
-          <Card
-            key={`p${playerIndex}-h${handIndex}-${i}-${card.rank}-${card.suit}`}
-            card={card}
-            index={i}
-            dealDelayMs={
-              (indexMap.get(playerCardKey(playerIndex, handIndex, i)) ?? 0) *
-              CARD_SEQUENTIAL_STEP_MS
-            }
-          />
-        ))}
+        {hand.cards.map((card, i) => {
+          const g = globalFor(i);
+          const dealDelayMs = dealAnim
+            ? dealAnim.getDealDelayMs(g)
+            : g * CARD_SEQUENTIAL_STEP_MS;
+          return (
+            <Card
+              key={`p${playerIndex}-h${handIndex}-${i}-${card.rank}-${card.suit}`}
+              card={card}
+              index={i}
+              dealDelayMs={dealDelayMs}
+            />
+          );
+        })}
       </div>
 
       {showValue && hand.cards.length > 0 && revealedCount > 0 && (

@@ -248,6 +248,7 @@ export function GameTable() {
       playerSlots={playerSeats}
       messageSlot={message}
       controlsSlot={controls}
+      tableLayout={tableLayoutSlice}
     />
   );
 }

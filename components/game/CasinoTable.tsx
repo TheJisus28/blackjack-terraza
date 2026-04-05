@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import type { TableCardLayout } from "@/lib/blackjack/deal-sequence";
+import { DealAnimationProvider } from "./DealAnimationContext";
 
 interface CasinoTableProps {
   dealerSlot: ReactNode;
@@ -8,6 +10,8 @@ interface CasinoTableProps {
   controlsSlot: ReactNode;
   messageSlot?: ReactNode;
   headerSlot: ReactNode;
+  /** Mesa actual para retrasos de carta relativos (hit / robos del crupier) */
+  tableLayout?: TableCardLayout;
 }
 
 export function CasinoTable({
@@ -16,6 +20,7 @@ export function CasinoTable({
   controlsSlot,
   messageSlot,
   headerSlot,
+  tableLayout,
 }: CasinoTableProps) {
   const [isLg, setIsLg] = useState(false);
   useEffect(() => {
@@ -26,11 +31,8 @@ export function CasinoTable({
     return () => mq.removeEventListener("change", h);
   }, []);
 
-  return (
-    <div className="relative flex flex-col min-h-[100dvh] bg-[#0f0f1a] overflow-hidden">
-      {headerSlot}
-
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-2 sm:px-4 py-2 sm:py-3"
+  const tableBody = (
+    <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-2 sm:px-4 py-2 sm:py-3"
         style={{ padding: isLg ? "12px 20px" : undefined }}
       >
         {/* Wood border */}
@@ -113,6 +115,17 @@ export function CasinoTable({
           </div>
         </div>
       </div>
+  );
+
+  return (
+    <div className="relative flex flex-col min-h-[100dvh] bg-[#0f0f1a] overflow-hidden">
+      {headerSlot}
+
+      {tableLayout ? (
+        <DealAnimationProvider layout={tableLayout}>{tableBody}</DealAnimationProvider>
+      ) : (
+        tableBody
+      )}
 
       {/* Controls below table */}
       <div className="relative z-10 w-full max-w-lg mx-auto px-4 pb-5 sm:pb-6 flex-shrink-0" style={{ maxWidth: isLg ? "600px" : undefined, paddingBottom: isLg ? "24px" : undefined }}>

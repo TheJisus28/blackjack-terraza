@@ -500,6 +500,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       playerSlots={playerSlots}
       messageSlot={message}
       controlsSlot={controls}
+      tableLayout={tableLayoutForSeats}
     />
   );
 }

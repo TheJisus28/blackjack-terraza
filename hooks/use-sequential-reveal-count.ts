@@ -1,24 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  CARD_DEAL_DURATION_MS,
-  CARD_SEQUENTIAL_STEP_MS,
-} from "@/lib/blackjack/constants";
 
 /**
- * Cuántas cartas cuentan para el total mostrado, alineado con el fin de cada animación
- * en la cola global de la mesa (ver assignGlobalDealIndices).
+ * Cuántas cartas cuentan para el total mostrado, alineado con el fin de cada animación.
+ * `revealAtMsForLocalIndex(i)` = ms hasta que la carta local `i` ha terminado de repartirse.
  */
 export function useSequentialRevealCount(
   cardCount: number,
-  resolveGlobalIndex: (localCardIndex: number) => number,
+  revealAtMsForLocalIndex: (localCardIndex: number) => number,
 ): number {
   const [revealed, setRevealed] = useState(0);
   const revealedRef = useRef(0);
   revealedRef.current = revealed;
-  const resolveRef = useRef(resolveGlobalIndex);
-  resolveRef.current = resolveGlobalIndex;
+  const revealRef = useRef(revealAtMsForLocalIndex);
+  revealRef.current = revealAtMsForLocalIndex;
 
   useEffect(() => {
     const n = cardCount;
@@ -35,8 +31,7 @@ export function useSequentialRevealCount(
       const timers: number[] = [];
       for (let k = prev + 1; k <= n; k++) {
         const localIdx = k - 1;
-        const g = resolveRef.current(localIdx);
-        const ms = g * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
+        const ms = revealRef.current(localIdx);
         timers.push(
           window.setTimeout(() => {
             setRevealed(k);

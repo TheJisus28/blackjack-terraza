@@ -2,23 +2,28 @@
 
 import { useMemo, useCallback } from "react";
 import type { GameState } from "@/lib/blackjack/types";
-
-type DealerAreaState = Pick<GameState, "dealer" | "players" | "phase">;
 import { getHandValue } from "@/lib/blackjack/hand";
 import {
   assignGlobalDealIndices,
   dealLayoutSignature,
   dealerCardKey,
 } from "@/lib/blackjack/deal-sequence";
-import { CARD_SEQUENTIAL_STEP_MS } from "@/lib/blackjack/constants";
+import {
+  CARD_DEAL_DURATION_MS,
+  CARD_SEQUENTIAL_STEP_MS,
+} from "@/lib/blackjack/constants";
 import { useSequentialRevealCount } from "@/hooks/use-sequential-reveal-count";
+import { useDealAnimation } from "./DealAnimationContext";
 import { Card } from "./Card";
+
+type DealerAreaState = Pick<GameState, "dealer" | "players" | "phase">;
 
 interface DealerAreaProps {
   gameState: DealerAreaState;
 }
 
 export function DealerArea({ gameState }: DealerAreaProps) {
+  const dealAnim = useDealAnimation();
   const { dealer, phase, players } = gameState;
   const showFullValue = phase === "resolving" || phase === "finished";
 
@@ -29,23 +34,32 @@ export function DealerArea({ gameState }: DealerAreaProps) {
     [layoutSig],
   );
 
-  const resolveDealerIndex = useCallback(
+  const globalFor = useCallback(
     (ci: number) => indexMap.get(dealerCardKey(ci)) ?? 0,
     [indexMap],
   );
 
-  const revealedCount = useSequentialRevealCount(dealer.cards.length, resolveDealerIndex);
+  const revealAtMsForLocalIndex = useCallback(
+    (ci: number) => {
+      const g = globalFor(ci);
+      if (dealAnim) return dealAnim.getRevealDeadlineMs(g);
+      return g * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
+    },
+    [dealAnim, globalFor],
+  );
+
+  const revealedCount = useSequentialRevealCount(
+    dealer.cards.length,
+    revealAtMsForLocalIndex,
+  );
   const slice = dealer.cards.slice(0, revealedCount);
   const value = showFullValue
     ? getHandValue(slice.map((c) => ({ ...c, faceUp: true })))
     : getHandValue(slice.filter((c) => c.faceUp));
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="flex items-center gap-2">
-        <span className="text-sm lg:text-base font-semibold text-emerald-300 uppercase tracking-widest">
-          Dealer
-        </span>
+    <div className="flex flex-col items-center gap-3" aria-label="Mano del crupier">
+      <div className="flex items-center justify-center gap-2 min-h-[1.75rem]">
         {dealer.cards.length > 0 && revealedCount > 0 && (
           <span
             key={revealedCount}
@@ -62,14 +76,20 @@ export function DealerArea({ gameState }: DealerAreaProps) {
       </div>
 
       <div className="flex -space-x-6 lg:-space-x-7">
-        {dealer.cards.map((card, i) => (
-          <Card
-            key={`dealer-${i}`}
-            card={card}
-            index={i}
-            dealDelayMs={(indexMap.get(dealerCardKey(i)) ?? 0) * CARD_SEQUENTIAL_STEP_MS}
-          />
-        ))}
+        {dealer.cards.map((card, i) => {
+          const g = globalFor(i);
+          const dealDelayMs = dealAnim
+            ? dealAnim.getDealDelayMs(g)
+            : g * CARD_SEQUENTIAL_STEP_MS;
+          return (
+            <Card
+              key={`dealer-${i}`}
+              card={card}
+              index={i}
+              dealDelayMs={dealDelayMs}
+            />
+          );
+        })}
       </div>
     </div>
   );
