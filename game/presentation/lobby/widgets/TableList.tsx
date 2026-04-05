@@ -31,9 +31,9 @@ export function TableList({ tables, loading }: TableListProps) {
   if (tables.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">No hay mesas disponibles</p>
+        <p className="text-gray-500 text-lg">No tables available</p>
         <p className="text-gray-600 text-sm mt-1">
-          Crea una o usa un codigo de invitacion
+          Create one or join with an invite code
         </p>
       </div>
     );
@@ -53,7 +53,7 @@ export function TableList({ tables, loading }: TableListProps) {
               {table.name}
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              por {table.created_by} &middot; ${table.min_bet}-${table.max_bet}
+              by {table.created_by} &middot; ${table.min_bet}-${table.max_bet}
             </p>
           </div>
 
@@ -81,7 +81,7 @@ export function TableList({ tables, loading }: TableListProps) {
 
             {table.status === "playing" && table.player_count < table.max_players && (
               <span className="text-[10px] text-emerald-400/70">
-                Unirse
+                Join
               </span>
             )}
           </div>

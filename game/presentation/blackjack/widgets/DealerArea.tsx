@@ -65,7 +65,7 @@ export function DealerArea({ gameState }: DealerAreaProps) {
     : getHandValue(slice.filter((c) => c.faceUp));
 
   return (
-    <div className="flex flex-col items-center gap-3" aria-label="Mano del crupier">
+    <div className="flex flex-col items-center gap-3" aria-label="Dealer hand">
       <div className="flex items-center justify-center gap-2 min-h-[1.75rem]">
         {dealer.cards.length > 0 && revealedCount > 0 && (
           <span

@@ -267,11 +267,11 @@ function MultiplayerTableLoaded({
             className="px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold
               shadow-lg shadow-emerald-500/25 transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
           >
-            Empezar
+            Start game
           </button>
           <p className="text-xs text-gray-500">
-            {gameState.players.length} jugador
-            {gameState.players.length !== 1 ? "es" : ""} en la mesa
+            {gameState.players.length} player
+            {gameState.players.length !== 1 ? "s" : ""} at the table
           </p>
         </div>
       )}
@@ -279,7 +279,7 @@ function MultiplayerTableLoaded({
       {gameState.phase === PHASE.FINISHED && hudInteractive && (
         <div className="flex flex-col items-center gap-2">
           {countdownBar}
-          <p className="text-xs text-gray-500">Siguiente ronda en breve...</p>
+          <p className="text-xs text-gray-500">Next round starting soon...</p>
         </div>
       )}
 

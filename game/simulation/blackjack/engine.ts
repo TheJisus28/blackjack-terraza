@@ -76,7 +76,7 @@ export function placeBet(
     const maxLabel = state.maxBet >= 999_999 ? "your chips" : `$${state.maxBet}`;
     return {
       ...state,
-      message: `Bet must be between $${state.minBet} y ${maxLabel}`,
+      message: `Bet must be between $${state.minBet} and ${maxLabel}`,
     };
   }
   if (amount > player.chips) {

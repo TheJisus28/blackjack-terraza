@@ -64,7 +64,7 @@ export function CasinoTable({
                 {dealerSlot}
               </div>
 
-              {/* Texto impreso en el tapete (legible sobre el verde) */}
+              {/* Felt-printed lettering (readable on green) */}
               <div className="pointer-events-none select-none flex flex-col items-center gap-0.5 sm:gap-1 flex-shrink-0 text-center px-2">
                 <p
                   className="font-bold uppercase tracking-[0.32em] text-amber-50 text-[10px] sm:text-xs whitespace-nowrap"
