@@ -17,6 +17,8 @@ export const INITIAL_DEAL_ROUNDS = 2;
 
 // ── Multiplayer timers ──
 export const RESULTS_TIMER_S = 5;   // seconds clients show results before clearing
+/** En los últimos N segundos de esa ventana, el servidor aplica recarga $300 a quien tenga 0 fichas */
+export const RESULTS_REBUY_LEAD_S = 2;
 export const BETTING_TIMER_S = 20;  // seconds clients have to place bets
 export const INSURANCE_TIMER_S = 12;  // seconds to accept/decline insurance (As del crupier)
 // Server-side validation buffers (slightly less to tolerate network latency)
@@ -29,5 +31,7 @@ export const MAX_INACTIVE_ROUNDS = 3;
 
 // ── UI animation timing ──
 export const CARD_ANIM_DELAY_PER_CARD_MS = 450;
+/** Duración de `cardDeal` / `cardFlip` en Card.tsx (debe coincidir con el CSS) */
+export const CARD_DEAL_DURATION_MS = 1000;
 export const CARD_ANIM_BASE_DELAY_MS = 800;
 export const COUNTDOWN_WARNING_THRESHOLD_S = 5;

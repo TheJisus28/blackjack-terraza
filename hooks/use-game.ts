@@ -11,8 +11,13 @@ import {
   startNewRound,
   takeInsurance,
   declineInsurance,
+  autoRebuyBrokePlayersInResults,
 } from "@/lib/blackjack/engine";
-import { INSURANCE_TIMER_S } from "@/lib/blackjack/constants";
+import {
+  INSURANCE_TIMER_S,
+  RESULTS_TIMER_S,
+  RESULTS_REBUY_LEAD_S,
+} from "@/lib/blackjack/constants";
 
 export function useGame(playerName = "Jugador") {
   const [gameState, setGameState] = useState<GameState>(() =>
@@ -97,6 +102,22 @@ export function useGame(playerName = "Jugador") {
     }, ms);
     return () => window.clearTimeout(t);
   }, [gameState.phase, gameState.insuranceStartedAt, insuranceDecline]);
+
+  useEffect(() => {
+    if (gameState.phase !== "finished" || !gameState.roundEndedAt) return;
+    if (player.chips !== 0) return;
+
+    const minElapsedMs = (RESULTS_TIMER_S - RESULTS_REBUY_LEAD_S) * 1000;
+    const deadline = gameState.roundEndedAt + minElapsedMs;
+    const ms = Math.max(0, deadline - Date.now());
+    const t = window.setTimeout(() => {
+      setGameState((prev) => {
+        if (prev.phase !== "finished") return prev;
+        return autoRebuyBrokePlayersInResults(prev);
+      });
+    }, ms);
+    return () => window.clearTimeout(t);
+  }, [gameState.phase, gameState.roundEndedAt, player.chips]);
 
   const resetGame = useCallback(() => {
     setGameState(createGame(playerName));

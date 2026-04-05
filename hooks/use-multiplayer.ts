@@ -19,6 +19,7 @@ type GameAction =
   | "auto_insurance"
   | "insurance_accept"
   | "insurance_decline"
+  | "auto_rebuy_results"
   | "rebuy";
 
 export function useMultiplayer({ tableId }: UseMultiplayerOptions) {

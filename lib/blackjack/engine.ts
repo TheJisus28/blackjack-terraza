@@ -890,6 +890,21 @@ export function autoClearTable(state: GameState): GameState {
   return startBetting(state);
 }
 
+/** Fase resultados: da REBUY_CHIPS a todo jugador con 0 fichas (idempotente). */
+export function autoRebuyBrokePlayersInResults(state: GameState): GameState {
+  if (state.phase !== "finished") return state;
+  const players = deepClonePlayers(state.players);
+  let changed = false;
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].chips === 0) {
+      players[i].chips = REBUY_CHIPS;
+      changed = true;
+    }
+  }
+  if (!changed) return state;
+  return { ...state, players };
+}
+
 export function rebuyPlayer(state: GameState, playerId: string): GameState {
   const idx = state.players.findIndex((p) => p.id === playerId);
   if (idx === -1) return state;

@@ -3,7 +3,10 @@
 import Image from "next/image";
 import type { Card as CardType } from "@/lib/blackjack/types";
 import { getCardImagePath } from "@/lib/blackjack/deck";
-import { CARD_ANIM_DELAY_PER_CARD_MS } from "@/lib/blackjack/constants";
+import {
+  CARD_ANIM_DELAY_PER_CARD_MS,
+  CARD_DEAL_DURATION_MS,
+} from "@/lib/blackjack/constants";
 
 interface CardProps {
   card: CardType;
@@ -23,8 +26,8 @@ export function Card({ card, index = 0, className = "", flip = false }: CardProp
       style={{
         animationDelay: `${delay}ms`,
         animation: flip
-          ? `cardFlip 1s ease-in-out ${delay}ms both`
-          : `cardDeal 1s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms both`,
+          ? `cardFlip ${CARD_DEAL_DURATION_MS}ms ease-in-out ${delay}ms both`
+          : `cardDeal ${CARD_DEAL_DURATION_MS}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms both`,
       }}
     >
       <div className="relative w-[80px] h-[112px] sm:w-[100px] sm:h-[140px] lg:w-[115px] lg:h-[161px] rounded-lg shadow-xl overflow-hidden bg-white border border-gray-200 hover:shadow-2xl transition-shadow duration-300">

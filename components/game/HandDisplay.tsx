@@ -2,7 +2,7 @@
 
 import type { Hand } from "@/lib/blackjack/types";
 import { getHandValue } from "@/lib/blackjack/hand";
-import { CARD_ANIM_DELAY_PER_CARD_MS } from "@/lib/blackjack/constants";
+import { useRevealedCardCount } from "@/hooks/use-revealed-card-count";
 import { Card } from "./Card";
 
 interface HandDisplayProps {
@@ -18,9 +18,12 @@ export function HandDisplay({
   label,
   showValue = true,
 }: HandDisplayProps) {
-  const value = getHandValue(hand.cards);
-  const visibleCards = hand.cards.filter((c) => c.faceUp);
+  const revealedCount = useRevealedCardCount(hand.cards.length);
+  const cardsForTotal = hand.cards.slice(0, revealedCount);
+  const value = getHandValue(cardsForTotal);
+  const visibleForTotal = cardsForTotal.filter((c) => c.faceUp);
   const hasHidden = hand.cards.some((c) => !c.faceUp);
+  const totalIsSynced = revealedCount >= hand.cards.length;
 
   const statusColors: Record<string, string> = {
     blackjack: "text-yellow-400",
@@ -38,7 +41,7 @@ export function HandDisplay({
     playing: "",
   };
 
-  const totalDelay = hand.cards.length * CARD_ANIM_DELAY_PER_CARD_MS + 200;
+  const displayTotal = hasHidden ? getHandValue(visibleForTotal) : value;
 
   return (
     <div
@@ -56,19 +59,18 @@ export function HandDisplay({
         ))}
       </div>
 
-      {showValue && hand.cards.length > 0 && (
-        <div
-          className="flex items-center gap-2"
-          style={{
-            animation: `fadeInUp 0.4s ease-out ${totalDelay}ms both`,
-          }}
-        >
+      {showValue && hand.cards.length > 0 && revealedCount > 0 && (
+        <div className="flex items-center gap-2">
           <span
+            key={revealedCount}
             className={`text-lg lg:text-xl font-bold tabular-nums ${statusColors[hand.status]}`}
+            style={{ animation: "fadeInUp 0.35s ease-out both" }}
           >
-            {hasHidden ? `${getHandValue(visibleCards)}` : value}
+            {hasHidden ? `${getHandValue(visibleForTotal)}` : displayTotal}
           </span>
-          {hand.status !== "playing" && statusLabels[hand.status] && (
+          {totalIsSynced &&
+            hand.status !== "playing" &&
+            statusLabels[hand.status] && (
             <span
               className={`text-xs lg:text-sm font-bold uppercase ${statusColors[hand.status]}`}
             >

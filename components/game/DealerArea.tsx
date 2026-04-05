@@ -2,7 +2,7 @@
 
 import type { GameState } from "@/lib/blackjack/types";
 import { getHandValue } from "@/lib/blackjack/hand";
-import { CARD_ANIM_DELAY_PER_CARD_MS } from "@/lib/blackjack/constants";
+import { useRevealedCardCount } from "@/hooks/use-revealed-card-count";
 import { Card } from "./Card";
 
 interface DealerAreaProps {
@@ -12,12 +12,11 @@ interface DealerAreaProps {
 export function DealerArea({ gameState }: DealerAreaProps) {
   const { dealer, phase } = gameState;
   const showFullValue = phase === "resolving" || phase === "finished";
-  const visibleCards = dealer.cards.filter((c) => c.faceUp);
+  const revealedCount = useRevealedCardCount(dealer.cards.length);
+  const slice = dealer.cards.slice(0, revealedCount);
   const value = showFullValue
-    ? getHandValue(dealer.cards)
-    : getHandValue(visibleCards);
-
-  const totalDelay = dealer.cards.length * CARD_ANIM_DELAY_PER_CARD_MS + 200;
+    ? getHandValue(slice.map((c) => ({ ...c, faceUp: true })))
+    : getHandValue(slice.filter((c) => c.faceUp));
 
   return (
     <div className="flex flex-col items-center gap-3">
@@ -25,12 +24,11 @@ export function DealerArea({ gameState }: DealerAreaProps) {
         <span className="text-sm lg:text-base font-semibold text-emerald-300 uppercase tracking-widest">
           Dealer
         </span>
-        {dealer.cards.length > 0 && (
+        {dealer.cards.length > 0 && revealedCount > 0 && (
           <span
+            key={revealedCount}
             className="text-lg lg:text-xl font-bold text-white tabular-nums"
-            style={{
-              animation: `fadeInUp 0.4s ease-out ${totalDelay}ms both`,
-            }}
+            style={{ animation: "fadeInUp 0.35s ease-out both" }}
           >
             {value}
             {dealer.status === "busted" && (

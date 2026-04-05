@@ -12,6 +12,7 @@ import { BettingControls } from "./BettingControls";
 import { InsuranceControls } from "./InsuranceControls";
 import {
   RESULTS_TIMER_S,
+  RESULTS_REBUY_LEAD_S,
   BETTING_TIMER_S,
   INSURANCE_TIMER_S,
   CARD_ANIM_DELAY_PER_CARD_MS,
@@ -43,7 +44,12 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   const [showResult, setShowResult] = useState(false);
   const prevPhaseRef = useRef(gameState?.phase);
   const timerSentRef = useRef(false);
+  const autoRebuyResultsSentRef = useRef(false);
   const lastTickRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    autoRebuyResultsSentRef.current = false;
+  }, [gameState?.phase, gameState?.roundEndedAt]);
 
   // Animation delay: hide messages/controls until card animations finish
   useEffect(() => {
@@ -89,6 +95,17 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
         const elapsed = (Date.now() - gameState.roundEndedAt!) / 1000;
         const remaining = Math.max(0, RESULTS_TIMER_S - elapsed);
         setCountdown(Math.ceil(remaining));
+
+        const anyBroke = gameState.players.some((p) => p.chips === 0);
+        if (
+          anyBroke &&
+          remaining <= RESULTS_REBUY_LEAD_S &&
+          remaining > 0 &&
+          !autoRebuyResultsSentRef.current
+        ) {
+          autoRebuyResultsSentRef.current = true;
+          sendAction("auto_rebuy_results");
+        }
 
         if (remaining <= 0 && !timerSentRef.current) {
           timerSentRef.current = true;
@@ -389,23 +406,6 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
           <p className="text-center text-gray-400 text-sm">
             As del crupier — los jugadores deciden seguro...
           </p>
-        </div>
-      )}
-
-      {/* Rebuy — not enough chips to bet */}
-      {myPlayer &&
-        myPlayer.chips < gameState.minBet &&
-        gameState.phase === "betting" &&
-        !hasBet && (
-        <div className="flex flex-col items-center gap-2 mb-3">
-          <p className="text-sm text-red-400 font-medium">No tienes fichas suficientes!</p>
-          <button
-            onClick={() => sendAction("rebuy")}
-            className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-sm
-              shadow-lg shadow-amber-500/25 transition-all active:scale-95 cursor-pointer"
-          >
-            Recargar $300
-          </button>
         </div>
       )}
 

@@ -15,6 +15,7 @@ import {
   takeInsurance,
   declineInsurance,
   resolveInsurancePhase,
+  autoRebuyBrokePlayersInResults,
 } from "@/lib/blackjack/engine";
 import type { GameState, PlayerAction } from "@/lib/blackjack/types";
 import { broadcastToTable } from "@/lib/broadcast";
@@ -23,6 +24,8 @@ import {
   BETTING_DELAY_MS,
   INSURANCE_DELAY_MS,
   MAX_INACTIVE_ROUNDS,
+  RESULTS_TIMER_S,
+  RESULTS_REBUY_LEAD_S,
 } from "@/lib/blackjack/constants";
 
 export async function POST(
@@ -40,6 +43,7 @@ export async function POST(
       | "auto_insurance"
       | "insurance_accept"
       | "insurance_decline"
+      | "auto_rebuy_results"
       | "rebuy"
       | PlayerAction;
     amount?: number;
@@ -84,6 +88,22 @@ export async function POST(
       break;
     }
 
+    case "auto_rebuy_results": {
+      if (gameState.phase !== "finished") {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      const elapsedMs = Date.now() - (gameState.roundEndedAt ?? 0);
+      const minElapsedMs = (RESULTS_TIMER_S - RESULTS_REBUY_LEAD_S) * 1000;
+      if (elapsedMs < minElapsedMs) {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      if (elapsedMs > RESULTS_TIMER_S * 1000 + 15_000) {
+        return Response.json({ ok: true, state: toClientState(gameState) });
+      }
+      gameState = autoRebuyBrokePlayersInResults(gameState);
+      break;
+    }
+
     case "auto_clear": {
       if (gameState.phase !== "finished") {
         return Response.json({ ok: true, state: toClientState(gameState) });
@@ -92,6 +112,7 @@ export async function POST(
       if (elapsed < RESULTS_DELAY_MS) {
         return Response.json({ ok: true, state: toClientState(gameState) });
       }
+      gameState = autoRebuyBrokePlayersInResults(gameState);
       gameState = autoClearTable(gameState);
       break;
     }
