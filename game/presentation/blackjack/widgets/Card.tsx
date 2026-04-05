@@ -43,7 +43,7 @@ export function Card({
           : `cardDeal ${CARD_DEAL_DURATION_MS}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms both`,
       }}
     >
-      <div className="relative w-[80px] h-[112px] sm:w-[100px] sm:h-[140px] lg:w-[115px] lg:h-[161px] rounded-lg shadow-xl overflow-hidden bg-white border border-gray-200 hover:shadow-2xl transition-shadow duration-300">
+      <div className="relative w-[80px] h-[112px] sm:w-[100px] sm:h-[140px] lg:w-[115px] lg:h-[161px] rounded-lg shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
         {isPng ? (
           <Image
             src={src}
