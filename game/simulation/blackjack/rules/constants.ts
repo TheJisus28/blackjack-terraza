@@ -34,6 +34,12 @@ export const INSURANCE_DELAY_MS = (INSURANCE_TIMER_S - 1) * 1000;
 // ── Inactivity ──
 export const MAX_INACTIVE_ROUNDS = 3;
 
+// ── Presence (multiplayer) ──
+/** No heartbeat within this window ⇒ treated as offline for spectator kick logic */
+export const PLAYER_OFFLINE_THRESHOLD_MS = 45_000;
+/** Remove offline spectators after this many completed rounds (finished → betting). */
+export const OFFLINE_SPECTATOR_KICK_MIN_ROUNDS = 3;
+
 // ── UI animation timing (~15% faster than original 450/1000/140/800) ──
 /** Card deal uses `cardDeal` in app/globals.css; duration ms in Card.tsx. Table chip stack has no animation. */
 export const CARD_ANIM_DELAY_PER_CARD_MS = 383;

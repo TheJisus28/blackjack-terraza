@@ -79,6 +79,19 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     }
   }, [tableId, playerId]);
 
+  const sendHeartbeat = useCallback(async () => {
+    if (!playerId) return;
+    try {
+      await fetch(`/api/tables/${tableId}/heartbeat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId }),
+      });
+    } catch {
+      /* ignore */
+    }
+  }, [tableId, playerId]);
+
   const sendAction = useCallback(
     async (action: BlackjackSessionAction, amount?: number) => {
       try {
@@ -137,6 +150,14 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
       sb.removeChannel(channel);
     };
   }, [tableId, fetchState, joinTable]);
+
+  // Presence for offline-spectator kick (engine); stay under PLAYER_OFFLINE_THRESHOLD_MS
+  useEffect(() => {
+    if (!connected || !playerId) return;
+    void sendHeartbeat();
+    const tid = window.setInterval(() => void sendHeartbeat(), 25_000);
+    return () => clearInterval(tid);
+  }, [connected, playerId, sendHeartbeat]);
 
   const myPlayer = gameState?.players.find((p) => p.id === playerId) ?? null;
   const isMyTurn =

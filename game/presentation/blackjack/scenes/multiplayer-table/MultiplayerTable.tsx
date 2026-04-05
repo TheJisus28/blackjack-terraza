@@ -23,6 +23,7 @@ import {
   TableSessionError,
   TableSessionLoading,
 } from "@/game/presentation/blackjack/widgets/table-session-gate";
+import { TableOverflowMenu } from "@/game/presentation/blackjack/widgets/table-overflow-menu";
 import { dealLayoutSignature } from "@/game/simulation/blackjack";
 import {
   SESSION_ACTION,
@@ -164,26 +165,12 @@ function MultiplayerTableLoaded({
       (gameState.phase === PHASE.BETTING && !hasBet));
 
   const header = (
-    <header className="relative z-10 w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-black/40 backdrop-blur-sm border-b border-white/5">
-      <button
-        type="button"
-        onClick={goToLobby}
-        className="flex items-center gap-2 text-lg font-bold text-white hover:opacity-80 transition-opacity cursor-pointer"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          className="w-4 h-4 text-white/50"
-        >
-          <path
-            fillRule="evenodd"
-            d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z"
-            clipRule="evenodd"
-          />
-        </svg>
-        {tableInfo?.name ?? "Table"}
-      </button>
+    <header className="relative z-40 w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-black/40 backdrop-blur-sm border-b border-white/5">
+      <div className="min-w-0 pr-2">
+        <h1 className="text-lg font-bold text-white truncate">
+          {tableInfo?.name ?? "Table"}
+        </h1>
+      </div>
 
       <div className="flex items-center gap-3">
         {inviteCode && (
@@ -200,8 +187,16 @@ function MultiplayerTableLoaded({
         <div className="flex items-center gap-1.5">
           <div
             className={`w-2 h-2 rounded-full ${connected ? "bg-emerald-400" : "bg-red-400"}`}
+            title={
+              connected
+                ? "Tu cliente conectado al canal en tiempo real"
+                : "Reconectando al canal…"
+            }
           />
-          <span className="text-xs text-gray-400" title="Seated / in room">
+          <span
+            className="text-xs text-gray-400"
+            title="Jugadores sentados / total en mesa (incl. observando)"
+          >
             {seatedCount}/{gameState.players.length}
           </span>
         </div>
@@ -214,6 +209,15 @@ function MultiplayerTableLoaded({
             </span>
           </div>
         )}
+
+        <TableOverflowMenu
+          isSpectator={!!myPlayer?.spectator}
+          canStandUp={!!canOfferWatch}
+          canSitIn={!!myPlayer?.spectator}
+          onStandUp={() => void sendAction(SESSION_ACTION.WATCH_TABLE)}
+          onSitIn={() => void sendAction(SESSION_ACTION.SIT_IN)}
+          onLeaveTable={goToLobby}
+        />
       </div>
     </header>
   );
@@ -359,37 +363,14 @@ function MultiplayerTableLoaded({
           </div>
         )}
 
-      {myPlayer?.spectator && (
+      {gameState.phase === PHASE.BETTING && myPlayer?.spectator && (
         <div className="flex flex-col items-center gap-2">
-          <p className="text-center text-sky-200/90 text-sm max-w-xs">
-            {gameState.phase === PHASE.PLAYING ||
-            gameState.phase === PHASE.INSURANCE ||
-            gameState.phase === PHASE.DEALER_TURN ||
-            gameState.phase === PHASE.RESOLVING
-              ? "Watching this hand — your chips are safe. Sit in anytime; you will play the next round you join."
-              : "Watching — chips are saved. Sit in when you want to bet."}
+          {countdownBar}
+          <p className="text-center text-sky-200/90 text-sm max-w-xs px-2">
+            Watching — use the menu and tap{" "}
+            <span className="font-semibold text-white">Sit in to play</span> to bet
+            this round.
           </p>
-          <button
-            type="button"
-            onClick={() => void sendAction(SESSION_ACTION.SIT_IN)}
-            className="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm
-              shadow-lg shadow-sky-600/20 transition-all cursor-pointer"
-          >
-            Sit in
-          </button>
-        </div>
-      )}
-
-      {canOfferWatch && (
-        <div className="flex flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={() => void sendAction(SESSION_ACTION.WATCH_TABLE)}
-            className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white/90 text-sm font-medium
-              transition-colors cursor-pointer"
-          >
-            Watch only (keep chips)
-          </button>
         </div>
       )}
 
@@ -412,14 +393,17 @@ function MultiplayerTableLoaded({
           </div>
         )}
 
-      {gameState.phase === PHASE.BETTING && hasBet && (
-        <div className="flex flex-col items-center gap-2">
-          {countdownBar}
-          <p className="text-center text-emerald-300 text-sm font-medium">
-            Bet placed! Waiting for others...
-          </p>
-        </div>
-      )}
+      {gameState.phase === PHASE.BETTING &&
+        hasBet &&
+        myPlayer &&
+        !myPlayer.spectator && (
+          <div className="flex flex-col items-center gap-2">
+            {countdownBar}
+            <p className="text-center text-emerald-300 text-sm font-medium">
+              Bet placed! Waiting for others...
+            </p>
+          </div>
+        )}
 
       {gameState.phase === PHASE.BETTING && !myPlayer && (
         <div className="flex flex-col items-center gap-2">
@@ -441,12 +425,21 @@ function MultiplayerTableLoaded({
         !isMyTurn &&
         hudInteractive &&
         myPlayer &&
-        myPlayer.hands.length > 0 && (
+        (myPlayer.spectator || myPlayer.hands.length > 0) && (
           <p className="text-center text-gray-400 text-sm">
             Turn:{" "}
             <span className="text-white font-medium">
               {gameState.players[gameState.activePlayerIndex]?.name}
             </span>
+          </p>
+        )}
+
+      {gameState.phase === PHASE.DEALER_TURN &&
+        hudInteractive &&
+        myPlayer?.spectator && (
+          <p className="text-center text-gray-400 text-sm">
+            Turn:{" "}
+            <span className="text-white font-medium">Dealer</span>
           </p>
         )}
 

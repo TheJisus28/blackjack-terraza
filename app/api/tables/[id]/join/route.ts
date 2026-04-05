@@ -9,6 +9,7 @@ import {
   toClientState,
   lobbyTableStatusAfterSeatEvent,
   playingParticipants,
+  touchPlayerLastSeen,
 } from "@/game/simulation/blackjack";
 import { broadcastToTable } from "@/shared/lib/broadcast";
 
@@ -118,10 +119,19 @@ export async function POST(
   }
 
   if (alreadyHere) {
+    const touched = touchPlayerLastSeen(gameState, playerId);
+    await sb
+      .from("game_tables")
+      .update({
+        game_state: toClientState(touched),
+        deck_data: serializeDeck(touched.deck),
+      })
+      .eq("id", id);
+
     return Response.json({
       ok: true,
       alreadyJoined: true,
-      state: toClientState(gameState),
+      state: toClientState(touched),
     });
   }
 

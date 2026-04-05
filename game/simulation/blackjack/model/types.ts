@@ -44,6 +44,10 @@ export interface Player {
   isActive: boolean;
   /** Watching only: no bets this round; chips kept for when they sit back in */
   spectator?: boolean;
+  /** Client heartbeat (ms); used to detect offline spectators across betting rounds */
+  lastSeenAt?: number;
+  /** Finished→betting cycles spent offline while spectator; cleared when online or seated */
+  spectatorOfflineRounds?: number;
   inactiveRounds?: number;
   /** Insurance: null = pending, 0 = declined, >0 = wager (pays 2:1 on dealer natural) */
   insuranceWager?: number | null;

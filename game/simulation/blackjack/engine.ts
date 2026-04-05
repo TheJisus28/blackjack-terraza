@@ -32,6 +32,8 @@ import {
   SURRENDER_RETURN_RATIO,
   INITIAL_DEAL_ROUNDS,
   DEALER_BLACKJACK_REVEAL_DELAY_MS,
+  PLAYER_OFFLINE_THRESHOLD_MS,
+  OFFLINE_SPECTATOR_KICK_MIN_ROUNDS,
 } from "./rules/constants";
 import { PHASE } from "./meta/game-phase";
 import { PLAYER_ACTION } from "./meta/player-action-kind";
@@ -827,6 +829,46 @@ function deepClonePlayers(players: Player[]): Player[] {
 
 // ── Multiplayer helpers ──
 
+function isPlayerConsideredOffline(p: Player, now: number): boolean {
+  // Missing timestamp: legacy rows; treat as online until a join/heartbeat sets it
+  if (p.lastSeenAt == null) return false;
+  return now - p.lastSeenAt > PLAYER_OFFLINE_THRESHOLD_MS;
+}
+
+/** Bump offline-spectator counters and remove seats after enough finished→betting cycles while offline. */
+function processSpectatorOfflineForNewRound(state: GameState): GameState {
+  if (state.phase !== PHASE.FINISHED) return state;
+  const now = Date.now();
+  const toKick: string[] = [];
+  const mapped = state.players.map((p) => {
+    if (!p.spectator) {
+      return { ...p, spectatorOfflineRounds: 0 };
+    }
+    if (!isPlayerConsideredOffline(p, now)) {
+      return { ...p, spectatorOfflineRounds: 0 };
+    }
+    const r = (p.spectatorOfflineRounds ?? 0) + 1;
+    if (r >= OFFLINE_SPECTATOR_KICK_MIN_ROUNDS) {
+      toKick.push(p.id);
+    }
+    return { ...p, spectatorOfflineRounds: r };
+  });
+  let st: GameState = { ...state, players: mapped };
+  for (const id of toKick) {
+    st = removePlayer(st, id);
+  }
+  return st;
+}
+
+/** Call on join/reconnect heartbeat so offline-spectator rounds do not accrue while the tab is open. */
+export function touchPlayerLastSeen(state: GameState, playerId: string): GameState {
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  if (idx === -1) return state;
+  const players = deepClonePlayers(state.players);
+  players[idx] = { ...players[idx], lastSeenAt: Date.now() };
+  return { ...state, players };
+}
+
 export function createMultiplayerGame(options: {
   minBet?: number;
   maxBet?: number;
@@ -862,6 +904,8 @@ export function addPlayer(
     activeHandIndex: 0,
     isActive: true,
     spectator: false,
+    lastSeenAt: Date.now(),
+    spectatorOfflineRounds: 0,
   };
 
   const midRound =
@@ -926,6 +970,7 @@ export function setPlayerSpectator(
       spectator: true,
       hands: [],
       activeHandIndex: 0,
+      spectatorOfflineRounds: 0,
     };
     return { ...state, players, message: `${p.name} is watching` };
   }
@@ -936,6 +981,7 @@ export function setPlayerSpectator(
     spectator: false,
     hands: [],
     activeHandIndex: 0,
+    spectatorOfflineRounds: 0,
   };
   return { ...state, players, message: `${p.name} sat back in` };
 }
@@ -1014,26 +1060,31 @@ export function completeRoundIfDealerTurnAfterLeave(
 }
 
 export function startBetting(state: GameState): GameState {
-  if (playingParticipants(state.players).length === 0) {
-    return { ...state, message: "No seated players" };
+  const working =
+    state.phase === PHASE.FINISHED
+      ? processSpectatorOfflineForNewRound(state)
+      : state;
+
+  if (playingParticipants(working.players).length === 0) {
+    return { ...working, message: "No seated players" };
   }
-  const players = state.players.map((p) => {
+  const players = working.players.map((p) => {
     const { insuranceWager: _, ...rest } = p;
     return {
       ...rest,
       hands: [],
       activeHandIndex: 0,
-      chips: p.chips < state.minBet ? p.chips + REBUY_CHIPS : p.chips,
+      chips: p.chips < working.minBet ? p.chips + REBUY_CHIPS : p.chips,
     };
   });
 
-  let deck = state.deck;
-  if (shouldReshuffle(deck, state.deckCount)) {
-    deck = createShoe(state.deckCount);
+  let deck = working.deck;
+  if (shouldReshuffle(deck, working.deckCount)) {
+    deck = createShoe(working.deckCount);
   }
 
   return {
-    ...state,
+    ...working,
     deck,
     phase: PHASE.BETTING,
     dealer: { cards: [], status: "playing" },

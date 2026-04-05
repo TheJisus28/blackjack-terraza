@@ -53,7 +53,7 @@ export function TableList({ tables, loading }: TableListProps) {
               {table.name}
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              by {table.created_by} &middot; ${table.min_bet}-${table.max_bet}
+              by {table.created_by}
             </p>
           </div>
 
