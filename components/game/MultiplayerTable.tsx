@@ -259,10 +259,6 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   }
 
   const pseudoGameState = { ...gameState, deck: [] as never[] };
-  const tableLayoutForSeats = {
-    players: gameState.players,
-    dealer: gameState.dealer,
-  };
   const inviteCode = (tableInfo as Record<string, string>)?.invite_code ?? "";
   const hasBet = myPlayer?.hands.length ? myPlayer.hands[0]?.bet > 0 : false;
 
@@ -333,7 +329,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
           key={player.id}
           player={player}
           playerIndex={i}
-          tableLayout={tableLayoutForSeats}
+          tableLayout={tableLayoutSlice!}
           isCurrentTurn={
             (gameState.phase === "playing" &&
               gameState.activePlayerIndex === i) ||
@@ -512,7 +508,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
       playerSlots={playerSlots}
       messageSlot={message}
       controlsSlot={controls}
-      tableLayout={tableLayoutForSeats}
+      tableLayout={tableLayoutSlice!}
     />
   );
 }

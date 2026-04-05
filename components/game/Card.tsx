@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRef } from "react";
 import type { Card as CardType } from "@/lib/blackjack/types";
 import { getCardImagePath } from "@/lib/blackjack/deck";
 import {
@@ -26,7 +27,11 @@ export function Card({
 }: CardProps) {
   const src = getCardImagePath(card);
   const isPng = src.endsWith(".png");
-  const delay = dealDelayMs ?? index * CARD_ANIM_DELAY_PER_CARD_MS;
+  const delayRef = useRef<number | null>(null);
+  if (delayRef.current === null) {
+    delayRef.current = dealDelayMs ?? index * CARD_ANIM_DELAY_PER_CARD_MS;
+  }
+  const delay = delayRef.current;
 
   return (
     <div

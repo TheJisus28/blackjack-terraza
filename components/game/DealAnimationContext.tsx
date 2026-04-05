@@ -80,11 +80,6 @@ export function DealAnimationProvider({
     [getDealDelayMs, getRevealDeadlineMs],
   );
 
-  const initialWaveMs = useMemo(
-    () => feedbackWaveDurationMs(layout, -1),
-    [layoutSig],
-  );
-
   useLayoutEffect(() => {
     const clearScheduled = () => {
       if (waveCommitTimeoutRef.current !== null) {
@@ -99,18 +94,25 @@ export function DealAnimationProvider({
       return clearScheduled;
     }
 
-    if (prevMaxGlobalRef.current < 0) {
-      const ms = initialWaveMs > 0 ? initialWaveMs : 0;
-      waveCommitTimeoutRef.current = setTimeout(() => {
-        waveCommitTimeoutRef.current = null;
-        prevMaxGlobalRef.current = maxG;
-      }, ms);
+    const oldPrev = prevMaxGlobalRef.current;
+
+    // Misma firma de max global (p. ej. solo cambia faceUp): asentar ya.
+    if (maxG <= oldPrev) {
+      prevMaxGlobalRef.current = maxG;
       return clearScheduled;
     }
 
-    prevMaxGlobalRef.current = maxG;
+    // Cualquier lote nuevo (reparto inicial, hit, robo múltiple del crupier en un tick):
+    // no fijar prevMax hasta que acabe la ola; si no, un re-render pone retraso 0 en todas
+    // y las animaciones CSS se reinician o se desincronizan.
+    const ms = feedbackWaveDurationMs(layout, oldPrev);
+    waveCommitTimeoutRef.current = setTimeout(() => {
+      waveCommitTimeoutRef.current = null;
+      prevMaxGlobalRef.current = maxG;
+    }, ms > 0 ? ms : 0);
     return clearScheduled;
-  }, [layoutSig, maxG, total, initialWaveMs]);
+    // `layout` solo por closure; no incluir referencia del objeto (MultiplayerTable recrea cada render).
+  }, [layoutSig, maxG, total]);
 
   return (
     <DealAnimationContext.Provider value={value}>
