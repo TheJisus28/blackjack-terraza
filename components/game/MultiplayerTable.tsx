@@ -20,7 +20,9 @@ import {
 } from "@/lib/blackjack/constants";
 import {
   dealLayoutSignature,
-  maxDealAnimationDurationMs,
+  feedbackWaveDurationMs,
+  maxDealGlobalIndex,
+  totalCardsOnTable,
 } from "@/lib/blackjack/deal-sequence";
 import { useSounds } from "@/hooks/use-sounds";
 import { sounds } from "@/lib/sounds";
@@ -46,6 +48,7 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const prevPhaseRef = useRef(gameState?.phase);
+  const prevFeedbackMaxGRef = useRef(-1);
   const timerSentRef = useRef(false);
   const autoRebuyResultsSentRef = useRef(false);
   const lastTickRef = useRef<number | null>(null);
@@ -84,19 +87,28 @@ export function MultiplayerTable({ tableId }: MultiplayerTableProps) {
         prev === "resolving") &&
       gameState.phase === "finished";
 
+    const layout = {
+      players: gameState.players,
+      dealer: gameState.dealer,
+    };
+    const total = totalCardsOnTable(layout);
+    const maxG = maxDealGlobalIndex(layout);
+
     if (isInitialDeal || isRoundEndReveal) {
       setShowResult(false);
-      const dealMs = maxDealAnimationDurationMs({
-        players: gameState.players,
-        dealer: gameState.dealer,
-      });
+      const dealMs = feedbackWaveDurationMs(layout, prevFeedbackMaxGRef.current);
       const delay =
         dealMs <= 0 ? CARD_ANIM_BASE_DELAY_MS : dealMs + CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setShowResult(true), delay);
+      prevFeedbackMaxGRef.current = maxG;
       return () => clearTimeout(timer);
     }
 
     setShowResult(gameState.phase !== "finished" || prev === "finished");
+    if (total === 0) prevFeedbackMaxGRef.current = -1;
+    else if (gameState.phase !== "finished") {
+      prevFeedbackMaxGRef.current = maxG;
+    }
   }, [gameState?.phase, gameState?.dealer.cards.length, gameState?.players]);
 
   // Timer logic: auto_clear after results, auto_deal after betting

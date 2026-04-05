@@ -13,7 +13,9 @@ import { InsuranceControls } from "./InsuranceControls";
 import { CARD_ANIM_BASE_DELAY_MS, INSURANCE_TIMER_S } from "@/lib/blackjack/constants";
 import {
   dealLayoutSignature,
-  maxDealAnimationDurationMs,
+  feedbackWaveDurationMs,
+  maxDealGlobalIndex,
+  totalCardsOnTable,
 } from "@/lib/blackjack/deal-sequence";
 import { useSounds } from "@/hooks/use-sounds";
 import { sounds } from "@/lib/sounds";
@@ -34,6 +36,7 @@ export function GameTable() {
   const [animating, setAnimating] = useState(false);
   const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
   const prevPhaseRef = useRef(gameState.phase);
+  const prevFeedbackMaxGRef = useRef(-1);
 
   const layoutSig = dealLayoutSignature({
     players: gameState.players,
@@ -62,19 +65,28 @@ export function GameTable() {
         prev === "resolving") &&
       gameState.phase === "finished";
 
+    const layout = {
+      players: gameState.players,
+      dealer: gameState.dealer,
+    };
+    const total = totalCardsOnTable(layout);
+    const maxG = maxDealGlobalIndex(layout);
+
     if (isInitialDeal || isRoundEndReveal) {
       setAnimating(true);
-      const dealMs = maxDealAnimationDurationMs({
-        players: gameState.players,
-        dealer: gameState.dealer,
-      });
+      const dealMs = feedbackWaveDurationMs(layout, prevFeedbackMaxGRef.current);
       const delay =
         dealMs <= 0 ? CARD_ANIM_BASE_DELAY_MS : dealMs + CARD_ANIM_BASE_DELAY_MS;
       const timer = setTimeout(() => setAnimating(false), delay);
+      prevFeedbackMaxGRef.current = maxG;
       return () => clearTimeout(timer);
     }
 
     setAnimating(false);
+    if (total === 0) prevFeedbackMaxGRef.current = -1;
+    else if (gameState.phase !== "finished") {
+      prevFeedbackMaxGRef.current = maxG;
+    }
   }, [gameState.phase, gameState.dealer.cards.length, gameState.players]);
 
   useEffect(() => {

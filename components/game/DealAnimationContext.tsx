@@ -13,22 +13,13 @@ import {
   assignGlobalDealIndices,
   dealLayoutSignature,
   maxGlobalDealIndex,
+  totalCardsOnTable,
   type TableCardLayout,
 } from "@/lib/blackjack/deal-sequence";
 import {
   CARD_DEAL_DURATION_MS,
   CARD_SEQUENTIAL_STEP_MS,
 } from "@/lib/blackjack/constants";
-
-function totalCardsOnTable(layout: TableCardLayout): number {
-  let n = layout.dealer.cards.length;
-  for (const p of layout.players) {
-    for (const h of p.hands) {
-      n += h.cards.length;
-    }
-  }
-  return n;
-}
 
 export type DealAnimationApi = {
   /** Retardo del inicio de la animación de reparto (ms) respecto al “último frame” ya asentado */

@@ -63,16 +63,29 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-sm text-gray-600">
-        Blackjack Terraza &mdash; By{" "}
-        <a
-          href="https://github.com/TheJisus28"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-gray-400 hover:text-emerald-400 transition-colors underline-offset-2 hover:underline"
-        >
-          TheJisus28
-        </a>
+      <footer className="py-6 text-center text-sm text-gray-600 space-y-1">
+        <div>
+          Blackjack Terraza &mdash; By{" "}
+          <a
+            href="https://github.com/TheJisus28"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-emerald-400 transition-colors underline-offset-2 hover:underline"
+          >
+            TheJisus28
+          </a>
+        </div>
+        <p className="text-xs text-gray-500">
+          Made with{" "}
+          <a
+            href="https://cursor.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-white/80 transition-colors underline-offset-2 hover:underline"
+          >
+            Cursor
+          </a>
+        </p>
       </footer>
     </div>
   );

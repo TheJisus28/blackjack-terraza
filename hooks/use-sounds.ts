@@ -5,10 +5,11 @@ import { sounds } from "@/lib/sounds";
 import type { GamePhase } from "@/lib/blackjack/types";
 import {
   assignGlobalDealIndices,
-  dealerCardKey,
-  maxDealAnimationDurationMs,
-  maxGlobalDealIndex,
   dealLayoutSignature,
+  feedbackWaveDurationMs,
+  maxDealGlobalIndex,
+  maxGlobalDealIndex,
+  totalCardsOnTable,
   type TableCardLayout,
 } from "@/lib/blackjack/deal-sequence";
 import { CARD_ANIM_DELAY_PER_CARD_MS, CARD_SEQUENTIAL_STEP_MS } from "@/lib/blackjack/constants";
@@ -37,6 +38,8 @@ export function useSounds({
   const prevPlayerCards = useRef(playerCardCount);
   const prevDealerCards = useRef(dealerCardCount);
   const lastDealerLenForDealRef = useRef(dealerCardCount);
+  /** Alinea win/lose con el lote de cartas (robos del crupier), misma base que feedbackWaveDurationMs */
+  const prevSoundFeedbackMaxGRef = useRef(-1);
 
   const tableSeqSig = tableForSequence
     ? dealLayoutSignature(tableForSequence)
@@ -75,16 +78,16 @@ export function useSounds({
       if (isDealerReveal) {
         const prevD = lastDealerLenForDealRef.current;
         const nowD = tableForSequence.dealer.cards.length;
-        const map = assignGlobalDealIndices(tableForSequence);
         const timers: number[] = [];
+        let batchIndex = 0;
         for (let ci = prevD; ci < nowD; ci++) {
-          const g = map.get(dealerCardKey(ci)) ?? 0;
           timers.push(
             window.setTimeout(
               () => sounds.cardDeal(),
-              g * CARD_SEQUENTIAL_STEP_MS,
+              batchIndex * CARD_SEQUENTIAL_STEP_MS,
             ),
           );
+          batchIndex++;
         }
         lastDealerLenForDealRef.current = nowD;
         return () => {
@@ -153,6 +156,17 @@ export function useSounds({
   }, [phase, playerCardCount, dealerCardCount]);
 
   useEffect(() => {
+    if (!tableForSequence) return;
+    const total = totalCardsOnTable(tableForSequence);
+    if (total === 0) {
+      prevSoundFeedbackMaxGRef.current = -1;
+      return;
+    }
+    if (phase === "finished") return;
+    prevSoundFeedbackMaxGRef.current = maxDealGlobalIndex(tableForSequence);
+  }, [tableSeqSig, phase, tableForSequence]);
+
+  useEffect(() => {
     if (phase !== "finished" || !resultOutcome) {
       if (phase !== "finished") {
         phaseBeforeFinishRef.current = phase;
@@ -166,7 +180,10 @@ export function useSounds({
     phaseBeforeFinishRef.current = phase;
 
     const delay = tableForSequence
-      ? maxDealAnimationDurationMs(tableForSequence) + 400
+      ? feedbackWaveDurationMs(
+          tableForSequence,
+          prevSoundFeedbackMaxGRef.current,
+        ) + 400
       : dealerCardCount * CARD_ANIM_DELAY_PER_CARD_MS + 400;
 
     const timer = setTimeout(() => {

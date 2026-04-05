@@ -68,10 +68,41 @@ export function maxGlobalDealIndex(map: Map<string, number>): number {
   return max;
 }
 
-/** Tiempo hasta que la última carta de la mesa termina su animación de reparto */
-export function maxDealAnimationDurationMs(state: TableCardLayout): number {
-  const map = assignGlobalDealIndices(state);
-  const maxG = maxGlobalDealIndex(map);
+export function totalCardsOnTable(layout: TableCardLayout): number {
+  let n = layout.dealer.cards.length;
+  for (const p of layout.players) {
+    for (const h of p.hands) {
+      n += h.cards.length;
+    }
+  }
+  return n;
+}
+
+export function maxDealGlobalIndex(layout: TableCardLayout): number {
+  return maxGlobalDealIndex(assignGlobalDealIndices(layout));
+}
+
+/**
+ * Tiempo hasta que termina la animación del **lote nuevo** de cartas respecto al último
+ * `maxGlobal` asentado (misma lógica que DealAnimationProvider). Sirve para feedback / sonidos
+ * al pasar a finished con robos del crupier sin usar `maxG * STEP` de toda la mesa desde cero.
+ */
+export function feedbackWaveDurationMs(
+  layout: TableCardLayout,
+  previousMaxGlobalIndex: number,
+): number {
+  const total = totalCardsOnTable(layout);
+  if (total === 0) return 0;
+  const maxG = maxDealGlobalIndex(layout);
   if (maxG < 0) return 0;
-  return maxG * CARD_SEQUENTIAL_STEP_MS + CARD_DEAL_DURATION_MS;
+  if (maxG <= previousMaxGlobalIndex) return CARD_DEAL_DURATION_MS;
+  return (
+    (maxG - previousMaxGlobalIndex - 1) * CARD_SEQUENTIAL_STEP_MS +
+    CARD_DEAL_DURATION_MS
+  );
+}
+
+/** Desde índice global 0 (p. ej. reparto inicial completo) */
+export function maxDealAnimationDurationMs(state: TableCardLayout): number {
+  return feedbackWaveDurationMs(state, -1);
 }
