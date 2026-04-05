@@ -5,6 +5,7 @@ import {
   toClientState,
   serializeDeck,
 } from "@/lib/blackjack/engine";
+import { DEFAULT_MIN_BET, DEFAULT_MAX_BET } from "@/lib/blackjack/constants";
 
 function generateInviteCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -21,8 +22,8 @@ export async function POST(request: Request) {
     name,
     isPrivate = false,
     maxPlayers = 7,
-    minBet = 10,
-    maxBet = 500,
+    minBet = DEFAULT_MIN_BET,
+    maxBet = DEFAULT_MAX_BET,
     deckCount = 6,
     createdBy,
     creatorId,

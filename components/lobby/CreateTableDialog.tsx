@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DEFAULT_MIN_BET, DEFAULT_MAX_BET } from "@/lib/blackjack/constants";
 
 interface CreateTableDialogProps {
   open: boolean;
@@ -42,7 +43,7 @@ export function CreateTableDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Mesa de los panas"
-              maxLength={30}
+              maxLength={72}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white
                 placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 transition-colors"
             />
@@ -94,8 +95,8 @@ export function CreateTableDialog({
                 name: name || "Mesa sin nombre",
                 isPrivate,
                 maxPlayers,
-                minBet: 10,
-                maxBet: 500,
+                minBet: DEFAULT_MIN_BET,
+                maxBet: DEFAULT_MAX_BET,
               })
             }
             disabled={loading}
