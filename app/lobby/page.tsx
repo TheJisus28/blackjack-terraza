@@ -6,12 +6,14 @@ import { useRouter } from "next/navigation";
 import { getPlayerId, getPlayerName, setPlayerName } from "@/shared/lib/player-identity";
 import { TableList } from "@/game/presentation/lobby/widgets/TableList";
 import { CreateTableDialog } from "@/game/presentation/lobby/widgets/CreateTableDialog";
+import { ChangeDisplayNameDialog } from "@/game/presentation/lobby/widgets/ChangeDisplayNameDialog";
 
 export default function LobbyPage() {
   const router = useRouter();
   const [tables, setTables] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [showChangeName, setShowChangeName] = useState(false);
   const [creating, setCreating] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [name, setName] = useState("");
@@ -83,6 +85,11 @@ export default function LobbyPage() {
     }
   };
 
+  const handleSaveDisplayName = (newName: string) => {
+    setPlayerName(newName);
+    setName(newName);
+  };
+
   const handleJoinByCode = async () => {
     const code = joinCode.trim().toUpperCase();
     if (!code) return;
@@ -151,9 +158,14 @@ export default function LobbyPage() {
           </svg>
           Blackjack <span className="text-emerald-400">Terraza</span>
         </Link>
-        <span className="text-sm text-gray-400">
+        <button
+          type="button"
+          onClick={() => setShowChangeName(true)}
+          title="Change display name"
+          className="text-sm text-gray-400 hover:text-gray-200 transition-colors cursor-pointer text-right"
+        >
           Hi, <span className="text-white font-medium">{name}</span>
-        </span>
+        </button>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
@@ -213,6 +225,13 @@ export default function LobbyPage() {
         onClose={() => setShowCreate(false)}
         onCreate={handleCreate}
         loading={creating}
+      />
+
+      <ChangeDisplayNameDialog
+        open={showChangeName}
+        onClose={() => setShowChangeName(false)}
+        currentName={name}
+        onSave={handleSaveDisplayName}
       />
     </div>
   );
