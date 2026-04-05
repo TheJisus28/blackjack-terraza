@@ -1,13 +1,14 @@
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase } from "@/shared/lib/supabase";
+import type { GameState } from "@/game/simulation/blackjack";
 import {
   removePlayer,
-  runToCompletion,
+  completeRoundIfDealerTurnAfterLeave,
   deserializeDeck,
   serializeDeck,
   toClientState,
-} from "@/lib/blackjack/engine";
-import type { GameState } from "@/lib/blackjack/types";
-import { broadcastToTable } from "@/lib/broadcast";
+  lobbyTableStatusAfterSeatEvent,
+} from "@/game/simulation/blackjack";
+import { broadcastToTable } from "@/shared/lib/broadcast";
 
 export async function POST(
   request: Request,
@@ -17,7 +18,7 @@ export async function POST(
   const { playerId } = (await request.json()) as { playerId: string };
 
   if (!playerId) {
-    return Response.json({ error: "Falta playerId" }, { status: 400 });
+    return Response.json({ error: "Missing playerId" }, { status: 400 });
   }
 
   const sb = getSupabase();
@@ -29,7 +30,7 @@ export async function POST(
     .single();
 
   if (error || !table) {
-    return Response.json({ error: "Mesa no encontrada" }, { status: 404 });
+    return Response.json({ error: "Table not found" }, { status: 404 });
   }
 
   const gameState: GameState = {
@@ -51,29 +52,14 @@ export async function POST(
     return Response.json({ ok: true, tableClosed: true });
   }
 
-  // If removing the player triggered dealer_turn, run to completion
-  if (
-    updated.phase === "dealer_turn" &&
-    (gameState.phase === "playing" || gameState.phase === "insurance")
-  ) {
-    const { state: completed } = runToCompletion(updated);
-    updated = completed;
-  }
-
-  const newStatus =
-    updated.phase === "finished" ? "waiting" :
-    updated.phase === "playing" ||
-      updated.phase === "betting" ||
-      updated.phase === "insurance"
-      ? "playing"
-    : "waiting";
+  updated = completeRoundIfDealerTurnAfterLeave(gameState, updated);
 
   // Transfer creator if the creator left
   const updateFields: Record<string, unknown> = {
     game_state: toClientState(updated),
     deck_data: serializeDeck(updated.deck),
     player_count: newCount,
-    status: newStatus,
+    status: lobbyTableStatusAfterSeatEvent(updated.phase),
   };
 
   if (playerId === table.creator_id && updated.players.length > 0) {

@@ -1,11 +1,12 @@
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase } from "@/shared/lib/supabase";
 import {
   createMultiplayerGame,
   addPlayer,
   toClientState,
   serializeDeck,
-} from "@/lib/blackjack/engine";
-import { DEFAULT_MIN_BET, DEFAULT_MAX_BET } from "@/lib/blackjack/constants";
+  DEFAULT_MIN_BET,
+  DEFAULT_MAX_BET,
+} from "@/game/simulation/blackjack";
 
 function generateInviteCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
   };
 
   if (!name || !createdBy || !creatorId) {
-    return Response.json({ error: "Faltan campos requeridos" }, { status: 400 });
+    return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   let gameState = createMultiplayerGame({ minBet, maxBet, deckCount });
@@ -104,7 +105,7 @@ export async function GET(request: Request) {
       .single();
 
     if (error || !data) {
-      return Response.json({ error: "Mesa no encontrada" }, { status: 404 });
+      return Response.json({ error: "Table not found" }, { status: 404 });
     }
     return Response.json(data);
   }
