@@ -11,8 +11,10 @@ export function isActivePlayingTurnForPlayer(
   state: TurnSlice | ClientGameState,
   playerId: string,
 ): boolean {
+  const active = state.players[state.activePlayerIndex];
   return (
     state.phase === PHASE.PLAYING &&
-    state.players[state.activePlayerIndex]?.id === playerId
+    active?.id === playerId &&
+    !active.spectator
   );
 }

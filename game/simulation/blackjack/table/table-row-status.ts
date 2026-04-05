@@ -13,7 +13,8 @@ export function lobbyTableStatusAfterSeatEvent(phase: GamePhase): TableStatus {
   if (
     phase === PHASE.PLAYING ||
     phase === PHASE.BETTING ||
-    phase === PHASE.INSURANCE
+    phase === PHASE.INSURANCE ||
+    phase === PHASE.RESOLVING
   ) {
     return "playing";
   }

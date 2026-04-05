@@ -1,6 +1,7 @@
 import type {
   Card,
   ClientGameState,
+  GamePhase,
   GameResult,
   GameState,
   Player,
@@ -30,6 +31,9 @@ import {
   WIN_PAYOUT_MULTIPLIER,
   SURRENDER_RETURN_RATIO,
   INITIAL_DEAL_ROUNDS,
+  DEALER_BLACKJACK_REVEAL_DELAY_MS,
+  PLAYER_OFFLINE_THRESHOLD_MS,
+  OFFLINE_SPECTATOR_KICK_MIN_ROUNDS,
 } from "./rules/constants";
 import { PHASE } from "./meta/game-phase";
 import { PLAYER_ACTION } from "./meta/player-action-kind";
@@ -72,6 +76,9 @@ export function placeBet(
   if (playerIndex === -1) return state;
 
   const player = state.players[playerIndex];
+  if (player.spectator) {
+    return { ...state, message: "Sit in to place a bet" };
+  }
   if (amount < state.minBet || amount > state.maxBet) {
     const maxLabel = state.maxBet >= 999_999 ? "your chips" : `$${state.maxBet}`;
     return {
@@ -92,6 +99,12 @@ export function placeBet(
   };
 
   return { ...state, players: updatedPlayers, message: "" };
+}
+
+function anySeatedNaturalBlackjack(players: Player[]): boolean {
+  return players.some((p) =>
+    p.hands.some((h) => h.bet > 0 && h.status === "blackjack"),
+  );
 }
 
 export function dealInitialCards(state: GameState): GameState {
@@ -128,6 +141,7 @@ export function dealInitialCards(state: GameState): GameState {
   }
 
   const dealerUp = dealerCards[0];
+  // Peek uses card ranks only (hole may still be face-down); isNaturalBlackjackCards ignores faceUp.
   const allSettled = players.every(
     (p) =>
       p.hands.length === 0 ||
@@ -140,6 +154,7 @@ export function dealInitialCards(state: GameState): GameState {
   if (dealerUp && isTenValueRank(dealerUp.rank)) {
     if (isNaturalBlackjackCards(dealerCards)) {
       const revealed = dealerCards.map((c) => ({ ...c, faceUp: true }));
+      const anyPbj = anySeatedNaturalBlackjack(players);
       return {
         ...state,
         deck,
@@ -147,6 +162,9 @@ export function dealInitialCards(state: GameState): GameState {
         players,
         phase: PHASE.RESOLVING,
         message: "Dealer blackjack",
+        ...(anyPbj
+          ? {}
+          : { resolvingRevealStartedAt: Date.now() }),
       };
     }
     return {
@@ -239,6 +257,7 @@ export function resolveInsurancePhase(state: GameState): {
       }
     }
     players = players.map((p) => stripPlayerInsurance(p));
+    const anyPbj = anySeatedNaturalBlackjack(players);
     const nextState: GameState = {
       ...state,
       dealer: { cards: revealed, status: "standing" },
@@ -247,7 +266,16 @@ export function resolveInsurancePhase(state: GameState): {
       message: "Dealer blackjack",
       insuranceStartedAt: undefined,
     };
-    return resolveRound(nextState);
+    if (anyPbj) {
+      return resolveRound(nextState);
+    }
+    return {
+      state: {
+        ...nextState,
+        resolvingRevealStartedAt: Date.now(),
+      },
+      results: [],
+    };
   }
 
   players = players.map((p) => stripPlayerInsurance(p));
@@ -389,6 +417,7 @@ export function playerAction(
   state: GameState,
   playerId: string,
   action: PlayerAction,
+  options?: { doubleAmount?: number },
 ): GameState {
   if (state.phase !== PHASE.PLAYING) return state;
 
@@ -407,7 +436,7 @@ export function playerAction(
     case PLAYER_ACTION.STAND:
       return handleStand(state, playerIndex);
     case PLAYER_ACTION.DOUBLE:
-      return handleDouble(state, playerIndex);
+      return handleDouble(state, playerIndex, options?.doubleAmount);
     case PLAYER_ACTION.SPLIT:
       return handleSplit(state, playerIndex);
     case PLAYER_ACTION.SURRENDER:
@@ -455,17 +484,37 @@ function handleStand(state: GameState, playerIndex: number): GameState {
   return advanceToNextPlayer({ ...state, players });
 }
 
-function handleDouble(state: GameState, playerIndex: number): GameState {
+function handleDouble(
+  state: GameState,
+  playerIndex: number,
+  requestedAdditional?: number,
+): GameState {
   const players = deepClonePlayers(state.players);
   const player = players[playerIndex];
   const hand = player.hands[player.activeHandIndex];
 
-  if (!canDoubleDown(hand) || player.chips < hand.bet) {
+  if (!canDoubleDown(hand)) {
     return { ...state, message: "Cannot double down" };
   }
 
-  player.chips -= hand.bet;
-  hand.bet *= 2;
+  const maxAdditional = Math.min(hand.bet, player.chips);
+  if (maxAdditional < 1) {
+    return { ...state, message: "Cannot double down" };
+  }
+
+  let additional: number;
+  if (requestedAdditional != null && requestedAdditional > 0) {
+    additional = Math.floor(requestedAdditional);
+    additional = Math.min(additional, hand.bet, player.chips);
+    if (additional < 1) {
+      return { ...state, message: "Cannot double down" };
+    }
+  } else {
+    additional = maxAdditional;
+  }
+
+  player.chips -= additional;
+  hand.bet += additional;
   hand.isDoubledDown = true;
 
   let deck = [...state.deck];
@@ -694,6 +743,7 @@ export function resolveRound(state: GameState): {
       phase: PHASE.FINISHED,
       message,
       roundEndedAt: Date.now(),
+      resolvingRevealStartedAt: undefined,
     },
     results,
   };
@@ -714,9 +764,33 @@ export function runToCompletion(state: GameState): {
     state = playDealerTurn(state);
   }
   if (state.phase === PHASE.RESOLVING) {
+    if (state.resolvingRevealStartedAt != null) {
+      return { state, results: [] };
+    }
     return resolveRound(state);
   }
   return { state, results: [] };
+}
+
+/** After {@link DEALER_BLACKJACK_REVEAL_DELAY_MS}, settle hands that were waiting on dealer natural reveal. */
+export function applyDealerBlackjackRevealTimeout(state: GameState): {
+  state: GameState;
+  results: GameResult[];
+} {
+  if (
+    state.phase !== PHASE.RESOLVING ||
+    state.resolvingRevealStartedAt == null
+  ) {
+    return { state, results: [] };
+  }
+  const elapsed = Date.now() - state.resolvingRevealStartedAt;
+  if (elapsed < DEALER_BLACKJACK_REVEAL_DELAY_MS) {
+    return { state, results: [] };
+  }
+  return resolveRound({
+    ...state,
+    resolvingRevealStartedAt: undefined,
+  });
 }
 
 export function startNewRound(state: GameState): GameState {
@@ -742,6 +816,7 @@ export function startNewRound(state: GameState): GameState {
     players,
     activePlayerIndex: 0,
     message: "Place your bet",
+    resolvingRevealStartedAt: undefined,
   };
 }
 
@@ -753,6 +828,46 @@ function deepClonePlayers(players: Player[]): Player[] {
 }
 
 // ── Multiplayer helpers ──
+
+function isPlayerConsideredOffline(p: Player, now: number): boolean {
+  // Missing timestamp: legacy rows; treat as online until a join/heartbeat sets it
+  if (p.lastSeenAt == null) return false;
+  return now - p.lastSeenAt > PLAYER_OFFLINE_THRESHOLD_MS;
+}
+
+/** Bump offline-spectator counters and remove seats after enough finished→betting cycles while offline. */
+function processSpectatorOfflineForNewRound(state: GameState): GameState {
+  if (state.phase !== PHASE.FINISHED) return state;
+  const now = Date.now();
+  const toKick: string[] = [];
+  const mapped = state.players.map((p) => {
+    if (!p.spectator) {
+      return { ...p, spectatorOfflineRounds: 0 };
+    }
+    if (!isPlayerConsideredOffline(p, now)) {
+      return { ...p, spectatorOfflineRounds: 0 };
+    }
+    const r = (p.spectatorOfflineRounds ?? 0) + 1;
+    if (r >= OFFLINE_SPECTATOR_KICK_MIN_ROUNDS) {
+      toKick.push(p.id);
+    }
+    return { ...p, spectatorOfflineRounds: r };
+  });
+  let st: GameState = { ...state, players: mapped };
+  for (const id of toKick) {
+    st = removePlayer(st, id);
+  }
+  return st;
+}
+
+/** Call on join/reconnect heartbeat so offline-spectator rounds do not accrue while the tab is open. */
+export function touchPlayerLastSeen(state: GameState, playerId: string): GameState {
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  if (idx === -1) return state;
+  const players = deepClonePlayers(state.players);
+  players[idx] = { ...players[idx], lastSeenAt: Date.now() };
+  return { ...state, players };
+}
 
 export function createMultiplayerGame(options: {
   minBet?: number;
@@ -788,6 +903,9 @@ export function addPlayer(
     hands: [],
     activeHandIndex: 0,
     isActive: true,
+    spectator: false,
+    lastSeenAt: Date.now(),
+    spectatorOfflineRounds: 0,
   };
 
   const midRound =
@@ -805,6 +923,67 @@ export function addPlayer(
         ? `${playerName} joined. Waiting for more players...`
         : `${playerName} joined!`,
   };
+}
+
+const PHASE_BLOCKS_WATCH: GamePhase[] = [
+  PHASE.PLAYING,
+  PHASE.INSURANCE,
+  PHASE.DEALER_TURN,
+  PHASE.RESOLVING,
+];
+
+/**
+ * Toggle spectator mode (chips kept in game state). Only when not in an active hand.
+ */
+export function setPlayerSpectator(
+  state: GameState,
+  playerId: string,
+  spectator: boolean,
+): GameState {
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  if (idx === -1) return state;
+
+  const players = deepClonePlayers(state.players);
+  const p = players[idx];
+
+  if (spectator) {
+    if (p.spectator) return state;
+    const otherSeated = playingParticipants(state.players).some(
+      (x) => x.id !== playerId,
+    );
+    if (!otherSeated) {
+      return {
+        ...state,
+        message: "At least one other seated player is needed to watch",
+      };
+    }
+    const inHand = p.hands.some((h) => h.bet > 0 || h.cards.length > 0);
+    if (inHand || PHASE_BLOCKS_WATCH.includes(state.phase)) {
+      return {
+        ...state,
+        message: "You can only watch between rounds (no active bet or cards)",
+      };
+    }
+    const { insuranceWager: _, ...rest } = p;
+    players[idx] = {
+      ...rest,
+      spectator: true,
+      hands: [],
+      activeHandIndex: 0,
+      spectatorOfflineRounds: 0,
+    };
+    return { ...state, players, message: `${p.name} is watching` };
+  }
+
+  if (!p.spectator) return state;
+  players[idx] = {
+    ...p,
+    spectator: false,
+    hands: [],
+    activeHandIndex: 0,
+    spectatorOfflineRounds: 0,
+  };
+  return { ...state, players, message: `${p.name} sat back in` };
 }
 
 export function removePlayer(state: GameState, playerId: string): GameState {
@@ -841,9 +1020,11 @@ export function removePlayer(state: GameState, playerId: string): GameState {
   }
 
   if (phase === PHASE.BETTING) {
-    // If all remaining players already bet, proceed to deal
-    const allBet = players.length > 0 &&
-      players.every((p) => p.hands.length > 0 && p.hands[0].bet > 0);
+    // If all seated (non-spectator) players already bet, proceed to deal
+    const seated = playingParticipants(players);
+    const allBet =
+      seated.length > 0 &&
+      seated.every((p) => p.hands.length > 0 && p.hands[0].bet > 0);
     if (allBet) {
       const dealt = dealInitialCards({
         ...state, players, activePlayerIndex, phase, message,
@@ -879,26 +1060,31 @@ export function completeRoundIfDealerTurnAfterLeave(
 }
 
 export function startBetting(state: GameState): GameState {
-  if (state.players.length === 0) {
-    return { ...state, message: "No players" };
+  const working =
+    state.phase === PHASE.FINISHED
+      ? processSpectatorOfflineForNewRound(state)
+      : state;
+
+  if (playingParticipants(working.players).length === 0) {
+    return { ...working, message: "No seated players" };
   }
-  const players = state.players.map((p) => {
+  const players = working.players.map((p) => {
     const { insuranceWager: _, ...rest } = p;
     return {
       ...rest,
       hands: [],
       activeHandIndex: 0,
-      chips: p.chips < state.minBet ? p.chips + REBUY_CHIPS : p.chips,
+      chips: p.chips < working.minBet ? p.chips + REBUY_CHIPS : p.chips,
     };
   });
 
-  let deck = state.deck;
-  if (shouldReshuffle(deck, state.deckCount)) {
-    deck = createShoe(state.deckCount);
+  let deck = working.deck;
+  if (shouldReshuffle(deck, working.deckCount)) {
+    deck = createShoe(working.deckCount);
   }
 
   return {
-    ...state,
+    ...working,
     deck,
     phase: PHASE.BETTING,
     dealer: { cards: [], status: "playing" },
@@ -908,6 +1094,7 @@ export function startBetting(state: GameState): GameState {
     roundEndedAt: undefined,
     bettingStartedAt: Date.now(),
     insuranceStartedAt: undefined,
+    resolvingRevealStartedAt: undefined,
   };
 }
 
@@ -949,6 +1136,7 @@ export function rebuyPlayer(state: GameState, playerId: string): GameState {
   const idx = state.players.findIndex((p) => p.id === playerId);
   if (idx === -1) return state;
   const p = state.players[idx];
+  if (p.spectator) return state;
   if (p.chips >= state.minBet) return state;
   if (p.hands.some((h) => h.bet > 0)) return state;
 
@@ -962,11 +1150,17 @@ export function rebuyPlayer(state: GameState, playerId: string): GameState {
   };
 }
 
+/** Players who take a seat at the table (excludes spectators). */
+export function playingParticipants(players: Player[]): Player[] {
+  return players.filter((p) => !p.spectator);
+}
+
 export function allBetsPlaced(state: GameState): boolean {
+  const seated = playingParticipants(state.players);
   return (
     state.phase === PHASE.BETTING &&
-    state.players.length > 0 &&
-    state.players.every((p) => p.hands.length > 0 && p.hands[0].bet > 0)
+    seated.length > 0 &&
+    seated.every((p) => p.hands.length > 0 && p.hands[0].bet > 0)
   );
 }
 

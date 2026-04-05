@@ -19,12 +19,15 @@ import {
   resolveInsurancePhase,
   autoRebuyBrokePlayersInResults,
   lobbyTableStatusAfterEngineStep,
+  applyDealerBlackjackRevealTimeout,
+  playingParticipants,
   RESULTS_DELAY_MS,
   BETTING_DELAY_MS,
   INSURANCE_DELAY_MS,
   MAX_INACTIVE_ROUNDS,
   RESULTS_TIMER_S,
   RESULTS_REBUY_LEAD_S,
+  setPlayerSpectator,
 } from "@/game/simulation/blackjack";
 import {
   SESSION_ACTION,
@@ -75,8 +78,8 @@ export async function POST(
       if (gameState.phase !== PHASE.WAITING) {
         return Response.json({ ok: true, state: toClientState(gameState) });
       }
-      if (gameState.players.length < 1) {
-        return Response.json({ error: "No players" }, { status: 400 });
+      if (playingParticipants(gameState.players).length < 1) {
+        return Response.json({ error: "No seated players" }, { status: 400 });
       }
       gameState = startBetting(gameState);
       break;
@@ -124,7 +127,8 @@ export async function POST(
       gameState = {
         ...gameState,
         players: gameState.players.map((p) => {
-          const didBet = p.hands.length > 0 && p.hands[0].bet > 0;
+          const didBet =
+            p.spectator || (p.hands.length > 0 && p.hands[0].bet > 0);
           return {
             ...p,
             inactiveRounds: didBet ? 0 : (p.inactiveRounds ?? 0) + 1,
@@ -147,7 +151,8 @@ export async function POST(
       }
 
       const hasBetters = gameState.players.some(
-        (p) => p.hands.length > 0 && p.hands[0].bet > 0,
+        (p) =>
+          !p.spectator && p.hands.length > 0 && p.hands[0].bet > 0,
       );
       if (!hasBetters) {
         gameState = {
@@ -176,6 +181,11 @@ export async function POST(
       break;
     }
 
+    case SESSION_ACTION.AUTO_RESOLVE_DEALER_BJ: {
+      gameState = applyDealerBlackjackRevealTimeout(gameState).state;
+      break;
+    }
+
     case SESSION_ACTION.INSURANCE_ACCEPT: {
       if (gameState.phase !== PHASE.INSURANCE) {
         return Response.json({ error: "Insurance not available" }, { status: 400 });
@@ -194,9 +204,19 @@ export async function POST(
       break;
     }
 
+    case SESSION_ACTION.WATCH_TABLE: {
+      gameState = setPlayerSpectator(gameState, playerId, true);
+      break;
+    }
+
+    case SESSION_ACTION.SIT_IN: {
+      gameState = setPlayerSpectator(gameState, playerId, false);
+      break;
+    }
+
     case SESSION_ACTION.REBUY: {
       const player = gameState.players.find((p) => p.id === playerId);
-      if (!player || player.chips >= gameState.minBet) {
+      if (!player || player.spectator || player.chips >= gameState.minBet) {
         return Response.json({ error: "Rebuy not needed" }, { status: 400 });
       }
       if (player.hands.some((h) => h.bet > 0)) {
@@ -237,7 +257,11 @@ export async function POST(
       if (gameState.phase !== PHASE.PLAYING) {
         return Response.json({ error: "Not time to play" }, { status: 400 });
       }
-      gameState = playerAction(gameState, playerId, action);
+      const doubleOpts =
+        action === SESSION_ACTION.DOUBLE && amount != null && amount > 0
+          ? { doubleAmount: amount }
+          : undefined;
+      gameState = playerAction(gameState, playerId, action, doubleOpts);
       const { state } = runToCompletion(gameState);
       gameState = state;
       break;

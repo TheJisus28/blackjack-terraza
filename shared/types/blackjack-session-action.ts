@@ -13,6 +13,11 @@ export const SESSION_META = {
   INSURANCE_DECLINE: "insurance_decline",
   AUTO_REBUY_RESULTS: "auto_rebuy_results",
   REBUY: "rebuy",
+  /** Between rounds: keep chips, skip betting until sit in */
+  WATCH_TABLE: "watch_table",
+  SIT_IN: "sit_in",
+  /** End of dealer-natural reveal pause → settle hands */
+  AUTO_RESOLVE_DEALER_BJ: "auto_resolve_dealer_bj",
 } as const;
 
 export type SessionMetaAction =
@@ -31,6 +36,7 @@ export const SESSION_TIMER_ACTION = {
   AUTO_DEAL: SESSION_META.AUTO_DEAL,
   AUTO_INSURANCE: SESSION_META.AUTO_INSURANCE,
   AUTO_REBUY_RESULTS: SESSION_META.AUTO_REBUY_RESULTS,
+  AUTO_RESOLVE_DEALER_BJ: SESSION_META.AUTO_RESOLVE_DEALER_BJ,
 } as const;
 
 export type BlackjackSessionTimerAction =

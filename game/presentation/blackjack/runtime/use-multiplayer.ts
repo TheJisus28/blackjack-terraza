@@ -54,7 +54,10 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playerId, playerName }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as {
+        state?: ClientGameState;
+        alreadyJoined?: boolean;
+      };
       if (data.state) {
         setGameState(data.state);
       }
@@ -62,6 +65,32 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
       hasJoinedRef.current = false;
     }
   }, [tableId, playerId, playerName]);
+
+  const leaveTable = useCallback(async () => {
+    if (!playerId) return;
+    try {
+      await fetch(`/api/tables/${tableId}/leave`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId }),
+      });
+    } catch {
+      /* ignore */
+    }
+  }, [tableId, playerId]);
+
+  const sendHeartbeat = useCallback(async () => {
+    if (!playerId) return;
+    try {
+      await fetch(`/api/tables/${tableId}/heartbeat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId }),
+      });
+    } catch {
+      /* ignore */
+    }
+  }, [tableId, playerId]);
 
   const sendAction = useCallback(
     async (action: BlackjackSessionAction, amount?: number) => {
@@ -122,22 +151,13 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     };
   }, [tableId, fetchState, joinTable]);
 
-  // Leave ONLY on actual page navigation / tab close
+  // Presence for offline-spectator kick (engine); stay under PLAYER_OFFLINE_THRESHOLD_MS
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (playerId) {
-        navigator.sendBeacon(
-          `/api/tables/${tableId}/leave`,
-          JSON.stringify({ playerId }),
-        );
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [tableId, playerId]);
+    if (!connected || !playerId) return;
+    void sendHeartbeat();
+    const tid = window.setInterval(() => void sendHeartbeat(), 25_000);
+    return () => clearInterval(tid);
+  }, [connected, playerId, sendHeartbeat]);
 
   const myPlayer = gameState?.players.find((p) => p.id === playerId) ?? null;
   const isMyTurn =
@@ -153,6 +173,7 @@ export function useMultiplayer({ tableId }: UseMultiplayerOptions) {
     loading,
     error,
     sendAction,
+    leaveTable,
   };
 }
 

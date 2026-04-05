@@ -17,7 +17,8 @@ export function isInitialDealOrInsuranceReveal(
     prevPhase === PHASE.BETTING &&
     (phase === PHASE.PLAYING ||
       phase === PHASE.FINISHED ||
-      phase === PHASE.INSURANCE)
+      phase === PHASE.INSURANCE ||
+      phase === PHASE.RESOLVING)
   );
 }
 
