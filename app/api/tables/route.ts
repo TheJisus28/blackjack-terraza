@@ -75,11 +75,25 @@ export async function POST(request: Request) {
   return Response.json({ id: data.id, inviteCode: data.invite_code });
 }
 
+const STALE_TABLE_HOURS = 1;
+
+async function cleanupStaleTables(sb: ReturnType<typeof getSupabase>) {
+  const cutoff = new Date(Date.now() - STALE_TABLE_HOURS * 60 * 60 * 1000).toISOString();
+
+  // Delete finished tables and tables older than 1 hour
+  await sb.from("game_tables").delete().eq("status", "finished");
+  await sb.from("game_tables").delete().eq("player_count", 0);
+  await sb.from("game_tables").delete().lt("created_at", cutoff);
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
 
   const sb = getSupabase();
+
+  // Fire-and-forget cleanup on every list request
+  cleanupStaleTables(sb).catch(() => {});
 
   if (code) {
     const { data, error } = await sb
