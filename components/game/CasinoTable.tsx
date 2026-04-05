@@ -62,10 +62,36 @@ export function CasinoTable({
                 {dealerSlot}
               </div>
 
-              {/* "BLACKJACK PAYS 3:2" text */}
-              <div className="pointer-events-none select-none flex-shrink-0">
-                <p className="text-yellow-500/[0.12] text-[9px] sm:text-[11px] font-bold uppercase tracking-[0.3em] whitespace-nowrap" style={{ fontSize: isLg ? "14px" : undefined }}>
+              {/* Texto impreso en el tapete (legible sobre el verde) */}
+              <div className="pointer-events-none select-none flex flex-col items-center gap-0.5 sm:gap-1 flex-shrink-0 text-center px-2">
+                <p
+                  className="font-bold uppercase tracking-[0.32em] text-amber-50 text-[10px] sm:text-xs whitespace-nowrap"
+                  style={{
+                    textShadow:
+                      "0 1px 2px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.45)",
+                    fontSize: isLg ? "13px" : undefined,
+                  }}
+                >
+                  Dealer
+                </p>
+                <p
+                  className="font-bold uppercase tracking-[0.22em] text-amber-100 text-[9px] sm:text-[11px] whitespace-nowrap"
+                  style={{
+                    textShadow:
+                      "0 1px 2px rgba(0,0,0,0.95), 0 0 18px rgba(0,0,0,0.4)",
+                    fontSize: isLg ? "14px" : undefined,
+                  }}
+                >
                   Blackjack pays 3 to 2
+                </p>
+                <p
+                  className="font-medium text-amber-50/85 not-italic text-[8px] sm:text-[10px] tracking-[0.12em]"
+                  style={{
+                    textShadow: "0 1px 2px rgba(0,0,0,0.9)",
+                    fontSize: isLg ? "11px" : undefined,
+                  }}
+                >
+                  by TheJisus28
                 </p>
               </div>
 
