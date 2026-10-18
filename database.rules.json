@@ -1,0 +1,105 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "publicProfiles": {
+      ".read": "auth != null",
+      ".indexOn": ["worth", "level"]
+    },
+
+    "lobby": {
+      ".read": "auth != null"
+    },
+
+    "tables": {
+      "$tableId": {
+        "config": {
+          ".read": "auth != null"
+        },
+        "state": {
+          ".read": "auth != null"
+        }
+      }
+    },
+
+    "presence": {
+      "$tableId": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid",
+          "conns": {
+            "$connId": {
+              ".validate": "newData.isBoolean()"
+            }
+          },
+          "lastSeen": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+
+    "online": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isNumber()"
+      }
+    },
+
+    "chat": {
+      "$tableId": {
+        ".read": "auth != null",
+        ".indexOn": ["ts"],
+        "$msgId": {
+          ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
+          ".validate": "newData.hasChildren(['uid', 'name', 'text', 'ts'])",
+          "uid": {
+            ".validate": "newData.isString()"
+          },
+          "name": {
+            ".validate": "newData.isString() && newData.val() === root.child('publicProfiles').child(auth.uid).child('name').val()"
+          },
+          "text": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+          },
+          "ts": {
+            ".validate": "newData.isNumber() && newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+
+    "emotes": {
+      "$tableId": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['e', 'ts'])",
+          "e": {
+            ".validate": "newData.isString() && newData.val().length <= 12"
+          },
+          "ts": {
+            ".validate": "newData.isNumber() && newData.val() === now"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,4111 @@
+{
+  "avatars": [
+    {
+      "id": "robert",
+      "name": "Robert",
+      "file": "/assets/avatars/robert.glb",
+      "portrait": "/assets/avatars/robert.png",
+      "hips": [
+        1.755616318988018e-9,
+        0.7460550665855408,
+        0.010040954686701298
+      ],
+      "head": [
+        0.000478676229249686,
+        1.3388811349868774,
+        -0.0027164104394614697
+      ],
+      "height": 1.7960660457611084,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "mikel",
+      "name": "Mikel",
+      "file": "/assets/avatars/mikel.glb",
+      "portrait": "/assets/avatars/mikel.png",
+      "hips": [
+        1.734764998317928e-9,
+        0.7371956706047058,
+        0.00992169976234436
+      ],
+      "head": [
+        0.00047292408999055624,
+        1.3229821920394897,
+        -0.002684285631403327
+      ],
+      "height": 1.7794297933578491,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "chad",
+      "name": "Chad",
+      "file": "/assets/avatars/chad.glb",
+      "portrait": "/assets/avatars/chad.png",
+      "hips": [
+        1.6809580394294699e-9,
+        0.7143301963806152,
+        0.00961395911872387
+      ],
+      "head": [
+        0.0004582559340633452,
+        1.281947374343872,
+        -0.0026010186411440372
+      ],
+      "height": 1.837019920349121,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "olivia",
+      "name": "Olivia",
+      "file": "/assets/avatars/olivia.glb",
+      "portrait": "/assets/avatars/olivia.png",
+      "hips": [
+        1.4622392185970057e-9,
+        0.6213834881782532,
+        0.008363033644855022
+      ],
+      "head": [
+        0.00039870155160315335,
+        1.1151574850082397,
+        -0.0022627986036241055
+      ],
+      "height": 1.8021067380905151,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "udom",
+      "name": "Udom",
+      "file": "/assets/avatars/udom.glb",
+      "portrait": "/assets/avatars/udom.png",
+      "hips": [
+        1.5882180015580616e-9,
+        0.6749199628829956,
+        0.009083547629415989
+      ],
+      "head": [
+        0.00043297361116856337,
+        1.2112213373184204,
+        -0.002457498572766781
+      ],
+      "height": 1.7764099836349487,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "erika",
+      "name": "Erika",
+      "file": "/assets/avatars/erika.glb",
+      "portrait": "/assets/avatars/erika.png",
+      "hips": [
+        1.6995072016356971e-9,
+        0.7222113013267517,
+        0.009720047935843468
+      ],
+      "head": [
+        0.00046339607797563076,
+        1.2961070537567139,
+        -0.0026298093143850565
+      ],
+      "height": 1.7997426986694336,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "lydia",
+      "name": "Lydia",
+      "file": "/assets/avatars/lydia.glb",
+      "portrait": "/assets/avatars/lydia.png",
+      "hips": [
+        -0.00043490444659255445,
+        0.9327532052993774,
+        0.010681896470487118
+      ],
+      "head": [
+        0.00009834876982495189,
+        1.5310553312301636,
+        0.00007253466174006462
+      ],
+      "height": 1.799735188484192,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "retroman",
+      "name": "Retroman",
+      "file": "/assets/avatars/retroman.glb",
+      "portrait": "/assets/avatars/retroman.png",
+      "hips": [
+        1.6855994378062178e-9,
+        0.7163026332855225,
+        0.009640504606068134
+      ],
+      "head": [
+        0.0004595216305460781,
+        1.2854869365692139,
+        -0.0026083060074597597
+      ],
+      "height": 1.844099760055542,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "ro",
+      "name": "Robothead",
+      "file": "/assets/avatars/ro.glb",
+      "portrait": "/assets/avatars/ro.png",
+      "hips": [
+        1.611393241063297e-9,
+        0.6847684383392334,
+        0.009216095320880413
+      ],
+      "head": [
+        0.00043928928789682686,
+        1.228895664215088,
+        -0.002493475330993533
+      ],
+      "height": 1.8188157081604004,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "samuela",
+      "name": "Samuela",
+      "file": "/assets/avatars/samuela.glb",
+      "portrait": "/assets/avatars/samuela.png",
+      "hips": [
+        1.7879973057688403e-9,
+        0.7597964406013489,
+        0.010226151905953884
+      ],
+      "head": [
+        0.00048748470726422966,
+        1.3635578155517578,
+        -0.002766172168776393
+      ],
+      "height": 1.800367832183838,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "oldmoustache",
+      "name": "OldMoustache",
+      "file": "/assets/avatars/oldmoustache.glb",
+      "portrait": "/assets/avatars/oldmoustache.png",
+      "hips": [
+        1.6743273434371986e-9,
+        0.711510956287384,
+        0.009576036594808102
+      ],
+      "head": [
+        0.0004564938135445118,
+        1.2577054500579834,
+        -0.002590915421023965
+      ],
+      "height": 1.8021013736724854,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "mafiossini",
+      "name": "Mafiossini",
+      "file": "/assets/avatars/mafiossini.glb",
+      "portrait": "/assets/avatars/mafiossini.png",
+      "hips": [
+        1.6423695736733634e-9,
+        0.6979304552078247,
+        0.009393258951604366
+      ],
+      "head": [
+        0.00044776935828849673,
+        1.2682533264160156,
+        -0.0025411585811525583
+      ],
+      "height": 1.7961905002593994,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "kate",
+      "name": "Kate",
+      "file": "/assets/avatars/kate.glb",
+      "portrait": "/assets/avatars/kate.png",
+      "hips": [
+        1.7250338935070886e-9,
+        0.7330589890480042,
+        0.00986604392528534
+      ],
+      "head": [
+        0.00047035617171786726,
+        1.3155739307403564,
+        -0.0026693730615079403
+      ],
+      "height": 1.7959673404693604,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "wizzir",
+      "name": "Wizzir",
+      "file": "/assets/avatars/wizzir.glb",
+      "portrait": "/assets/avatars/wizzir.png",
+      "hips": [
+        1.6406822567205381e-9,
+        0.6972149014472961,
+        0.0093836085870862
+      ],
+      "head": [
+        0.0004472761647775769,
+        1.2512321472167969,
+        -0.0025388437788933516
+      ],
+      "height": 1.8518744707107544,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "baldman",
+      "name": "Baldman",
+      "file": "/assets/avatars/baldman.glb",
+      "portrait": "/assets/avatars/baldman.png",
+      "hips": [
+        1.6985026718430163e-9,
+        0.7217859029769897,
+        0.00971430353820324
+      ],
+      "head": [
+        0.0004630391194950789,
+        1.2953276634216309,
+        -0.0026282593607902527
+      ],
+      "height": 1.7991031408309937,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "dracula",
+      "name": "Dracula",
+      "file": "/assets/avatars/dracula.glb",
+      "portrait": "/assets/avatars/dracula.png",
+      "hips": [
+        3.2937743643657313e-9,
+        0.6998502016067505,
+        0.009419096633791924
+      ],
+      "head": [
+        0.00044903444359079003,
+        1.2740377187728882,
+        -0.0025484850630164146
+      ],
+      "height": 1.801140308380127,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "shiro",
+      "name": "Shiro",
+      "file": "/assets/avatars/shiro.glb",
+      "portrait": "/assets/avatars/shiro.png",
+      "hips": [
+        1.645220182311391e-9,
+        0.6991418600082397,
+        0.009409562684595585
+      ],
+      "head": [
+        0.0004485935205593705,
+        1.2547054290771484,
+        -0.0025458589661866426
+      ],
+      "height": 1.807480812072754,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "jennifer",
+      "name": "Jennifer",
+      "file": "/assets/avatars/jennifer.glb",
+      "portrait": "/assets/avatars/jennifer.png",
+      "hips": [
+        1.6241008538031565e-9,
+        0.6901498436927795,
+        0.009288773871958256
+      ],
+      "head": [
+        0.0004428233951330185,
+        1.238567590713501,
+        -0.00251273182220757
+      ],
+      "height": 1.8043535947799683,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "jimmy",
+      "name": "Jimmy",
+      "file": "/assets/avatars/jimmy.glb",
+      "portrait": "/assets/avatars/jimmy.png",
+      "hips": [
+        1.5422512156249013e-9,
+        0.6553847193717957,
+        0.008820648305118084
+      ],
+      "head": [
+        0.0004204999131616205,
+        1.193742036819458,
+        -0.0023863331880420446
+      ],
+      "height": 1.8028535842895508,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "kyle",
+      "name": "Kyle",
+      "file": "/assets/avatars/kyle.glb",
+      "portrait": "/assets/avatars/kyle.png",
+      "hips": [
+        1.6202830188660755e-9,
+        0.6885446906089783,
+        0.009266938082873821
+      ],
+      "head": [
+        0.0004417758609633893,
+        1.2356723546981812,
+        -0.0025070568080991507
+      ],
+      "height": 1.8088897466659546,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "david",
+      "name": "David",
+      "file": "/assets/avatars/david.glb",
+      "portrait": "/assets/avatars/david.png",
+      "hips": [
+        1.4376768664448036e-9,
+        0.6109456419944763,
+        0.008222552947700024
+      ],
+      "head": [
+        0.00039198706508614123,
+        1.1141047477722168,
+        -0.0022245498839765787
+      ],
+      "height": 1.7967592477798462,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "polydancer",
+      "name": "Polydancer",
+      "file": "/assets/avatars/polydancer.glb",
+      "portrait": "/assets/avatars/polydancer.png",
+      "hips": [
+        1.7679003816439831e-9,
+        0.7512767314910889,
+        0.01011121179908514
+      ],
+      "head": [
+        0.00048195719136856496,
+        1.348252534866333,
+        -0.002735589863732457
+      ],
+      "height": 1.8114824295043945,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "amazonas",
+      "name": "Amazonas",
+      "file": "/assets/avatars/amazonas.glb",
+      "portrait": "/assets/avatars/amazonas.png",
+      "hips": [
+        1.5702642519599408e-9,
+        0.6672890782356262,
+        0.00898086465895176
+      ],
+      "head": [
+        0.00042813827167265117,
+        1.1975265741348267,
+        -0.0024295737966895103
+      ],
+      "height": 1.800291657447815,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "clown",
+      "name": "Clown",
+      "file": "/assets/avatars/clown.glb",
+      "portrait": "/assets/avatars/clown.png",
+      "hips": [
+        1.698119755921823e-9,
+        0.7216216921806335,
+        0.009712113067507744
+      ],
+      "head": [
+        0.00046298030065372586,
+        1.295032024383545,
+        -0.0026273149996995926
+      ],
+      "height": 1.7978776693344116,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "witch",
+      "name": "Witch",
+      "file": "/assets/avatars/witch.glb",
+      "portrait": "/assets/avatars/witch.png",
+      "hips": [
+        1.5921759466408503e-9,
+        0.6766005158424377,
+        0.009106185287237167
+      ],
+      "head": [
+        0.00043413101229816675,
+        1.2142521142959595,
+        -0.0024637288879603148
+      ],
+      "height": 1.8122336864471436,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "astronaut",
+      "name": "Astronaut",
+      "file": "/assets/avatars/astronaut.glb",
+      "portrait": "/assets/avatars/astronaut.png",
+      "hips": [
+        1.189343734608883e-9,
+        0.5054156184196472,
+        0.00680225295946002
+      ],
+      "head": [
+        0.00032425959943793714,
+        0.9220157265663147,
+        -0.001840476761572063
+      ],
+      "height": 1.7958381175994873,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "saintclaus",
+      "name": "SaintClaus",
+      "file": "/assets/avatars/saintclaus.glb",
+      "portrait": "/assets/avatars/saintclaus.png",
+      "hips": [
+        2.1620016887879956e-9,
+        0.6124998927116394,
+        0.008243472315371037
+      ],
+      "head": [
+        0.0003929301747120917,
+        1.0992008447647095,
+        -0.002230024663731456
+      ],
+      "height": 1.897794485092163,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "captainlobster",
+      "name": "CaptainLobster",
+      "file": "/assets/avatars/captainlobster.glb",
+      "portrait": "/assets/avatars/captainlobster.png",
+      "hips": [
+        1.8150801972538488e-9,
+        0.7713243961334229,
+        0.010381048545241356
+      ],
+      "head": [
+        0.0004948892747052014,
+        1.3842297792434692,
+        -0.002807803452014923
+      ],
+      "height": 1.7961863279342651,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "cappy",
+      "name": "Cappy",
+      "file": "/assets/avatars/cappy.glb",
+      "portrait": "/assets/avatars/cappy.png",
+      "hips": [
+        1.7013642716889876e-9,
+        0.723009467124939,
+        0.009730669669806957
+      ],
+      "head": [
+        0.00046388813643716276,
+        1.3116201162338257,
+        -0.002632857533171773
+      ],
+      "height": 1.8017157316207886,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "rose",
+      "name": "Rose",
+      "file": "/assets/avatars/rose.glb",
+      "portrait": "/assets/avatars/rose.png",
+      "hips": [
+        1.6166257221783553e-9,
+        0.6869906187057495,
+        0.009246021509170532
+      ],
+      "head": [
+        0.00044079654617235065,
+        1.2328976392745972,
+        -0.0025016365107148886
+      ],
+      "height": 1.7994698286056519,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "mister",
+      "name": "MisterContract",
+      "file": "/assets/avatars/mister.glb",
+      "portrait": "/assets/avatars/mister.png",
+      "hips": [
+        1.4732643993653483e-9,
+        0.6970741152763367,
+        0.009381714276969433
+      ],
+      "head": [
+        0.0004471856518648565,
+        1.1808797121047974,
+        -0.0025382915046066046
+      ],
+      "height": 1.8026363849639893,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "coolpirate",
+      "name": "CoolPirate",
+      "file": "/assets/avatars/coolpirate.glb",
+      "portrait": "/assets/avatars/coolpirate.png",
+      "hips": [
+        -2.528429465797899e-9,
+        0.7766386270523071,
+        0.01045254897326231
+      ],
+      "head": [
+        0.000498214561957866,
+        1.3937660455703735,
+        -0.002827530959621072
+      ],
+      "height": 1.9299236536026,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "moongirl",
+      "name": "MoonGirl",
+      "file": "/assets/avatars/moongirl.glb",
+      "portrait": "/assets/avatars/moongirl.png",
+      "hips": [
+        1.755708245454457e-9,
+        0.7460941076278687,
+        0.010041480883955956
+      ],
+      "head": [
+        0.00047865984379313886,
+        1.3389592170715332,
+        -0.002716242801398039
+      ],
+      "height": 1.9514901638031006,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "hodlerking",
+      "name": "HodlerKing",
+      "file": "/assets/avatars/hodlerking.glb",
+      "portrait": "/assets/avatars/hodlerking.png",
+      "hips": [
+        1.4413344961994312e-9,
+        0.6124998927116394,
+        0.008243472315371037
+      ],
+      "head": [
+        0.00039295610622502863,
+        1.0992088317871094,
+        -0.0022299052216112614
+      ],
+      "height": 1.6878968477249146,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "coolmoneybag",
+      "name": "CoolMoneyBag",
+      "file": "/assets/avatars/coolmoneybag.glb",
+      "portrait": "/assets/avatars/coolmoneybag.png",
+      "hips": [
+        1.5047145751623248e-9,
+        0.6756466031074524,
+        0.009633868001401424
+      ],
+      "head": [
+        0.0004592041368596256,
+        1.3527345657348633,
+        -0.0026066014543175697
+      ],
+      "height": 1.7553434371948242,
+      "expressions": {
+        "fun": [
+          {
+            "target": "fun",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          }
+        ],
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": false
+    },
+    {
+      "id": "bizdude",
+      "name": "Bizdude",
+      "file": "/assets/avatars/bizdude.glb",
+      "portrait": "/assets/avatars/bizdude.png",
+      "hips": [
+        3.760130695695807e-8,
+        0.6870341897010803,
+        0.009246552363038063
+      ],
+      "head": [
+        0.0004407899978104979,
+        1.2329570055007935,
+        -0.0025013452395796776
+      ],
+      "height": 1.7166858911514282,
+      "expressions": {
+        "blink": [
+          {
+            "target": "blink_0",
+            "weight": 1
+          },
+          {
+            "target": "blink_1",
+            "weight": 1
+          }
+        ],
+        "fun": [
+          {
+            "target": "fun_0",
+            "weight": 1
+          },
+          {
+            "target": "fun_1",
+            "weight": 1
+          },
+          {
+            "target": "fun_2",
+            "weight": 1
+          }
+        ],
+        "sorrow": [
+          {
+            "target": "sorrow_0",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_1",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_2",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_3",
+            "weight": 1
+          },
+          {
+            "target": "sorrow_4",
+            "weight": 1
+          }
+        ],
+        "angry": [
+          {
+            "target": "angry_0",
+            "weight": 1
+          },
+          {
+            "target": "angry_1",
+            "weight": 1
+          },
+          {
+            "target": "angry_2",
+            "weight": 1
+          },
+          {
+            "target": "angry_3",
+            "weight": 1
+          },
+          {
+            "target": "angry_4",
+            "weight": 1
+          }
+        ],
+        "joy": [
+          {
+            "target": "joy_0",
+            "weight": 1
+          },
+          {
+            "target": "joy_1",
+            "weight": 1
+          },
+          {
+            "target": "joy_2",
+            "weight": 1
+          },
+          {
+            "target": "joy_3",
+            "weight": 1
+          },
+          {
+            "target": "joy_4",
+            "weight": 1
+          }
+        ],
+        "o": [
+          {
+            "target": "o",
+            "weight": 1
+          }
+        ],
+        "a": [
+          {
+            "target": "a",
+            "weight": 1
+          }
+        ]
+      },
+      "dealer": true
+    }
+  ],
+  "dealer": "bizdude",
+  "clips": {
+    "sit_idle": 1.667,
+    "sit_talk": 2.933,
+    "sit_enter": 1.3,
+    "sit_exit": 1.033,
+    "idle": 2.5,
+    "talk": 2.933,
+    "interact": 2,
+    "pickup": 0.833,
+    "dance": 1,
+    "hit_head": 0.433,
+    "walk": 1.333,
+    "yes": 2.5,
+    "no": 2.5,
+    "fold_arms": 2.5,
+    "drink": 1.333,
+    "lean": 2.5,
+    "lean_call": 2.5,
+    "cheer": 1.667,
+    "sit_chair": 3.6,
+    "use_item": 1.6,
+    "flinch": 0.667
+  },
+  "skeletonHips": [
+    1.755616318988018e-9,
+    0.7460550665855408,
+    0.010040954686701298
+  ],
+  "cards": {
+    "file": "/assets/cards.png",
+    "width": 896,
+    "height": 256,
+    "tile": 64,
+    "rect": {
+      "x": 11,
+      "y": 2,
+      "w": 42,
+      "h": 60
+    },
+    "rows": {
+      "H": 0,
+      "D": 1,
+      "C": 2,
+      "S": 3
+    },
+    "ranks": [
+      "A",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "T",
+      "J",
+      "Q",
+      "K"
+    ],
+    "back": {
+      "col": 13,
+      "row": 1
+    }
+  },
+  "chips": {
+    "file": "/assets/chips.png",
+    "size": 64,
+    "values": [
+      {
+        "value": 1,
+        "color": "#f1f5f9"
+      },
+      {
+        "value": 5,
+        "color": "#dc2626"
+      },
+      {
+        "value": 25,
+        "color": "#16a34a"
+      },
+      {
+        "value": 100,
+        "color": "#18181b"
+      },
+      {
+        "value": 500,
+        "color": "#7c3aed"
+      },
+      {
+        "value": 1000,
+        "color": "#eab308"
+      },
+      {
+        "value": 5000,
+        "color": "#ea580c"
+      },
+      {
+        "value": 25000,
+        "color": "#db2777"
+      },
+      {
+        "value": 100000,
+        "color": "#0891b2"
+      }
+    ]
+  },
+  "sfx": {
+    "card-fan": [
+      "/assets/sfx/card-fan-1.ogg",
+      "/assets/sfx/card-fan-2.ogg"
+    ],
+    "card-place": [
+      "/assets/sfx/card-place-1.ogg",
+      "/assets/sfx/card-place-2.ogg",
+      "/assets/sfx/card-place-3.ogg",
+      "/assets/sfx/card-place-4.ogg"
+    ],
+    "card-shove": [
+      "/assets/sfx/card-shove-1.ogg",
+      "/assets/sfx/card-shove-2.ogg",
+      "/assets/sfx/card-shove-3.ogg",
+      "/assets/sfx/card-shove-4.ogg"
+    ],
+    "card-shuffle": [
+      "/assets/sfx/card-shuffle.ogg"
+    ],
+    "card-slide": [
+      "/assets/sfx/card-slide-1.ogg",
+      "/assets/sfx/card-slide-2.ogg",
+      "/assets/sfx/card-slide-3.ogg",
+      "/assets/sfx/card-slide-4.ogg",
+      "/assets/sfx/card-slide-5.ogg",
+      "/assets/sfx/card-slide-6.ogg",
+      "/assets/sfx/card-slide-7.ogg",
+      "/assets/sfx/card-slide-8.ogg"
+    ],
+    "cards-pack-open": [
+      "/assets/sfx/cards-pack-open-1.ogg",
+      "/assets/sfx/cards-pack-open-2.ogg"
+    ],
+    "cards-pack-take-out": [
+      "/assets/sfx/cards-pack-take-out-1.ogg",
+      "/assets/sfx/cards-pack-take-out-2.ogg"
+    ],
+    "chip-lay": [
+      "/assets/sfx/chip-lay-1.ogg",
+      "/assets/sfx/chip-lay-2.ogg",
+      "/assets/sfx/chip-lay-3.ogg"
+    ],
+    "chips-collide": [
+      "/assets/sfx/chips-collide-1.ogg",
+      "/assets/sfx/chips-collide-2.ogg",
+      "/assets/sfx/chips-collide-3.ogg",
+      "/assets/sfx/chips-collide-4.ogg"
+    ],
+    "chips-handle": [
+      "/assets/sfx/chips-handle-1.ogg",
+      "/assets/sfx/chips-handle-2.ogg",
+      "/assets/sfx/chips-handle-3.ogg",
+      "/assets/sfx/chips-handle-4.ogg",
+      "/assets/sfx/chips-handle-5.ogg",
+      "/assets/sfx/chips-handle-6.ogg"
+    ],
+    "chips-stack": [
+      "/assets/sfx/chips-stack-1.ogg",
+      "/assets/sfx/chips-stack-2.ogg",
+      "/assets/sfx/chips-stack-3.ogg",
+      "/assets/sfx/chips-stack-4.ogg",
+      "/assets/sfx/chips-stack-5.ogg",
+      "/assets/sfx/chips-stack-6.ogg"
+    ]
+  },
+  "props": {
+    "chair_stool": {
+      "file": "/assets/props/chair_stool.glb",
+      "min": [
+        -0.375,
+        0,
+        -0.375
+      ],
+      "max": [
+        0.375,
+        0.5,
+        0.375
+      ]
+    },
+    "armchair": {
+      "file": "/assets/props/armchair.glb",
+      "min": [
+        -0.9,
+        0,
+        -0.75
+      ],
+      "max": [
+        0.9,
+        1.224,
+        0.85
+      ]
+    },
+    "couch_pillows": {
+      "file": "/assets/props/couch_pillows.glb",
+      "min": [
+        -1.5,
+        0,
+        -0.75
+      ],
+      "max": [
+        1.5,
+        1.224,
+        0.85
+      ]
+    },
+    "lamp_standing": {
+      "file": "/assets/props/lamp_standing.glb",
+      "min": [
+        -0.5,
+        0,
+        -0.5
+      ],
+      "max": [
+        0.5,
+        2.52,
+        0.5
+      ]
+    },
+    "lamp_table": {
+      "file": "/assets/props/lamp_table.glb",
+      "min": [
+        -0.5,
+        -0.002,
+        -0.5
+      ],
+      "max": [
+        0.5,
+        1.02,
+        0.5
+      ]
+    },
+    "cactus_medium_A": {
+      "file": "/assets/props/cactus_medium_A.glb",
+      "min": [
+        -0.44,
+        0,
+        -0.418
+      ],
+      "max": [
+        0.44,
+        0.827,
+        0.418
+      ]
+    },
+    "cactus_small_B": {
+      "file": "/assets/props/cactus_small_B.glb",
+      "min": [
+        -0.25,
+        0,
+        -0.25
+      ],
+      "max": [
+        0.25,
+        0.552,
+        0.25
+      ]
+    },
+    "pictureframe_large_A": {
+      "file": "/assets/props/pictureframe_large_A.glb",
+      "min": [
+        -0.5,
+        -0.6,
+        0
+      ],
+      "max": [
+        0.51,
+        0.6,
+        0.2
+      ]
+    },
+    "pictureframe_large_B": {
+      "file": "/assets/props/pictureframe_large_B.glb",
+      "min": [
+        -1,
+        -0.6,
+        0
+      ],
+      "max": [
+        1,
+        0.6,
+        0.2
+      ]
+    },
+    "rug_rectangle_stripes_A": {
+      "file": "/assets/props/rug_rectangle_stripes_A.glb",
+      "min": [
+        -1.5,
+        0,
+        -1
+      ],
+      "max": [
+        1.5,
+        0.1,
+        1
+      ]
+    },
+    "rug_oval_A": {
+      "file": "/assets/props/rug_oval_A.glb",
+      "min": [
+        -1.5,
+        0,
+        -1
+      ],
+      "max": [
+        1.5,
+        0.1,
+        1
+      ]
+    },
+    "shelf_B_large_decorated": {
+      "file": "/assets/props/shelf_B_large_decorated.glb",
+      "min": [
+        -1,
+        -0.1,
+        0
+      ],
+      "max": [
+        1,
+        0.718,
+        0.5
+      ]
+    },
+    "table_low": {
+      "file": "/assets/props/table_low.glb",
+      "min": [
+        -1.2,
+        0,
+        -0.75
+      ],
+      "max": [
+        1.2,
+        0.5,
+        0.75
+      ]
+    },
+    "table_small": {
+      "file": "/assets/props/table_small.glb",
+      "min": [
+        -0.5,
+        0,
+        -0.5
+      ],
+      "max": [
+        0.5,
+        1,
+        0.5
+      ]
+    },
+    "pillar_A": {
+      "file": "/assets/props/pillar_A.glb",
+      "min": [
+        -0.3,
+        0,
+        -0.3
+      ],
+      "max": [
+        0.3,
+        4.1,
+        0.3
+      ]
+    },
+    "table_round_A_small": {
+      "file": "/assets/props/table_round_A_small.glb",
+      "min": [
+        -0.75,
+        0,
+        -0.75
+      ],
+      "max": [
+        0.75,
+        1,
+        0.75
+      ]
+    },
+    "jar_A_small": {
+      "file": "/assets/props/jar_A_small.glb",
+      "min": [
+        -0.283,
+        0,
+        -0.283
+      ],
+      "max": [
+        0.283,
+        0.55,
+        0.283
+      ]
+    },
+    "jar_C_small": {
+      "file": "/assets/props/jar_C_small.glb",
+      "min": [
+        -0.283,
+        0,
+        -0.283
+      ],
+      "max": [
+        0.283,
+        0.55,
+        0.283
+      ]
+    },
+    "plate_small": {
+      "file": "/assets/props/plate_small.glb",
+      "min": [
+        -0.375,
+        0,
+        -0.375
+      ],
+      "max": [
+        0.375,
+        0.1,
+        0.375
+      ]
+    }
+  }
+}

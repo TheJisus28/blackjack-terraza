@@ -1,26 +1,279 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0d0a16;
+  --bg-2: #161127;
+  --panel: #1d1733;
+  --panel-2: #271f45;
+  --line: #3d3168;
+  --line-2: #5a4a93;
+  --ink: #f3ecff;
+  --ink-dim: #b3a6d6;
+  --gold: #f6c544;
+  --gold-2: #c98f1c;
+  --felt: #1e7a4a;
+  --red: #e5484d;
+  --green: #3fbf6f;
+  --blue: #4c9bff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-gold: var(--gold);
+  --color-gold-2: var(--gold-2);
+  --color-felt: var(--felt);
+  --color-red: var(--red);
+  --color-green: var(--green);
+  --color-blue: var(--blue);
+  --font-sans: var(--font-pixel);
+  --font-display: var(--font-arcade);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-pixel), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+img,
+canvas,
+.pixelated {
+  image-rendering: pixelated;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+/* Stepped "pixel" corners built from box-shadows. */
+@utility pixel-box {
+  position: relative;
+  background: var(--panel);
+  box-shadow:
+    0 -4px 0 0 var(--line),
+    0 4px 0 0 var(--line),
+    -4px 0 0 0 var(--line),
+    4px 0 0 0 var(--line),
+    inset 0 4px 0 0 rgb(255 255 255 / 0.06),
+    inset 0 -4px 0 0 rgb(0 0 0 / 0.25);
+}
+
+@utility pixel-inset {
+  background: var(--bg-2);
+  box-shadow:
+    inset 0 4px 0 0 rgb(0 0 0 / 0.35),
+    inset 0 -2px 0 0 rgb(255 255 255 / 0.04),
+    0 -2px 0 0 var(--line),
+    0 2px 0 0 var(--line),
+    -2px 0 0 0 var(--line),
+    2px 0 0 0 var(--line);
+}
+
+@utility pixel-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem 0.65rem;
+  font-family: var(--font-arcade);
+  font-size: 0.7rem;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--panel-2);
+  box-shadow:
+    0 -3px 0 0 #120d22,
+    0 3px 0 0 #120d22,
+    -3px 0 0 0 #120d22,
+    3px 0 0 0 #120d22,
+    inset 0 -4px 0 0 rgb(0 0 0 / 0.3),
+    inset 0 3px 0 0 rgb(255 255 255 / 0.12);
+  transition:
+    transform 60ms steps(2),
+    filter 120ms;
+  cursor: pointer;
+  user-select: none;
+  &:hover:not(:disabled) {
+    filter: brightness(1.15);
+  }
+  &:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow:
+      0 -3px 0 0 #120d22,
+      0 3px 0 0 #120d22,
+      -3px 0 0 0 #120d22,
+      3px 0 0 0 #120d22,
+      inset 0 -1px 0 0 rgb(0 0 0 / 0.3),
+      inset 0 3px 0 0 rgb(0 0 0 / 0.2);
+  }
+  &:disabled {
+    cursor: not-allowed;
+    filter: grayscale(0.7) brightness(0.6);
+  }
+  &:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 4px;
+  }
+}
+
+@utility btn-gold {
+  background: var(--gold);
+  color: #2a1a00;
+}
+
+@utility btn-green {
+  background: #2f9e5b;
+}
+
+@utility btn-red {
+  background: #c23b40;
+}
+
+@utility btn-blue {
+  background: #3477d6;
+}
+
+@utility btn-ghost {
+  background: transparent;
+  box-shadow: none;
+  &:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.06);
+  }
+}
+
+@utility pixel-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--bg-2);
+  box-shadow:
+    inset 0 3px 0 0 rgb(0 0 0 / 0.4),
+    0 -2px 0 0 var(--line-2),
+    0 2px 0 0 var(--line-2),
+    -2px 0 0 0 var(--line-2),
+    2px 0 0 0 var(--line-2);
+  outline: none;
+  &:focus {
+    box-shadow:
+      inset 0 3px 0 0 rgb(0 0 0 / 0.4),
+      0 -2px 0 0 var(--gold),
+      0 2px 0 0 var(--gold),
+      -2px 0 0 0 var(--gold),
+      2px 0 0 0 var(--gold);
+  }
+}
+
+@utility text-shadow-pixel {
+  text-shadow:
+    2px 0 0 #000,
+    -2px 0 0 #000,
+    0 2px 0 #000,
+    0 -2px 0 #000,
+    2px 2px 0 #000;
+}
+
+@keyframes blink-steps {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(8px) scale(0.9);
+    opacity: 0;
+  }
+  15% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-24px);
+    opacity: 0;
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-blink-steps {
+  animation: blink-steps 1s steps(1) infinite;
+}
+
+.animate-float-up {
+  animation: float-up 2.6s ease-out forwards;
+}
+
+.animate-pop-in {
+  animation: pop-in 0.45s steps(6) both;
+}
+
+.gold-shimmer {
+  background: linear-gradient(90deg, #f6c544 0%, #fff3c4 45%, #f6c544 55%, #c98f1c 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 3s steps(24) infinite;
+}
+
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.12) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+}
+
+.scrollbar-pixel::-webkit-scrollbar {
+  width: 10px;
+}
+.scrollbar-pixel::-webkit-scrollbar-track {
+  background: var(--bg-2);
+}
+.scrollbar-pixel::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border: 2px solid var(--bg-2);
 }
