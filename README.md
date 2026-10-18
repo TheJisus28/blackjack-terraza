@@ -45,9 +45,10 @@ npm run dev
 
 Reglas de la base: `npm run deploy:rules` (requiere `npx firebase login`).
 
-### Producción (Vercel u otro host Node)
+### Producción (Vercel)
 
-- Variable `FIREBASE_SERVICE_ACCOUNT_KEY` con la clave de servicio.
+- `vercel.json` fija las funciones en `iad1` (Washington), cerca de la base (us-central1) y de los jugadores en América.
+- Variable `FIREBASE_SERVICE_ACCOUNT_KEY` con la clave de servicio (JSON o base64).
 - Agrega el dominio del despliegue en Firebase Console → Authentication → Configuración → Dominios autorizados (para el login con Google).
 
 ## Arquitectura

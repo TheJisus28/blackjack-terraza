@@ -1,0 +1,5 @@
+# Uploads from the Vercel CLI: never send local secrets or the raw asset sources (~260 MB).
+.env*
+assets-src
+*-debug.log
+tsconfig.tsbuildinfo
