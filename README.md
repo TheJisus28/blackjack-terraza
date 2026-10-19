@@ -47,9 +47,12 @@ Reglas de la base: `npm run deploy:rules` (requiere `npx firebase login`).
 
 ### Producción (Vercel)
 
+En línea en https://blackjack-terraza.vercel.app. Cada push a `main` se despliega solo; las otras ramas generan despliegues de prueba.
+
 - `vercel.json` fija las funciones en `iad1` (Washington), cerca de la base (us-central1) y de los jugadores en América.
-- Variable `FIREBASE_SERVICE_ACCOUNT_KEY` con la clave de servicio (JSON o base64).
-- Agrega el dominio del despliegue en Firebase Console → Authentication → Configuración → Dominios autorizados (para el login con Google).
+- Variable `FIREBASE_SERVICE_ACCOUNT_KEY` con la clave de servicio (JSON o base64), en Production y Preview.
+- Cada dominio nuevo va en Firebase Console → Authentication → Configuración → Dominios autorizados (para el login con Google).
+- `package.json` fuerza `jose@4.15.9` para `jwks-rsa`: las funciones de Vercel no permiten `require()` de paquetes solo ESM y, sin eso, `firebase-admin/auth` no carga.
 
 ## Arquitectura
 
