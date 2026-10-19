@@ -5,7 +5,7 @@ import { useState } from "react";
 import { authMessage } from "@/components/providers/AuthProvider";
 import { ChipIcon } from "@/components/ui/Chip";
 import { Portrait } from "@/components/ui/Portrait";
-import { TopBar } from "@/components/ui/TopBar";
+import { TAB_BAR_SPACE, TopBar } from "@/components/ui/TopBar";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { api } from "@/lib/api";
 import { PLAYER_AVATARS } from "@/lib/avatar";
@@ -74,9 +74,10 @@ export default function ProfilePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <TopBar />
-      <main className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[380px_1fr]">
+      <main className={`mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 pt-6 lg:grid-cols-[380px_1fr] ${TAB_BAR_SPACE}`}>
         <section className="flex flex-col gap-4">
-          <div className="pixel-box aspect-[4/5] w-full overflow-hidden p-0">
+          {/* Wide and short on phones so the form is not pushed below the fold. */}
+          <div className="pixel-box mx-auto aspect-[5/4] w-full max-w-md overflow-hidden p-0 lg:aspect-[4/5] lg:max-w-none">
             <AvatarPreview id={avatar} />
           </div>
           <div className="pixel-box flex flex-col gap-3 p-4">

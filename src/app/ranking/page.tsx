@@ -4,7 +4,7 @@ import { limitToLast, onValue, orderByChild, query, ref } from "firebase/databas
 import { useEffect, useState } from "react";
 import { ChipIcon } from "@/components/ui/Chip";
 import { Portrait } from "@/components/ui/Portrait";
-import { TopBar } from "@/components/ui/TopBar";
+import { TAB_BAR_SPACE, TopBar } from "@/components/ui/TopBar";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { firebase } from "@/lib/firebase/client";
 import { compact, fmt } from "@/lib/format";
@@ -32,7 +32,7 @@ export default function RankingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <TopBar />
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-6">
+      <main className={`mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 pt-6 ${TAB_BAR_SPACE}`}>
         <div>
           <h1 className="font-display text-base text-gold">RANKING</h1>
           <p className="mt-1 text-ink-dim">Los 50 jugadores con más fichas (saldo + fichas en la mesa).</p>

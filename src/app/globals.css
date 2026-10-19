@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* Table HUD layouts: desktop, compact (phones/tablets) and short (phones held sideways). */
+@custom-variant desk (@media (min-width: 1024px) and (min-height: 521px));
+/* Block form: the shorthand would read the comma as a selector list. */
+@custom-variant compact {
+  @media (max-width: 1023px), (max-height: 520px) {
+    @slot;
+  }
+}
+@custom-variant short (@media (orientation: landscape) and (max-height: 520px));
+
 :root {
   --bg: #0d0a16;
   --bg-2: #161127;
@@ -42,10 +52,25 @@ body {
   color: var(--ink);
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-pixel), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: none;
   font-smooth: never;
+  /* No double-tap zoom or grey tap flashes on phones. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* While at a table the page never scrolls, bounces or pulls to refresh. */
+html.game-mode,
+html.game-mode body {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 img,
@@ -265,6 +290,13 @@ canvas,
   pointer-events: none;
   background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.12) 0 1px, transparent 1px 3px);
   mix-blend-mode: multiply;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .scrollbar-pixel::-webkit-scrollbar {

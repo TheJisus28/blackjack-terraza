@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CreateTableModal } from "@/components/lobby/CreateTableModal";
 import { TableCard } from "@/components/lobby/TableCard";
 import { ChipIcon } from "@/components/ui/Chip";
-import { TopBar } from "@/components/ui/TopBar";
+import { TAB_BAR_SPACE, TopBar } from "@/components/ui/TopBar";
 import { useLobby, useNow, useOnlineCount } from "@/hooks/useLobby";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { api } from "@/lib/api";
@@ -66,7 +66,7 @@ export default function LobbyPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <TopBar />
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6">
+      <main className={`mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 pt-5 sm:gap-6 sm:pt-6 ${TAB_BAR_SPACE}`}>
         <section className="flex flex-wrap items-center gap-4">
           <div>
             <h1 className="font-display text-base text-gold">MESAS</h1>
@@ -75,9 +75,9 @@ export default function LobbyPage() {
               {tables?.reduce((n, t) => n + t.humans, 0) ?? 0} jugando
             </p>
           </div>
-          <div className="ml-auto flex flex-wrap gap-3">
+          <div className="grid w-full grid-cols-2 gap-3 sm:ml-auto sm:flex sm:w-auto sm:flex-wrap">
             {broke && (
-              <button className="pixel-btn btn-red" disabled={claiming} onClick={() => claim("rescue")}>
+              <button className="pixel-btn btn-red col-span-2" disabled={claiming} onClick={() => claim("rescue")}>
                 Rescate de fichas
               </button>
             )}
@@ -109,12 +109,13 @@ export default function LobbyPage() {
           </Link>
         )}
 
-        <div className="flex flex-wrap gap-2">
+        {/* Phones scroll the filters sideways instead of wrapping them. */}
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
           {FILTERS.map((f) => (
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`pixel-btn px-3 text-[0.6rem] ${filter === f.id ? "btn-gold" : "btn-ghost text-ink-dim"}`}
+              className={`pixel-btn shrink-0 px-3 text-[0.6rem] ${filter === f.id ? "btn-gold" : "btn-ghost text-ink-dim"}`}
             >
               {f.label}
             </button>

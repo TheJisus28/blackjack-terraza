@@ -21,6 +21,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0d0a16",
+  // Full-bleed on notched phones (pages pad with env(safe-area-inset-*)), and the
+  // on-screen keyboard resizes the layout so the chat input stays visible.
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

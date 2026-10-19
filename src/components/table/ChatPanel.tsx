@@ -20,11 +20,12 @@ export function ChatPanel({
   }, [messages.length]);
 
   return (
-    <div className="pointer-events-auto absolute bottom-40 right-3 z-30 flex w-80 max-w-[calc(100vw-1.5rem)] flex-col">
-      <div className="pixel-box flex max-h-[45vh] flex-col">
+    // Phones: a sheet over the bottom HUD (or a column on the left when sideways); desktop: a box on the right.
+    <div className="pointer-events-auto absolute inset-x-[max(0.5rem,env(safe-area-inset-left))] bottom-[max(0.5rem,env(safe-area-inset-bottom))] z-40 flex flex-col short:inset-x-auto short:bottom-2 short:left-[max(0.5rem,env(safe-area-inset-left))] short:top-[calc(3.5rem+env(safe-area-inset-top))] short:w-[min(20rem,50vw)] desk:inset-x-auto desk:bottom-40 desk:right-3 desk:z-30 desk:w-80">
+      <div className="pixel-box flex max-h-[55dvh] flex-col short:h-full short:max-h-none desk:max-h-[45vh]">
         <div className="flex items-center justify-between px-3 py-2">
           <span className="font-display text-[0.55rem] text-gold">CHAT DE LA MESA</span>
-          <button className="pixel-btn btn-ghost px-2 py-1 text-[0.5rem]" onClick={onClose}>
+          <button className="pixel-btn btn-ghost px-2 py-1 text-[0.5rem]" onClick={onClose} aria-label="Cerrar chat">
             X
           </button>
         </div>
@@ -49,14 +50,15 @@ export function ChatPanel({
             }
           }}
         >
+          {/* 16px on phones: smaller inputs make iOS zoom the page on focus. */}
           <input
-            className="pixel-input py-1.5 text-sm"
+            className="pixel-input py-1.5 text-base desk:text-sm"
             value={text}
             maxLength={200}
             placeholder="Escribe un mensaje..."
             onChange={(e) => setText(e.target.value)}
           />
-          <button className="pixel-btn btn-gold px-2 text-[0.5rem]" type="submit">
+          <button className="pixel-btn btn-gold px-2 text-[0.5rem] pointer-coarse:px-3" type="submit">
             OK
           </button>
         </form>

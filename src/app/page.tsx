@@ -36,7 +36,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative flex min-h-screen flex-1 flex-col items-center justify-center overflow-hidden px-4 py-10">
+    <main className="relative flex min-h-screen flex-1 flex-col items-center justify-center overflow-hidden px-4 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))]">
       <Backdrop />
 
       <div className="relative z-10 flex w-full max-w-4xl flex-col items-center gap-10">
@@ -62,7 +62,8 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="flex items-end justify-center gap-3">
+        {/* Two rows of four on phones, one row from sm up. */}
+        <div className="flex max-w-[17rem] flex-wrap items-end justify-center gap-2 sm:max-w-none sm:gap-3">
           {HERO_AVATARS.map((a, i) => (
             <div key={a.id} className="animate-bounce" style={{ animationDelay: `${i * 120}ms`, animationDuration: "1.6s" }}>
               <Portrait id={a.id} size={56} />

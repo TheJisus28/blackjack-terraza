@@ -9,7 +9,8 @@ Blackjack multijugador en tiempo real con estética **3D pixel art**: Next.js 16
 - **Cartas, fichas y sonidos reales**: reparto animado desde el zapato, volteo del hole card, pagos con fichas que vuelan; efectos de Kenney, música chiptune generativa, ambiente de casino y voz del crupier en español.
 - **Perfiles**: nombre y avatar (35 personajes), nivel/XP, estadísticas, bono diario con racha, rescate de fichas y ranking.
 - **Bots (IA)** que llenan la mesa cuando hay pocas personas y ceden su asiento.
-- **Cámaras**: mesa, mi asiento y cenital; **mantén el clic derecho y arrastra** para mirar libremente (rueda para acercar).
+- **Cámaras**: mesa, mi asiento y cenital; **mantén el clic derecho y arrastra** para mirar libremente (rueda para acercar). En el celular, **arrastra un dedo** sobre la mesa y **pellizca** para acercar.
+- **Celulares y tablets**: el HUD se reorganiza en vertical (panel abajo, botones grandes) y en horizontal (columna a la derecha), respeta el notch y la cámara encuadra la mesa en el espacio que queda libre.
 - Chat de mesa, emotes con animaciones y burbujas sobre los avatares.
 
 ## Cómo correrlo

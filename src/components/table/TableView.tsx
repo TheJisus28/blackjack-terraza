@@ -64,6 +64,13 @@ export function TableView({ tableId }: { tableId: string }) {
     });
   }, [settings.volume, settings.sfx, settings.music, settings.ambience, settings.voice]);
 
+  // The table is a full-screen app: no page scroll, bounce or pull-to-refresh.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("game-mode");
+    return () => root.classList.remove("game-mode");
+  }, []);
+
   const [buyInSeat, setBuyInSeat] = useState<number | null>(null);
   const seatedElsewhere = !!profile?.table && profile.table.id !== tableId;
   const canSit = !!profile && !profile.table && mySeat === null;
@@ -82,7 +89,11 @@ export function TableView({ tableId }: { tableId: string }) {
   }
 
   return (
-    <div className="relative h-dvh w-full select-none overflow-hidden bg-bg" onPointerDown={() => sound.unlock()}>
+    <div
+      className="relative h-dvh w-full select-none overflow-hidden bg-bg [-webkit-touch-callout:none]"
+      onPointerDown={() => sound.unlock()}
+      onPointerUp={() => sound.unlock()}
+    >
       {config && state ? (
         <GameScene
           config={config}
@@ -114,6 +125,8 @@ export function TableView({ tableId }: { tableId: string }) {
           chat={chat}
           onEmote={(e) => sendEmote(user.uid, e)}
           timeline={timeline}
+          canSit={canSit}
+          onSit={onSit}
         />
       )}
       {config && profile && (

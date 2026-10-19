@@ -44,6 +44,7 @@ class SoundEngine {
   private nextBeat = 0;
   private beat = 0;
   private voice: SpeechSynthesisVoice | null = null;
+  private voiceUnlocked = false;
 
   private ensure(): AudioContext | null {
     if (typeof window === "undefined") return null;
@@ -77,12 +78,23 @@ class SoundEngine {
     return this.ctx;
   }
 
-  /** Call from a user gesture: browsers only allow audio after one. */
+  /**
+   * Call from a user gesture: browsers only allow audio after one. On touch screens
+   * pointerdown does not count as one, so callers also call this on pointerup.
+   */
   unlock() {
     const ctx = this.ensure();
     if (!ctx) return;
     this.preload();
     this.syncLoops();
+    // iOS only lets speech synthesis talk later if it first spoke during a gesture.
+    const activation = (navigator as Navigator & { userActivation?: { isActive: boolean } }).userActivation;
+    if (!this.voiceUnlocked && "speechSynthesis" in window && (activation?.isActive ?? true)) {
+      this.voiceUnlocked = true;
+      const silent = new SpeechSynthesisUtterance(" ");
+      silent.volume = 0;
+      window.speechSynthesis.speak(silent);
+    }
   }
 
   get ready() {

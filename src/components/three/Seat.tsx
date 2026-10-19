@@ -252,23 +252,25 @@ function Nameplate({
 }) {
   const bar = barRef;
   return (
-    <div className="pointer-events-auto flex select-none flex-col items-center gap-1 whitespace-nowrap opacity-90 hover:opacity-100">
+    // Phones fit seven seats in ~360px: smaller tags with the name cut short.
+    <div className="pointer-events-auto flex select-none flex-col items-center gap-1 whitespace-nowrap opacity-90 hover:opacity-100 compact:gap-0.5">
       <div
-        className={`pixel-box flex flex-col items-center px-2 py-1 leading-tight ${active ? "bg-[#3d2f0d]" : isMine ? "bg-[#1f3a2c]" : ""}`}
+        className={`pixel-box flex flex-col items-center px-2 py-1 leading-tight compact:px-1 compact:py-0.5 ${active ? "bg-[#3d2f0d]" : isMine ? "bg-[#1f3a2c]" : ""}`}
       >
-        <span className="text-xs">
-          {seat.bot && <span className="mr-1 font-display text-[0.4rem] text-ink-dim">IA</span>}
-          <span className={isMine ? "text-gold" : ""}>{seat.name}</span>
-          <span className="ml-1 font-display text-[0.4rem] text-gold">{compact(seat.stack)}</span>
+        <span className="flex items-baseline text-xs compact:text-[0.62rem]">
+          {seat.bot && <span className="mr-1 font-display text-[0.4rem] text-ink-dim compact:text-[0.32rem]">IA</span>}
+          <span className={`max-w-36 truncate compact:max-w-16 ${isMine ? "text-gold" : ""}`}>{seat.name}</span>
+          <span className="ml-1 font-display text-[0.4rem] text-gold compact:text-[0.32rem]">{compact(seat.stack)}</span>
         </span>
-        {status && <span className="text-[0.7rem] leading-none text-ink-dim">{status}</span>}
+        {status && <span className="text-[0.7rem] leading-none text-ink-dim compact:text-[0.55rem]">{status}</span>}
         <div className="mt-0.5 h-1 w-full bg-black/40">
           <div ref={bar} className="h-full bg-gold" style={{ width: 0 }} />
         </div>
       </div>
       {onSit && (
-        <button className="pixel-btn btn-green px-2 py-1 text-[0.45rem]" onClick={onSit}>
-          Tomar asiento
+        <button className="pixel-btn btn-green px-2 py-1 text-[0.45rem] compact:px-2.5 compact:text-[0.6rem]" onClick={onSit} aria-label="Tomar asiento">
+          <span className="compact:hidden">Tomar asiento</span>
+          <span className="hidden compact:inline">+</span>
         </button>
       )}
     </div>
@@ -441,8 +443,13 @@ export function SeatSpot({
           </mesh>
           {canSit && (
             <Html position={[0, 1.15, 0]} center zIndexRange={[25, 5]}>
-              <button className="pixel-btn btn-gold animate-pop-in px-3 py-2 text-[0.5rem]" onClick={() => onSit(index)}>
-                Sentarse
+              <button
+                className="pixel-btn btn-gold animate-pop-in px-3 py-2 text-[0.5rem] compact:px-2.5 compact:py-1.5 compact:text-[0.7rem]"
+                onClick={() => onSit(index)}
+                aria-label={`Sentarse en el asiento ${index + 1}`}
+              >
+                <span className="compact:hidden">Sentarse</span>
+                <span className="hidden compact:inline">+</span>
               </button>
             </Html>
           )}

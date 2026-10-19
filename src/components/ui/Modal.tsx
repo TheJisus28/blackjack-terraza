@@ -29,7 +29,7 @@ export function Modal({
         role="dialog"
         aria-modal
         aria-label={title}
-        className={`pixel-box animate-pop-in w-full ${width} max-h-[90vh] overflow-y-auto scrollbar-pixel p-6`}
+        className={`pixel-box animate-pop-in w-full ${width} max-h-[90dvh] overflow-y-auto scrollbar-pixel p-5 sm:p-6`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between gap-4">
